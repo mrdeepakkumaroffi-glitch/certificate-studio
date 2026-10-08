@@ -18,5 +18,7 @@ uploads/*
 static/sample_preview.png
 static/avatar_*.jpg
 *.pdf
+*.zip
 certificate_*.png
 sample_certificate.png
+

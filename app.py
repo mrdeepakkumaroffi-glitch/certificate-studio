@@ -22,7 +22,7 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "certificate_studio_super_secret_key")
 
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = "/tmp/uploads"
 STATIC_FOLDER = 'static'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(STATIC_FOLDER, exist_ok=True)
