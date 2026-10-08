@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMTP Email Settings - Certificate Studio</title>
+    <!-- Master Ultra-Animated Theme -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
+    <style>
+        .smtp-page-wrapper {
+            min-height: calc(100vh - 74px);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .smtp-container {
+            width: 780px;
+            max-width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            animation: cardFloatIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes cardFloatIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .smtp-card {
+            padding: 34px 38px;
+        }
+
+        .section-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .status-connected {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #34d399;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .status-disconnected {
+            background: rgba(148, 163, 184, 0.1);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            color: #94a3b8;
+        }
+
+        .pulse-dot-green {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulseGlow 1.8s infinite;
+        }
+
+        .pulse-dot-gray {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #64748b;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 12px #34d399; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+
+        /* Preset Quick Selector */
+        .presets-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .preset-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .preset-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #8b5cf6;
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .preset-btn.active {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: #a855f7;
+            color: #c084fc;
+        }
+
+        /* Callout Guide */
+        .info-callout {
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 26px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .info-callout-icon {
+            font-size: 22px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .info-callout-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #e0e7ff;
+            margin-bottom: 4px;
+        }
+
+        .info-callout-text {
+            font-size: 12.5px;
+            color: #94a3b8;
+            line-height: 1.55;
+        }
+
+        .info-callout-link {
+            color: #38bdf8;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .info-callout-link:hover {
+            color: #7dd3fc;
+        }
+
+        /* Form Grid */
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        @media (max-width: 640px) {
+            .form-grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 7px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-hint {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .password-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .password-toggle-btn:hover {
+            color: #f8fafc;
+        }
+
+        /* Action Buttons Grid */
+        .btn-action-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action-group button {
+            flex: 1;
+            min-width: 140px;
+            justify-content: center;
+        }
+
+        .btn-danger-outline {
+            background: rgba(244, 63, 94, 0.08);
+            border: 1px solid rgba(244, 63, 94, 0.35);
+            color: #fb7185;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-danger-outline:hover {
+            background: rgba(244, 63, 94, 0.2);
+            border-color: #f43f5e;
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(244, 63, 94, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Test Email Section */
+        .test-email-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 16px;
+            padding: 24px 28px;
+            margin-top: 24px;
+        }
+
+        .test-email-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            align-items: center;
+        }
+
+        @media (max-width: 580px) {
+            .test-email-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        /* Toast / Alert Status */
+        .status-feedback-box {
+            display: none;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            align-items: center;
+            gap: 12px;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feedback-success {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #34d399;
+        }
+
+        .feedback-error {
+            background: rgba(244, 63, 94, 0.12);
+            border: 1px solid rgba(244, 63, 94, 0.35);
+            color: #fb7185;
+        }
+
+        .feedback-info {
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            color: #38bdf8;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid currentColor;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Persistent Top Navigation Header -->
+    {% include 'header.inc.html' %}
+
+    <div class="smtp-page-wrapper">
+        <div class="smtp-container">
+
+            <div class="ultra-card smtp-card">
+
+                <!-- Header & Status Pill -->
+                <div class="section-header-row">
+                    <div>
+                        <div class="badge-pill badge-pill-cyan" style="margin-bottom: 10px;">
+                            <span class="pulse-dot" style="color: #38bdf8;"></span>
+                            <span>Dedicated Mailer Dispatch</span>
+                        </div>
+                        <h1 style="font-size: 28px; font-weight: 900; margin-bottom: 6px;">
+                            SMTP <span class="gradient-text">Email Settings</span>
+                        </h1>
+                        <p style="color: var(--text-secondary); font-size: 14px;">
+                            Configure your personal email server to send bulk certificates directly from your own authenticated address.
+                        </p>
+                    </div>
+
+                    <!-- Connection Status Indicator -->
+                    <div id="smtp-status-badge">
+                        {% if smtp_config and smtp_config.has_password and smtp_config.is_verified %}
+                            <div class="status-pill status-connected">
+                                <span class="pulse-dot-green"></span>
+                                <span>Connected: {{ smtp_config.email }}</span>
+                            </div>
+                        {% elif smtp_config and smtp_config.has_password %}
+                            <div class="status-pill" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24;">
+                                <span style="font-size: 10px;">⚠️</span>
+                                <span>Configured (Unverified)</span>
+                            </div>
+                        {% else %}
+                            <div class="status-pill status-disconnected">
+                                <span class="pulse-dot-gray"></span>
+                                <span>○ Not Connected</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Live Feedback / Alert Box -->
+                <div id="status-feedback" class="status-feedback-box"></div>
+
+                <!-- Provider Quick-Select Presets -->
+                <div style="margin-bottom: 12px;">
+                    <span style="font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.8px;">
+                        Quick Provider Presets:
+                    </span>
+                </div>
+                <div class="presets-row">
+                    <button type="button" class="preset-btn" onclick="applyPreset('gmail')">
+                        <span>🔴</span> <span>Gmail</span>
+                    </button>
+                    <button type="button" class="preset-btn" onclick="applyPreset('outlook')">
+                        <span>🔷</span> <span>Outlook / Office 365</span>
+                    </button>
+                    <button type="button" class="preset-btn" onclick="applyPreset('yahoo')">
+                        <span>🟣</span> <span>Yahoo Mail</span>
+                    </button>
+                    <button type="button" class="preset-btn" onclick="applyPreset('custom')">
+                        <span>⚙️</span> <span>Custom SMTP</span>
+                    </button>
+                </div>
+
+                <!-- Google App Password Guidance Banner -->
+                <div class="info-callout" id="gmail-info-box">
+                    <div class="info-callout-icon">💡</div>
+                    <div>
+                        <div class="info-callout-title">Google Account App Password Required</div>
+                        <div class="info-callout-text">
+                            For Gmail accounts, <strong>do not use your regular Gmail password</strong>. Google requires a 16-character <strong>App Password</strong>:
+                            <br>
+                            1. Ensure <strong>2-Step Verification</strong> is ON in your Google Account.
+                            <br>
+                            2. Visit <a href="https://myaccount.google.com/apppasswords" target="_blank" class="info-callout-link">Google App Passwords</a> to generate a new password (select app: <em>Mail</em>).
+                            <br>
+                            3. Paste the generated 16-letter code into the <strong>App Password</strong> field below.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SMTP Settings Form -->
+                <form id="smtp-form" onsubmit="event.preventDefault(); saveSmtpSettings();">
+                    
+                    <div class="form-grid-2">
+                        <!-- Email Address -->
+                        <div class="form-group">
+                            <label class="form-label" for="smtp-email">
+                                <span>Sender Email Address *</span>
+                                <span class="form-hint">e.g. you@gmail.com</span>
+                            </label>
+                            <input 
+                                type="email" 
+                                id="smtp-email" 
+                                name="email" 
+                                class="glow-input" 
+                                placeholder="your-email@gmail.com" 
+                                value="{{ smtp_config.email if smtp_config else '' }}" 
+                                required
+                            >
+                        </div>
+
+                        <!-- Sender Name -->
+                        <div class="form-group">
+                            <label class="form-label" for="smtp-sender-name">
+                                <span>Sender Display Name</span>
+                                <span class="form-hint">Appears in recipient inbox</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                id="smtp-sender-name" 
+                                name="sender_name" 
+                                class="glow-input" 
+                                placeholder="Certificate Studio" 
+                                value="{{ smtp_config.sender_name if smtp_config else user_name }}"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- App Password with Password Masking -->
+                    <div class="form-group">
+                        <label class="form-label" for="smtp-password">
+                            <span>App Password *</span>
+                            <span class="form-hint">
+                                {% if smtp_config and smtp_config.has_password %}
+                                    <span style="color: #34d399;">🔒 Stored Securely (Encrypted)</span> • Leave empty to keep unchanged
+                                {% else %}
+                                    16-character App Password (Masked)
+                                {% endif %}
+                            </span>
+                        </label>
+                        <div class="password-input-wrapper">
+                            <input 
+                                type="password" 
+                                id="smtp-password" 
+                                name="password" 
+                                class="glow-input" 
+                                placeholder="{% if smtp_config and smtp_config.has_password %}••••••••••••••••{% else %}Enter 16-character App Password{% endif %}"
+                                autocomplete="new-password"
+                                {% if not smtp_config or not smtp_config.has_password %}required{% endif %}
+                            >
+                            <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility()" title="Show/Hide Password">
+                                <span id="pw-toggle-icon">👁️</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <!-- SMTP Host -->
+                        <div class="form-group">
+                            <label class="form-label" for="smtp-host">
+                                <span>SMTP Host *</span>
+                                <span class="form-hint">Server Address</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                id="smtp-host" 
+                                name="smtp_host" 
+                                class="glow-input" 
+                                placeholder="smtp.gmail.com" 
+                                value="{{ smtp_config.smtp_host if smtp_config else 'smtp.gmail.com' }}" 
+                                required
+                            >
+                        </div>
+
+                        <!-- SMTP Port -->
+                        <div class="form-group">
+                            <label class="form-label" for="smtp-port">
+                                <span>SMTP Port *</span>
+                                <span class="form-hint">587 (TLS) or 465 (SSL)</span>
+                            </label>
+                            <input 
+                                type="number" 
+                                id="smtp-port" 
+                                name="smtp_port" 
+                                class="glow-input" 
+                                placeholder="587" 
+                                value="{{ smtp_config.smtp_port if smtp_config else 587 }}" 
+                                min="1" 
+                                max="65535" 
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Security / Encryption -->
+                    <div class="form-group">
+                        <label class="form-label" for="smtp-security">
+                            <span>Security / Encryption Type *</span>
+                            <span class="form-hint">Protocol handshake</span>
+                        </label>
+                        <select id="smtp-security" name="security" class="glow-input" style="cursor: pointer;">
+                            <option value="STARTTLS" {% if smtp_config and smtp_config.security == 'STARTTLS' %}selected{% endif %}>
+                                STARTTLS (Recommended for Port 587)
+                            </option>
+                            <option value="SSL/TLS" {% if smtp_config and smtp_config.security == 'SSL/TLS' %}selected{% endif %}>
+                                SSL / TLS (Port 465)
+                            </option>
+                            <option value="NONE" {% if smtp_config and smtp_config.security == 'NONE' %}selected{% endif %}>
+                                None / Plain (Unencrypted)
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="btn-action-group">
+                        <button type="button" id="btn-test-connection" class="glow-btn-secondary" onclick="testSmtpConnection()">
+                            <span>⚡</span>
+                            <span>Test Connection</span>
+                        </button>
+                        
+                        <button type="submit" id="btn-save-settings" class="glow-btn-primary">
+                            <span>💾</span>
+                            <span>Save SMTP Settings</span>
+                        </button>
+
+                        <button 
+                            type="button" 
+                            id="btn-disconnect-smtp" 
+                            class="btn-danger-outline" 
+                            onclick="disconnectSmtp()"
+                            {% if not smtp_config or not smtp_config.has_password %}style="display: none;"{% endif %}
+                        >
+                            <span>🔌</span>
+                            <span>Disconnect SMTP</span>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Dedicated Test Email Section -->
+                <div class="test-email-card">
+                    <div style="font-family: var(--font-heading); font-size: 15px; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 8px;">
+                        <span>✉️</span>
+                        <span>Send Test Email</span>
+                    </div>
+                    <p style="font-size: 12.5px; color: #94a3b8; margin-top: 4px; margin-bottom: 14px;">
+                        Verify end-to-end delivery by sending a sample certificate directly to any inbox using your saved SMTP configuration.
+                    </p>
+                    
+                    <div class="test-email-row">
+                        <div style="flex: 1;">
+                            <input 
+                                type="email" 
+                                id="test-recipient-input" 
+                                class="glow-input" 
+                                placeholder="Enter test recipient email address (e.g. test@example.com)"
+                                value="{{ smtp_config.email if smtp_config and smtp_config.email else '' }}"
+                            >
+                        </div>
+                        <button type="button" id="btn-send-test-email" class="glow-btn-emerald" onclick="sendTestEmailMessage()">
+                            <span>🚀</span>
+                            <span>Send Test Email</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Provider Presets Map
+        const PRESETS = {
+            gmail: {
+                host: 'smtp.gmail.com',
+                port: 587,
+                security: 'STARTTLS'
+            },
+            outlook: {
+                host: 'smtp.office365.com',
+                port: 587,
+                security: 'STARTTLS'
+            },
+            yahoo: {
+                host: 'smtp.mail.yahoo.com',
+                port: 465,
+                security: 'SSL/TLS'
+            },
+            custom: {
+                host: '',
+                port: 587,
+                security: 'STARTTLS'
+            }
+        };
+
+        function applyPreset(provider) {
+            const p = PRESETS[provider];
+            if (!p) return;
+
+            if (p.host) document.getElementById('smtp-host').value = p.host;
+            document.getElementById('smtp-port').value = p.port;
+            document.getElementById('smtp-security').value = p.security;
+
+            // Highlight preset buttons
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
+
+            // Show/hide Gmail guidance box
+            const gmailBox = document.getElementById('gmail-info-box');
+            if (provider === 'gmail') {
+                gmailBox.style.display = 'flex';
+            } else {
+                gmailBox.style.display = 'none';
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const pwInput = document.getElementById('smtp-password');
+            const icon = document.getElementById('pw-toggle-icon');
+            if (pwInput.type === 'password') {
+                pwInput.type = 'text';
+                icon.textContent = '🔒';
+            } else {
+                pwInput.type = 'password';
+                icon.textContent = '👁️';
+            }
+        }
+
+        function showFeedback(type, message) {
+            const box = document.getElementById('status-feedback');
+            box.className = `status-feedback-box feedback-${type}`;
+            box.innerHTML = message;
+            box.style.display = 'flex';
+            box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function clearFeedback() {
+            const box = document.getElementById('status-feedback');
+            box.style.display = 'none';
+            box.innerHTML = '';
+        }
+
+        function updateStatusBadge(connected, email = '') {
+            const container = document.getElementById('smtp-status-badge');
+            const disconnectBtn = document.getElementById('btn-disconnect-smtp');
+            if (connected) {
+                container.innerHTML = `
+                    <div class="status-pill status-connected">
+                        <span class="pulse-dot-green"></span>
+                        <span>Connected: ${email}</span>
+                    </div>
+                `;
+                disconnectBtn.style.display = 'inline-flex';
+            } else {
+                container.innerHTML = `
+                    <div class="status-pill status-disconnected">
+                        <span class="pulse-dot-gray"></span>
+                        <span>○ Not Connected</span>
+                    </div>
+                `;
+                disconnectBtn.style.display = 'none';
+            }
+        }
+
+        // 1. Test SMTP Connection
+        async function testSmtpConnection() {
+            clearFeedback();
+            const btn = document.getElementById('btn-test-connection');
+            const origHtml = btn.innerHTML;
+
+            const email = document.getElementById('smtp-email').value.trim();
+            const password = document.getElementById('smtp-password').value.trim();
+            const host = document.getElementById('smtp-host').value.trim();
+            const port = document.getElementById('smtp-port').value.trim();
+            const security = document.getElementById('smtp-security').value;
+
+            if (!email) {
+                showFeedback('error', '⚠️ Please enter your sender email address.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span><span class="spinner"></span> Testing connection...</span>';
+            showFeedback('info', '<span class="spinner"></span> Connecting to SMTP server and verifying authentication credentials...');
+
+            try {
+                const res = await fetch('/api/smtp/test-connection', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                        smtp_host: host,
+                        smtp_port: port,
+                        security: security
+                    })
+                });
+
+                const data = await res.json();
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+
+                if (data.success) {
+                    showFeedback('success', `✅ <b>Success!</b> ${data.message || 'SMTP connection successful.'}`);
+                } else {
+                    showFeedback('error', `❌ <b>Connection Failed:</b> ${data.error || 'Unable to connect to SMTP server. Please verify your SMTP settings and App Password.'}`);
+                }
+            } catch (err) {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+                showFeedback('error', `❌ <b>Network Error:</b> Could not reach backend server.`);
+            }
+        }
+
+        // 2. Save SMTP Settings
+        async function saveSmtpSettings() {
+            clearFeedback();
+            const btn = document.getElementById('btn-save-settings');
+            const origHtml = btn.innerHTML;
+
+            const email = document.getElementById('smtp-email').value.trim();
+            const password = document.getElementById('smtp-password').value.trim();
+            const host = document.getElementById('smtp-host').value.trim();
+            const port = document.getElementById('smtp-port').value.trim();
+            const security = document.getElementById('smtp-security').value;
+            const senderName = document.getElementById('smtp-sender-name').value.trim();
+
+            if (!email || !host || !port) {
+                showFeedback('error', '⚠️ Please fill out all required fields.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span><span class="spinner"></span> Saving...</span>';
+            showFeedback('info', '<span class="spinner"></span> Verifying and securely encrypting SMTP credentials...');
+
+            try {
+                const res = await fetch('/api/smtp/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                        smtp_host: host,
+                        smtp_port: port,
+                        security: security,
+                        sender_name: senderName
+                    })
+                });
+
+                const data = await res.json();
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+
+                if (data.success) {
+                    showFeedback('success', `✅ <b>Settings Saved!</b> ${data.message}`);
+                    updateStatusBadge(true, email);
+                    // Clear plain password input and set placeholder to masked bullets
+                    const pwInput = document.getElementById('smtp-password');
+                    pwInput.value = '';
+                    pwInput.placeholder = '••••••••••••••••';
+                    pwInput.required = false;
+
+                    // Update test recipient input if empty
+                    const testInput = document.getElementById('test-recipient-input');
+                    if (!testInput.value) testInput.value = email;
+                } else {
+                    showFeedback('error', `❌ <b>Save Failed:</b> ${data.error || 'Unable to save SMTP settings.'}`);
+                }
+            } catch (err) {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+                showFeedback('error', `❌ <b>Network Error:</b> Failed to communicate with server.`);
+            }
+        }
+
+        // 3. Disconnect SMTP
+        async function disconnectSmtp() {
+            if (!confirm('Are you sure you want to disconnect your SMTP account? Emails will revert to system default dispatch.')) {
+                return;
+            }
+
+            clearFeedback();
+            const btn = document.getElementById('btn-disconnect-smtp');
+            const origHtml = btn.innerHTML;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span><span class="spinner"></span> Disconnecting...</span>';
+
+            try {
+                const res = await fetch('/api/smtp/settings', {
+                    method: 'DELETE'
+                });
+                const data = await res.json();
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+
+                if (data.success) {
+                    showFeedback('info', `🔌 ${data.message || 'SMTP disconnected successfully.'}`);
+                    updateStatusBadge(false);
+                    document.getElementById('smtp-email').value = '';
+                    document.getElementById('smtp-password').value = '';
+                    document.getElementById('smtp-password').placeholder = 'Enter 16-character App Password';
+                    document.getElementById('smtp-password').required = true;
+                } else {
+                    showFeedback('error', `❌ Error disconnecting: ${data.error}`);
+                }
+            } catch (err) {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+                showFeedback('error', `❌ Network error.`);
+            }
+        }
+
+        // 4. Send Test Email
+        async function sendTestEmailMessage() {
+            clearFeedback();
+            const btn = document.getElementById('btn-send-test-email');
+            const origHtml = btn.innerHTML;
+            const recipient = document.getElementById('test-recipient-input').value.trim();
+
+            if (!recipient) {
+                showFeedback('error', '⚠️ Please enter a test recipient email address.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span><span class="spinner"></span> Sending test email...</span>';
+            showFeedback('info', `<span class="spinner"></span> Dispatching test certificate message to <b>${recipient}</b>...`);
+
+            try {
+                const res = await fetch('/api/smtp/test-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ test_recipient: recipient })
+                });
+
+                const data = await res.json();
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+
+                if (data.success) {
+                    showFeedback('success', `🎉 <b>Test Email Sent!</b> Successfully delivered sample certificate to <b>${recipient}</b>.`);
+                } else {
+                    showFeedback('error', `❌ <b>Send Failed:</b> ${data.error || 'Failed to send test email.'}`);
+                }
+            } catch (err) {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+                showFeedback('error', `❌ Network error while dispatching test email.`);
+            }
+        }
+    </script>
+</body>
+</html>

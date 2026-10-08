@@ -1,0 +1,62 @@
+{
+  "users": {
+    "test_instructor@studio.com": {
+      "contact": "test_instructor@studio.com",
+      "name": "Dr. Alice Morgan",
+      "password_hash": "scrypt:32768:8:1$a2gJzyHmxlDD92Po$6465974fb49aaa0c5b6cadf8794b93825f00209e0e4cb5c25c2d4c7093f561750a0a61bfbe71bc967358ecef2ed85e7c33d814a44e029b9d8a497780fdedfe69",
+      "avatar": "",
+      "tier": "Pro",
+      "created_at": "2026-09-24T05:24:17.595042+00:00",
+      "last_login": "2026-09-29T04:09:26.562676+00:00",
+      "email": "test_instructor@studio.com"
+    },
+    "mrdeepakkumaroffi@gmail.com": {
+      "contact": "mrdeepakkumaroffi@gmail.com",
+      "name": "Deepak Kumar",
+      "password_hash": "scrypt:32768:8:1$TWoO7s4Q64jU7QhF$0ec34f650c4ec13e2cb269ce5931b2c1c4c8cc913b6280aaf4e015f317aa9c11925160884039be7afe943e08bff7038cca8743528ac38287c00b006c8b933dae",
+      "avatar": "avatar_da9856c1-0b57-4bb3-915f-1bc5f3e8d1a3.jpg",
+      "tier": "Pro",
+      "created_at": "2026-09-24T05:32:34.279397+00:00",
+      "last_login": "2026-10-08T06:35:35.228058+00:00",
+      "password_reset_at": "2026-10-08T06:35:24.903075+00:00",
+      "email": "mrdeepakkumaroffi@gmail.com"
+    }
+  },
+  "generations": [
+    {
+      "contact": "test_instructor@studio.com",
+      "excel_name": "annual_awards.xlsx",
+      "template_name": "diploma_template.jpg",
+      "total_certificates": 45,
+      "mappings_count": 3,
+      "pdf_filename": "Generated_Certificates.pdf",
+      "created_at": "2026-09-24T05:24:17.932897+00:00",
+      "id": "gen_1"
+    },
+    {
+      "contact": "mrdeepakkumaroffi@gmail.com",
+      "excel_name": "students.xlsx",
+      "template_name": "Black Gold Formal Appreciation Certificate.png",
+      "total_certificates": 9,
+      "mappings_count": 4,
+      "pdf_filename": "Generated_Certificates.pdf",
+      "created_at": "2026-09-24T05:37:00.523823+00:00",
+      "id": "gen_2"
+    }
+  ],
+  "smtp_configs": {
+    "mrdeepakkumaroffi@gmail.com": {
+      "contact": "mrdeepakkumaroffi@gmail.com",
+      "email": "rb7952158@gmail.com",
+      "smtp_host": "smtp.gmail.com",
+      "smtp_port": 587,
+      "security": "STARTTLS",
+      "sender_name": "Ranjith Babu",
+      "encrypted_app_password": "gAAAAABqxz-lOqnOLlfG67qHaJX4paBOeQQrIGH1jIPUPvyuA4-3GzFk1sGH6baKU3y006bGQLfup0MeyQCzw3XiUoaHY4HiWJs14dZNKrTIvxCvteHpdwU=",
+      "is_verified": true,
+      "last_tested_at": "2026-10-08T07:00:55.512117+00:00",
+      "created_at": "2026-10-08T07:00:56.066730+00:00",
+      "updated_at": "2026-10-08T07:00:56.066730+00:00"
+    }
+  }
+}

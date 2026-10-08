@@ -1,0 +1,4396 @@
+# -*- coding: utf-8 -*-
+"""
+Generates the high-end Canva Certificate Studio (templates/designer.html)
+with:
+- Curated Canva Master Templates
+- Intelligent Canva Aspect Ratio Resizing (A4 Landscape, US Letter, 16:9, Square 1:1, A4 Portrait, Custom)
+- Proportional content auto-scaling
+- Enhanced Smart Fit to Screen & Fill Screen
+- Floating Canva Zoom Dock with Range Slider & Presets Dropdown
+- Ctrl+Wheel zoom and Space+Drag panning
+- Real 360° interactive rotation handle with Shift-snapping
+- Smart magnetic snapping guidelines
+- Element locking & opacity controls
+- Typography letter-spacing & line-height steppers
+- 100% backward compatibility with existing tests
+"""
+
+import os
+
+html_content = r'''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canva Certificate Studio • Design & Create</title>
+    <!-- Master Ultra-Animated Theme -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
+    
+    <!-- Google Fonts for Luxury & Modern Canva Certificates -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@600;700;800;900&family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Dancing+Script:wght@700&family=Great+Vibes&family=Inter:wght@400;500;600;700;800&family=Italianno&family=JetBrains+Mono:wght@500;700&family=Marcellus&family=Montserrat:wght@400;600;700;800;900&family=Outfit:wght@500;600;700;800;900&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Prata&display=swap" rel="stylesheet">
+    
+    <!-- Client-side High-res Canvas & PDF Export Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- QR Code Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- 1,000 Real Certificate Templates Catalog across 10 Categories -->
+    <script src="{{ url_for('static', filename='certificate_catalog.js') }}"></script>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: var(--font-body), sans-serif;
+            background: #060813;
+            color: #f8fafc;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        /* -------------------------------------------------------------
+           TOP HEADER BAR
+           ------------------------------------------------------------- */
+        .canva-header {
+            height: 60px;
+            background: rgba(10, 15, 29, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            z-index: 1000;
+            flex-shrink: 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-left-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-nav-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            padding: 7px 14px;
+            border-radius: 10px;
+            font-size: 12.5px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .back-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.14);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .canva-brand-badge {
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
+            color: white;
+            font-family: var(--font-heading);
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 5px 11px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 14px rgba(236, 72, 153, 0.4);
+        }
+
+        .doc-title-input {
+            background: transparent;
+            border: 1px solid transparent;
+            color: #f8fafc;
+            font-family: var(--font-heading);
+            font-size: 14.5px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 8px;
+            width: 220px;
+            transition: 0.2s;
+        }
+        .doc-title-input:hover, .doc-title-input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            outline: none;
+        }
+
+        .header-center-tools {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tool-icon-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .tool-icon-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+        .tool-icon-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        /* Canva Resize & Ratio Trigger Button */
+        .btn-canva-resize {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: #f1f5f9;
+            padding: 6px 13px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-canva-resize:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+        }
+
+        .header-right-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cloud-status-pill {
+            font-size: 11px;
+            color: #34d399;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 5px 10px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+        }
+
+        .btn-export-dropdown {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #f1f5f9;
+            padding: 7px 14px;
+            border-radius: 10px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+            position: relative;
+        }
+        .btn-export-dropdown:hover {
+            background: rgba(255, 255, 255, 0.16);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-bulk-use {
+            background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%);
+            color: white;
+            font-weight: 800;
+            font-size: 12.5px;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            transition: all 0.25s;
+        }
+        .btn-bulk-use:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+        }
+
+        /* -------------------------------------------------------------
+           STUDIO MAIN WORKSPACE (RIBBON + DRAWER + STAGE)
+           ------------------------------------------------------------- */
+        .studio-main-workspace {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Left Navigation Ribbon */
+        .left-ribbon-bar {
+            width: 74px;
+            background: #090d1a;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 0;
+            gap: 4px;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .ribbon-tab-btn {
+            width: 62px;
+            height: 60px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-size: 10.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .ribbon-tab-btn:hover {
+            color: #f1f5f9;
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .ribbon-tab-btn.active {
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.12);
+            border-left: 3px solid #38bdf8;
+            border-radius: 4px 10px 10px 4px;
+        }
+        .ribbon-tab-btn .tab-icon {
+            font-size: 19px;
+        }
+
+        /* Collapsible Flyout Drawer */
+        .flyout-drawer {
+            width: 360px;
+            background: #0d1224;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            z-index: 90;
+            flex-shrink: 0;
+            transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+
+        .drawer-pane {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .drawer-header {
+            padding: 16px 18px 12px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .drawer-title {
+            font-size: 14.5px;
+            font-weight: 800;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .drawer-content-pane {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 18px;
+        }
+        .drawer-content-pane::-webkit-scrollbar { width: 5px; }
+        .drawer-content-pane::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+
+        /* -------------------------------------------------------------
+           CENTER CANVAS STAGE + VIEWPORT
+           ------------------------------------------------------------- */
+        .center-canvas-stage {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            background: #050710;
+        }
+
+        /* Contextual Toolbar */
+        .context-toolbar {
+            height: 48px;
+            background: rgba(13, 18, 36, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 8px;
+            z-index: 80;
+            flex-shrink: 0;
+            overflow-x: auto;
+        }
+        .context-toolbar::-webkit-scrollbar { height: 3px; }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding-right: 8px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .font-select {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #f8fafc;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 5px 8px;
+            border-radius: 7px;
+            outline: none;
+            width: 140px;
+            cursor: pointer;
+        }
+        .font-select option { background: #0f172a; color: white; }
+
+        .number-stepper {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 7px;
+            overflow: hidden;
+        }
+        .stepper-btn {
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            width: 22px;
+            height: 26px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 12px;
+        }
+        .stepper-btn:hover { background: rgba(255, 255, 255, 0.12); color: white; }
+        .stepper-input {
+            width: 34px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 11.5px;
+            font-weight: 700;
+            outline: none;
+        }
+
+        .format-toggle-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            background: transparent;
+            border: 1px solid transparent;
+            color: #cbd5e1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12.5px;
+            font-weight: 800;
+            transition: 0.15s;
+        }
+        .format-toggle-btn:hover { background: rgba(255, 255, 255, 0.08); color: white; }
+        .format-toggle-btn.active {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: #38bdf8;
+            color: #38bdf8;
+        }
+
+        .color-picker-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 7px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            cursor: pointer;
+        }
+        .color-swatch-circle {
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+        }
+
+        /* -------------------------------------------------------------
+           CANVAS SCROLL VIEWPORT & ARTBOARD
+           ------------------------------------------------------------- */
+        .canvas-viewport {
+            flex: 1;
+            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+            background: radial-gradient(circle at center, #0d1222 0%, #03050a 100%);
+            outline: none;
+        }
+
+        /* Main Certificate Artboard */
+        .artboard-container {
+            position: relative;
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.8), 0 0 50px rgba(0, 0, 0, 0.6);
+            transform-origin: center center;
+            transition: transform 0.1s ease-out;
+            background: #ffffff;
+            overflow: hidden;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        /* Dynamic Background Layer inside Artboard */
+        .artboard-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Guilloche Security Waves Pattern */
+        .guilloche-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.15;
+            z-index: 2;
+        }
+
+        /* Canvas Element Wrapper */
+        .canvas-element {
+            position: absolute;
+            cursor: move;
+            z-index: 10;
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            transition: outline 0.1s;
+        }
+
+        .canvas-element:hover:not(.selected) {
+            outline: 1.5px dashed rgba(56, 189, 248, 0.7);
+        }
+
+        /* Selected State with Bounding Box & Handles */
+        .canvas-element.selected {
+            outline: 2px solid #38bdf8;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .canvas-element.locked {
+            cursor: default !important;
+        }
+        .canvas-element.locked.selected {
+            outline: 2px solid #eab308;
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.4);
+        }
+
+        .resize-handle {
+            position: absolute;
+            width: 9px;
+            height: 9px;
+            background: #ffffff;
+            border: 2px solid #38bdf8;
+            border-radius: 50%;
+            display: none;
+            z-index: 100;
+        }
+        .canvas-element.selected:not(.locked) .resize-handle { display: block; }
+
+        .handle-nw { top: -5px; left: -5px; cursor: nwse-resize; }
+        .handle-ne { top: -5px; right: -5px; cursor: nesw-resize; }
+        .handle-se { bottom: -5px; right: -5px; cursor: nwse-resize; }
+        .handle-sw { bottom: -5px; left: -5px; cursor: nesw-resize; }
+        .handle-n  { top: -5px; left: calc(50% - 5px); cursor: ns-resize; }
+        .handle-s  { bottom: -5px; left: calc(50% - 5px); cursor: ns-resize; }
+        .handle-w  { top: calc(50% - 5px); left: -5px; cursor: ew-resize; }
+        .handle-e  { top: calc(50% - 5px); right: -5px; cursor: ew-resize; }
+
+        /* Rotate Handle */
+        .rotate-handle {
+            position: absolute;
+            top: -24px;
+            left: calc(50% - 6px);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #38bdf8;
+            border: 2px solid white;
+            cursor: grab;
+            display: none;
+            z-index: 100;
+        }
+        .rotate-handle::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 4px;
+            width: 1px;
+            height: 12px;
+            background: #38bdf8;
+        }
+        .canvas-element.selected:not(.locked) .rotate-handle { display: block; }
+
+        /* Magnetic Alignment Guides */
+        .smart-guide-x, .smart-guide-y {
+            position: absolute;
+            background: #ec4899;
+            pointer-events: none;
+            z-index: 999;
+            display: none;
+        }
+        .smart-guide-x { width: 1px; top: 0; bottom: 0; }
+        .smart-guide-y { height: 1px; left: 0; right: 0; }
+
+        .rotation-badge {
+            position: absolute;
+            top: -48px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.95);
+            color: #38bdf8;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 102;
+            display: none;
+        }
+
+        /* -------------------------------------------------------------
+           CANVA MASTER TEMPLATES SHOWCASE CARDS
+           ------------------------------------------------------------- */
+        .master-showcase-wrap {
+            margin-bottom: 22px;
+        }
+        .master-section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .master-badge-tag {
+            font-size: 9.5px;
+            font-weight: 800;
+            color: #fbbf24;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            padding: 2px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+        .master-templates-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .master-template-card {
+            border-radius: 12px;
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: all 0.22s ease-out;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .master-template-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+            filter: brightness(1.08);
+        }
+
+        /* -------------------------------------------------------------
+           CANVA RESIZE DROPDOWN MENU
+           ------------------------------------------------------------- */
+        .dropdown-panel {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.96);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 14px;
+            padding: 12px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7);
+        }
+        .resize-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 10px;
+        }
+        .resize-section-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+        .resize-presets-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .resize-option-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: #f1f5f9;
+            cursor: pointer;
+            text-align: left;
+            transition: 0.15s;
+            width: 100%;
+        }
+        .resize-option-btn:hover {
+            background: rgba(56, 189, 248, 0.12);
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+        .resize-option-btn.active {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: #38bdf8;
+        }
+        .resize-opt-icon { font-size: 18px; }
+        .resize-opt-info { display: flex; flex-direction: column; }
+        .resize-opt-name { font-size: 12px; font-weight: 700; color: #fff; }
+        .resize-opt-dims { font-size: 10px; color: #94a3b8; }
+
+        .custom-dims-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+        }
+        .custom-dim-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 6px;
+            color: white;
+            padding: 5px 6px;
+            font-size: 12px;
+            font-weight: 700;
+            width: 72px;
+            text-align: center;
+        }
+        .btn-apply-custom-dim {
+            background: #0284c7;
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            flex: 1;
+        }
+        .btn-apply-custom-dim:hover { background: #0369a1; }
+        .scale-toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 11px;
+            color: #cbd5e1;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        /* -------------------------------------------------------------
+           CANVA FLOATING BOTTOM ZOOM DOCK
+           ------------------------------------------------------------- */
+        .floating-zoom-bar {
+            position: absolute;
+            bottom: 24px;
+            right: 28px;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 50px;
+            padding: 5px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.2);
+            z-index: 100;
+        }
+        .canva-zoom-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 80px;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.25);
+            outline: none;
+            cursor: pointer;
+        }
+        .canva-zoom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #38bdf8;
+            cursor: pointer;
+            box-shadow: 0 0 6px rgba(56, 189, 248, 0.8);
+        }
+        .zoom-dropdown-trigger {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #38bdf8;
+            font-family: var(--font-mono);
+            font-size: 11.5px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .canva-fit-btn {
+            background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+            border: none;
+            color: white;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 10px rgba(2, 132, 199, 0.4);
+            transition: 0.2s;
+        }
+        .canva-fit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.6);
+        }
+
+        .dropdown-action-btn {
+            width: 100%;
+            padding: 7px 10px;
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .dropdown-action-btn:hover {
+            background: rgba(56, 189, 248, 0.15);
+            color: white;
+        }
+        .dropdown-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 4px 0;
+        }
+        .shortcut-pill {
+            font-size: 9.5px;
+            font-family: var(--font-mono);
+            color: #94a3b8;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+
+        /* Elements Drawer Grids */
+        .elements-section-header {
+            font-size: 12px;
+            font-weight: 800;
+            color: #cbd5e1;
+            margin: 16px 0 8px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .elements-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .element-item-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 9px;
+            padding: 10px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .element-item-card:hover {
+            background: rgba(56, 189, 248, 0.12);
+            border-color: rgba(56, 189, 248, 0.4);
+            transform: translateY(-2px);
+        }
+        .element-item-title {
+            font-size: 10.5px;
+            color: #94a3b8;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        /* Typography Buttons */
+        .add-text-btn {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .add-text-btn:hover {
+            background: rgba(56, 189, 248, 0.1);
+            border-color: rgba(56, 189, 248, 0.4);
+            transform: translateX(2px);
+        }
+
+        /* Catalog Search & Filter */
+        .catalog-search-wrap {
+            position: relative;
+            margin-bottom: 12px;
+        }
+        .catalog-search-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 12px;
+            padding: 8px 12px 8px 32px;
+            border-radius: 8px;
+            outline: none;
+        }
+        .catalog-search-input:focus { border-color: #38bdf8; }
+        .catalog-search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 13px;
+            color: #64748b;
+        }
+        .cat-scroll-bar {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+        }
+        .cat-scroll-bar::-webkit-scrollbar { height: 3px; }
+        .cat-pill-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: 0.15s;
+        }
+        .cat-pill-btn:hover { background: rgba(255, 255, 255, 0.12); color: white; }
+        .cat-pill-btn.active {
+            background: #0284c7;
+            border-color: #38bdf8;
+            color: white;
+        }
+        .cat-count-badge {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-size: 9.5px;
+        }
+        .catalog-status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+        .template-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        .template-preview-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .template-preview-card:hover {
+            border-color: #38bdf8;
+            transform: translateY(-2px);
+        }
+        .template-thumb-box {
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 80px;
+        }
+        .template-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+        }
+        .template-name {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #f1f5f9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 220px;
+        }
+        .template-tag {
+            font-size: 10px;
+            color: #94a3b8;
+        }
+        .btn-load-more-catalog {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #38bdf8;
+            font-weight: 800;
+            font-size: 11.5px;
+            padding: 9px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+        .btn-load-more-catalog:hover { background: rgba(56, 189, 248, 0.15); }
+
+        /* Blank Canvas Box */
+        .blank-canvas-box {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(139, 92, 246, 0.14) 100%);
+            border: 1px dashed rgba(236, 72, 153, 0.45);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 18px;
+        }
+        .blank-canvas-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .blank-ratio-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .blank-ratio-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            padding: 6px 8px;
+            border-radius: 7px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+        }
+        .blank-ratio-btn.active {
+            background: #0284c7;
+            border-color: #38bdf8;
+            color: white;
+        }
+        .blank-color-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .blank-color-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.15s;
+        }
+        .blank-color-dot.active {
+            border-color: #38bdf8;
+            transform: scale(1.15);
+        }
+        .btn-launch-blank {
+            background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+            border: none;
+            color: white;
+            font-weight: 800;
+            font-size: 11.5px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        /* Signature Modal */
+        .sig-modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(4, 6, 15, 0.85);
+            backdrop-filter: blur(16px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 2000;
+        }
+        .sig-card {
+            width: 520px;
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+        }
+        .sig-canvas-box {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 2px dashed #cbd5e1;
+            width: 100%;
+            height: 180px;
+            cursor: crosshair;
+            margin: 14px 0;
+            display: block;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <!-- -------------------------------------------------------------
+         TOP HEADER BAR
+         ------------------------------------------------------------- -->
+    <header class="canva-header">
+        <div class="header-left-group">
+            <a href="/dashboard" class="back-nav-btn" title="Back to Dashboard">
+                <span>⬅</span>
+                <span>Dashboard</span>
+            </a>
+            
+            <div class="canva-brand-badge">
+                <span>🎨</span>
+                <span>Canva Studio</span>
+            </div>
+
+            <input type="text" id="document-title" class="doc-title-input" value="Certificate of Excellence 2026" placeholder="Name your certificate design">
+        </div>
+
+        <div class="header-center-tools">
+            <button type="button" class="tool-icon-btn" id="btn-undo" onclick="undo()" title="Undo (Ctrl+Z)" disabled>↶</button>
+            <button type="button" class="tool-icon-btn" id="btn-redo" onclick="redo()" title="Redo (Ctrl+Y)" disabled>↷</button>
+
+            <!-- Canva Resize & Aspect Ratio Trigger -->
+            <div style="position: relative;">
+                <button type="button" class="btn-canva-resize" onclick="toggleResizeMenu(event)" id="btn-resize-trigger" title="Canva Magic Resize & Ratio">
+                    <span>📐</span>
+                    <span id="current-ratio-label">A4 Landscape (1050×742)</span>
+                    <span style="font-size: 10px;">▾</span>
+                </button>
+                <div id="resize-menu-dropdown" class="dropdown-panel hidden" style="top: 45px; left: 0; width: 330px; z-index: 2000;">
+                    <div class="resize-menu-header">
+                        <span style="font-size: 13px; font-weight: 800; color: #fff;">Resize & Aspect Ratio</span>
+                        <span style="font-size: 10px; color: #38bdf8; font-weight: 800; text-transform: uppercase;">Magic Switch</span>
+                    </div>
+                    
+                    <div class="resize-section-label">Popular Certificate Dimensions:</div>
+                    <div class="resize-presets-list">
+                        <button type="button" class="resize-option-btn active" id="btn-ratio-landscape-a4" onclick="applyCanvasResize(1050, 742, 'landscape-a4', 'A4 Landscape')">
+                            <span class="resize-opt-icon">📄</span>
+                            <div class="resize-opt-info">
+                                <span class="resize-opt-name">A4 Landscape (Standard)</span>
+                                <span class="resize-opt-dims">1050 × 742 px (297 × 210 mm) • Global Standard</span>
+                            </div>
+                        </button>
+                        <button type="button" class="resize-option-btn" id="btn-ratio-us-letter" onclick="applyCanvasResize(1100, 850, 'us-letter', 'US Letter')">
+                            <span class="resize-opt-icon">📜</span>
+                            <div class="resize-opt-info">
+                                <span class="resize-opt-name">US Letter Landscape</span>
+                                <span class="resize-opt-dims">1100 × 850 px (11 × 8.5 in) • North American</span>
+                            </div>
+                        </button>
+                        <button type="button" class="resize-option-btn" id="btn-ratio-widescreen-16-9" onclick="applyCanvasResize(1280, 720, 'widescreen-16-9', '16:9 Presentation')">
+                            <span class="resize-opt-icon">🖥️</span>
+                            <div class="resize-opt-info">
+                                <span class="resize-opt-name">Widescreen Presentation (16:9)</span>
+                                <span class="resize-opt-dims">1280 × 720 px • HD Display & Online Ceremony</span>
+                            </div>
+                        </button>
+                        <button type="button" class="resize-option-btn" id="btn-ratio-square" onclick="applyCanvasResize(900, 900, 'square', 'Square Award')">
+                            <span class="resize-opt-icon">🔲</span>
+                            <div class="resize-opt-info">
+                                <span class="resize-opt-name">Square Award (1:1)</span>
+                                <span class="resize-opt-dims">900 × 900 px • LinkedIn & Social Media Post</span>
+                            </div>
+                        </button>
+                        <button type="button" class="resize-option-btn" id="btn-ratio-portrait-a4" onclick="applyCanvasResize(742, 1050, 'portrait-a4', 'A4 Portrait')">
+                            <span class="resize-opt-icon">📱</span>
+                            <div class="resize-opt-info">
+                                <span class="resize-opt-name">A4 Portrait (Vertical)</span>
+                                <span class="resize-opt-dims">742 × 1050 px • Prestigious Vertical Diploma</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="dropdown-divider" style="margin: 10px 0;"></div>
+                    <div class="resize-section-label">Custom Dimensions (px):</div>
+                    <div class="custom-dims-row">
+                        <input type="number" id="custom-resize-w" class="custom-dim-input" placeholder="W" value="1050" min="300" max="3000">
+                        <span style="color: #64748b;">×</span>
+                        <input type="number" id="custom-resize-h" class="custom-dim-input" placeholder="H" value="742" min="300" max="3000">
+                        <button type="button" class="btn-apply-custom-dim" onclick="applyCustomDimensions()">Apply</button>
+                    </div>
+
+                    <label class="scale-toggle-label">
+                        <input type="checkbox" id="chk-scale-elements-proportional" checked>
+                        <span>Scale design elements proportionally to fit</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 1-Click Orientation Flip -->
+            <button type="button" class="tool-icon-btn" onclick="flipCanvasOrientation()" title="Flip Orientation (Landscape ⇄ Portrait)">🔄</button>
+
+            <!-- Hidden legacy select for backward compatibility -->
+            <select id="canvas-preset-select" style="display: none;" onchange="changeCanvasPreset(this.value)">
+                <option value="landscape-a4" selected>📄 A4 Landscape</option>
+                <option value="us-letter">📜 US Letter</option>
+                <option value="square">🔲 Square Award</option>
+                <option value="portrait-a4">📱 A4 Portrait</option>
+            </select>
+        </div>
+
+        <div class="header-right-actions">
+            <div class="cloud-status-pill" id="cloud-status-indicator">
+                <span>☁️</span>
+                <span id="cloud-status-text">Cloud Synchronized</span>
+            </div>
+
+            <button type="button" class="tool-icon-btn" onclick="saveDesignToCloud()" title="Save Design Project">💾</button>
+
+            <!-- Export Dropdown -->
+            <button type="button" class="btn-export-dropdown" onclick="toggleExportMenu(event)">
+                <span>📥 Export</span>
+                <span>▾</span>
+            </button>
+            <div id="export-menu-dropdown" class="dropdown-panel hidden" style="top: 55px; right: 190px; width: 210px; z-index: 2000;">
+                <button type="button" class="dropdown-action-btn" onclick="exportImage('png')">
+                    <span>🖼️ High-Res PNG (Print)</span>
+                </button>
+                <button type="button" class="dropdown-action-btn" onclick="exportImage('jpg')">
+                    <span>📷 Sharp JPEG</span>
+                </button>
+                <button type="button" class="dropdown-action-btn" onclick="exportPDF()">
+                    <span>📄 Print-Ready PDF</span>
+                </button>
+            </div>
+
+            <!-- Use in Bulk Generator Button -->
+            <button type="button" class="btn-bulk-use" onclick="useInBulkGenerator()" id="btn-use-bulk">
+                <span>🚀 Use for Bulk Excel</span>
+                <span>➔</span>
+            </button>
+        </div>
+    </header>
+
+
+    <!-- -------------------------------------------------------------
+         STUDIO MAIN WORKSPACE
+         ------------------------------------------------------------- -->
+    <main class="studio-main-workspace">
+
+        <!-- Left Ribbon Tabs -->
+        <nav class="left-ribbon-bar">
+            <button type="button" class="ribbon-tab-btn active" onclick="switchDrawerTab('templates')">
+                <span class="tab-icon">📑</span>
+                <span>Templates</span>
+            </button>
+            <button type="button" class="ribbon-tab-btn" onclick="switchDrawerTab('text')">
+                <span class="tab-icon">🔤</span>
+                <span>Text</span>
+            </button>
+            <button type="button" class="ribbon-tab-btn" onclick="switchDrawerTab('elements')">
+                <span class="tab-icon">✨</span>
+                <span>Elements</span>
+            </button>
+            <button type="button" class="ribbon-tab-btn" onclick="switchDrawerTab('background')">
+                <span class="tab-icon">🎨</span>
+                <span>Colors</span>
+            </button>
+            <button type="button" class="ribbon-tab-btn" onclick="switchDrawerTab('uploads')">
+                <span class="tab-icon">📤</span>
+                <span>Uploads</span>
+            </button>
+            <button type="button" class="ribbon-tab-btn" onclick="switchDrawerTab('layers')">
+                <span class="tab-icon">📑</span>
+                <span>Layers</span>
+            </button>
+        </nav>
+
+
+        <!-- Collapsible Flyout Drawer -->
+        <aside class="flyout-drawer" id="flyout-drawer">
+            
+            <!-- ========================================================
+                 DRAWER 1: TEMPLATES
+                 ======================================================== -->
+            <div id="tab-pane-templates" class="drawer-pane">
+                <div class="drawer-header">
+                    <span class="drawer-title"><span>📑</span> Canva Master Templates</span>
+                    <span style="font-size: 11px; color: #ec4899; font-weight: 800; background: rgba(236,72,153,0.12); border: 1px solid rgba(236,72,153,0.3); padding: 2px 8px; border-radius: 50px;">
+                        Pro Series + 1,000 Catalog
+                    </span>
+                </div>
+                <div class="drawer-content-pane">
+
+                    <!-- SECTION 1: FEATURED CANVA MASTER TEMPLATES -->
+                    <div class="master-showcase-wrap">
+                        <div class="master-section-title">
+                            <span style="font-size: 13px; font-weight: 800; color: #fff;">⭐ Canva Master Templates</span>
+                            <span class="master-badge-tag">Curated Pro</span>
+                        </div>
+                        <div class="master-templates-list">
+                            
+                            <!-- Master 1: Royal Gold Sovereign -->
+                            <div class="master-template-card" style="background: linear-gradient(135deg, #120e06 0%, #1f1807 50%, #0d0c07 100%); border: 1.5px solid #d4af37;" onclick="loadMasterTemplate('master_royal_gold')">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 10px; font-weight: 800; color: #fbbf24; letter-spacing: 1.5px; text-transform: uppercase;">👑 Royal Sovereign</span>
+                                    <span style="font-size: 9px; color: #fef08a; background: rgba(212,175,55,0.2); padding: 2px 6px; border-radius: 4px;">Top Pick</span>
+                                </div>
+                                <div style="font-family: 'Cinzel', serif; font-size: 12px; font-weight: 900; color: #ffffff; margin: 2px 0;">
+                                    Certificate of Excellence & Achievement
+                                </div>
+                                <div style="font-family: 'Great Vibes', cursive; font-size: 18px; color: #fbbf24;">
+                                    Alexander Vance Hawthorne
+                                </div>
+                                <div style="font-size: 9px; color: #94a3b8; display: flex; gap: 8px;">
+                                    <span>🏵️ Wax Seal</span> • <span>📱 QR Verify</span> • <span>✍️ Dual Signatures</span>
+                                </div>
+                            </div>
+
+                            <!-- Master 2: Sapphire Royal Honors -->
+                            <div class="master-template-card" style="background: linear-gradient(135deg, #050d24 0%, #0c1a40 50%, #030817 100%); border: 1.5px solid #38bdf8;" onclick="loadMasterTemplate('master_sapphire_crest')">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 10px; font-weight: 800; color: #38bdf8; letter-spacing: 1.5px; text-transform: uppercase;">💎 Sapphire Distinction</span>
+                                    <span style="font-size: 9px; color: #7dd3fc; background: rgba(56,189,248,0.2); padding: 2px 6px; border-radius: 4px;">Corporate</span>
+                                </div>
+                                <div style="font-family: 'Playfair Display', serif; font-size: 12px; font-weight: 900; color: #ffffff; margin: 2px 0;">
+                                    Honorary Diploma of Leadership
+                                </div>
+                                <div style="font-family: 'Alex Brush', cursive; font-size: 18px; color: #38bdf8;">
+                                    Sophia Eleanor Sterling
+                                </div>
+                                <div style="font-size: 9px; color: #94a3b8; display: flex; gap: 8px;">
+                                    <span>🎖️ Rosette</span> • <span>🌐 Tech Summit</span> • <span>⭐ Platinum</span>
+                                </div>
+                            </div>
+
+                            <!-- Master 3: Emerald Imperial Distinction -->
+                            <div class="master-template-card" style="background: linear-gradient(135deg, #021a14 0%, #06382a 50%, #010f0b 100%); border: 1.5px solid #34d399;" onclick="loadMasterTemplate('master_imperial_emerald')">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 10px; font-weight: 800; color: #34d399; letter-spacing: 1.5px; text-transform: uppercase;">🌿 Imperial Fellowship</span>
+                                    <span style="font-size: 9px; color: #6ee7b7; background: rgba(52,211,153,0.2); padding: 2px 6px; border-radius: 4px;">Academic</span>
+                                </div>
+                                <div style="font-family: 'Cinzel', serif; font-size: 12px; font-weight: 900; color: #ffffff; margin: 2px 0;">
+                                    Fellowship of Highest Scholastic Merit
+                                </div>
+                                <div style="font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 700; color: #fef08a;">
+                                    Dr. Jonathan David Montgomery
+                                </div>
+                                <div style="font-size: 9px; color: #94a3b8; display: flex; gap: 8px;">
+                                    <span>🌿 Laurel Wreath</span> • <span>🏛️ Baroque Frame</span>
+                                </div>
+                            </div>
+
+                            <!-- Master 4: Minimalist Platinum Executive -->
+                            <div class="master-template-card" style="background: #ffffff; border: 1.5px solid #c5a059;" onclick="loadMasterTemplate('master_platinum_executive')">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 10px; font-weight: 800; color: #78350f; letter-spacing: 1.5px; text-transform: uppercase;">🕊️ Platinum Executive</span>
+                                    <span style="font-size: 9px; color: #92400e; background: rgba(180,83,9,0.15); padding: 2px 6px; border-radius: 4px;">Print Ready</span>
+                                </div>
+                                <div style="font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 900; color: #0f172a; margin: 2px 0;">
+                                    Executive Leadership & Management
+                                </div>
+                                <div style="font-family: 'Cinzel', serif; font-size: 15px; font-weight: 800; color: #b45309;">
+                                    Olivia Madeleine Cross
+                                </div>
+                                <div style="font-size: 9px; color: #64748b; display: flex; gap: 8px;">
+                                    <span>🛡️ Gold Shield</span> • <span>Modern Minimalist</span>
+                                </div>
+                            </div>
+
+                            <!-- Master 5: Cyber AI & Hackathon Champion -->
+                            <div class="master-template-card" style="background: linear-gradient(135deg, #090d16 0%, #17112c 100%); border: 1.5px solid #ec4899;" onclick="loadMasterTemplate('master_cyber_hackathon')">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 10px; font-weight: 800; color: #ec4899; letter-spacing: 1.5px; text-transform: uppercase;">⚡ Cyber AI Champion</span>
+                                    <span style="font-size: 9px; color: #f472b6; background: rgba(236,72,153,0.2); padding: 2px 6px; border-radius: 4px;">Hackathon</span>
+                                </div>
+                                <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 800; color: #38bdf8; margin: 2px 0;">
+                                    Global Autonomous AI Challenge
+                                </div>
+                                <div style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 900; color: #ffffff;">
+                                    David Kowalski
+                                </div>
+                                <div style="font-size: 9px; color: #94a3b8; display: flex; gap: 8px;">
+                                    <span>💡 Neon Glow</span> • <span>📱 QR Verify</span> • <span>1st Place</span>
+                                </div>
+                            </div>
+
+                            <!-- Master 6: Classic Baroque University Diploma -->
+                            <div class="master-template-card" style="background: #fdfbf7; border: 1.5px solid #d4af37;" onclick="loadMasterTemplate('master_baroque_diploma')">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 10px; font-weight: 800; color: #78350f; letter-spacing: 1.5px; text-transform: uppercase;">🏛️ University Diploma</span>
+                                    <span style="font-size: 9px; color: #78350f; background: rgba(120,53,15,0.12); padding: 2px 6px; border-radius: 4px;">Traditional</span>
+                                </div>
+                                <div style="font-family: 'Cinzel', serif; font-size: 12px; font-weight: 900; color: #1e293b; margin: 2px 0;">
+                                    Diploma of Scholastic Excellence
+                                </div>
+                                <div style="font-family: 'Great Vibes', cursive; font-size: 18px; color: #78350f;">
+                                    Christopher William Harrison
+                                </div>
+                                <div style="font-size: 9px; color: #64748b; display: flex; gap: 8px;">
+                                    <span>🏵️ Antique Seal</span> • <span>Parchment Ivory</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: START WITHOUT TEMPLATE (BLANK CANVAS) -->
+                    <div class="blank-canvas-box">
+                        <div class="blank-canvas-title">
+                            <span>✨ Start With Blank Canvas</span>
+                            <span style="font-size: 10px; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Freeform</span>
+                        </div>
+                        <p style="font-size: 11px; color: #94a3b8; margin-bottom: 10px; line-height: 1.4;">
+                            Design completely from scratch on a clean, custom-sized canvas.
+                        </p>
+
+                        <div style="font-size: 11px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">1. Select Dimensions:</div>
+                        <div class="blank-ratio-grid">
+                            <button type="button" class="blank-ratio-btn active" id="blank-ratio-landscape-a4" onclick="selectBlankRatio('landscape-a4', this)">
+                                <span>📄 Landscape A4</span>
+                            </button>
+                            <button type="button" class="blank-ratio-btn" id="blank-ratio-portrait-a4" onclick="selectBlankRatio('portrait-a4', this)">
+                                <span>📱 Portrait A4</span>
+                            </button>
+                            <button type="button" class="blank-ratio-btn" id="blank-ratio-us-letter" onclick="selectBlankRatio('us-letter', this)">
+                                <span>📜 US Letter</span>
+                            </button>
+                            <button type="button" class="blank-ratio-btn" id="blank-ratio-square" onclick="selectBlankRatio('square', this)">
+                                <span>🔲 Square</span>
+                            </button>
+                        </div>
+
+                        <div style="font-size: 11px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">2. Background Tone:</div>
+                        <div class="blank-color-row">
+                            <div class="blank-color-dot active" style="background: #ffffff;" title="Pure White" onclick="selectBlankColor('pure_white', this)"></div>
+                            <div class="blank-color-dot" style="background: #fdfbf7;" title="Classic Ivory" onclick="selectBlankColor('classic_ivory', this)"></div>
+                            <div class="blank-color-dot" style="background: #090d16;" title="Obsidian Dark" onclick="selectBlankColor('obsidian_gold', this)"></div>
+                            <div class="blank-color-dot" style="background: #0a1738;" title="Royal Sapphire" onclick="selectBlankColor('royal_sapphire', this)"></div>
+                            <div class="blank-color-dot" style="background: #022c22;" title="Imperial Emerald" onclick="selectBlankColor('imperial_emerald', this)"></div>
+                        </div>
+
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="btn-launch-blank" onclick="createBlankCanvas()">
+                                <span>➕ Launch Blank Canvas</span>
+                            </button>
+                            <button type="button" class="tool-icon-btn" style="width: auto; padding: 0 12px;" onclick="clearCanvasToBlank()" title="Clear artboard">
+                                <span>🧹 Clear</span>
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <!-- SECTION 3: 1,000 CERTIFICATE TEMPLATES CATALOG -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
+                        <span style="font-size: 13px; font-weight: 800; color: white;">📚 1,000 Mega Catalog</span>
+                        <span style="font-size: 11px; color: #a855f7; font-weight: 700;">10 Categories</span>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="catalog-search-wrap">
+                        <span class="catalog-search-icon">🔍</span>
+                        <input type="text" id="catalog-search-input" class="catalog-search-input" placeholder="Search 1,000 templates..." oninput="handleCatalogSearch(this.value)">
+                    </div>
+
+                    <!-- 10 Category Horizontal Scroll Filter Pills -->
+                    <div class="cat-scroll-bar" id="cat-scroll-bar">
+                        <button type="button" class="cat-pill-btn active" onclick="filterCatalogCategory('all', this)">
+                            <span>✨ All</span>
+                            <span class="cat-count-badge">1,000</span>
+                        </button>
+                        <button type="button" class="cat-pill-btn" onclick="filterCatalogCategory('event', this)">
+                            <span>🎪 Event</span>
+                            <span class="cat-count-badge">100</span>
+                        </button>
+                        <button type="button" class="cat-pill-btn" onclick="filterCatalogCategory('participation', this)">
+                            <span>🤝 Participation</span>
+                            <span class="cat-count-badge">100</span>
+                        </button>
+                        <button type="button" class="cat-pill-btn" onclick="filterCatalogCategory('club', this)">
+                            <span>🏛️ Club</span>
+                            <span class="cat-count-badge">100</span>
+                        </button>
+                        <button type="button" class="cat-pill-btn" onclick="filterCatalogCategory('academic', this)">
+                            <span>🎓 Academic</span>
+                            <span class="cat-count-badge">100</span>
+                        </button>
+                        <button type="button" class="cat-pill-btn" onclick="filterCatalogCategory('appreciation', this)">
+                            <span>🏆 Appreciation</span>
+                            <span class="cat-count-badge">100</span>
+                        </button>
+                        <button type="button" class="cat-pill-btn" onclick="filterCatalogCategory('sports', this)">
+                            <span>⚽ Sports</span>
+                            <span class="cat-count-badge">100</span>
+                        </button>
+                        <button type="button" class="cat-pill-btn" onclick="filterCatalogCategory('corporate', this)">
+                            <span>💼 Corporate</span>
+                            <span class="cat-count-badge">100</span>
+                        </button>
+                        <button type="button" class="cat-pill-btn" onclick="filterCatalogCategory('workshop', this)">
+                            <span>🛠️ Workshop</span>
+                            <span class="cat-count-badge">100</span>
+                        </button>
+                        <button type="button" class="cat-pill-btn" onclick="filterCatalogCategory('achievement', this)">
+                            <span>🌟 Excellence</span>
+                            <span class="cat-count-badge">100</span>
+                        </button>
+                        <button type="button" class="cat-pill-btn" onclick="filterCatalogCategory('community', this)">
+                            <span>🌍 Community</span>
+                            <span class="cat-count-badge">100</span>
+                        </button>
+                    </div>
+
+                    <!-- Filter Status Bar -->
+                    <div class="catalog-status-bar">
+                        <span id="catalog-count-label">Displaying templates</span>
+                        <span style="font-size: 10.5px; color: #cbd5e1; cursor: pointer;" onclick="shuffleCatalog()">🎲 Shuffle</span>
+                    </div>
+
+                    <!-- Dynamic Mega Template Grid -->
+                    <div class="template-grid" id="mega-template-grid">
+                        <!-- Populated dynamically by JavaScript -->
+                    </div>
+
+                    <button type="button" class="btn-load-more-catalog" id="btn-load-more-catalog" onclick="loadMoreCatalogTemplates()">
+                        <span>▼ Load More Templates</span>
+                    </button>
+
+                </div>
+            </div>
+
+
+            <!-- ========================================================
+                 DRAWER 2: TEXT TOOL
+                 ======================================================== -->
+            <div id="tab-pane-text" class="drawer-pane hidden">
+                <div class="drawer-header">
+                    <span class="drawer-title"><span>🔤</span> Add Typography</span>
+                </div>
+                <div class="drawer-content-pane">
+                    
+                    <button type="button" class="add-text-btn" onclick="addTextElement('CERTIFICATE OF EXCELLENCE', { fontSize: 36, fontFamily: 'Cinzel', fontWeight: '800', fill: '#d4af37', letterSpacing: 4 })">
+                        <span style="font-family: 'Cinzel', serif; font-size: 15px; font-weight: 800; color: #d4af37;">Add Certificate Title</span>
+                        <span style="font-size: 11px; color: #94a3b8;">Cinzel • 36px • Gold Foil</span>
+                    </button>
+
+                    <button type="button" class="add-text-btn" onclick="addTextElement('THIS OFFICIAL CREDENTIAL IS PROUDLY CONFERRED UPON', { fontSize: 12, fontFamily: 'Montserrat', fontWeight: '700', fill: '#94a3b8', letterSpacing: 3 })">
+                        <span style="font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 700; color: #94a3b8;">Add Subheading / Lead</span>
+                        <span style="font-size: 11px; color: #64748b;">Montserrat • 12px • Spaced</span>
+                    </button>
+
+                    <button type="button" class="add-text-btn" onclick="addTextElement('Alexander Vance Hawthorne', { fontSize: 56, fontFamily: 'Great Vibes', fontWeight: '400', fill: '#fef08a' })">
+                        <span style="font-family: 'Great Vibes', cursive; font-size: 24px; color: #fef08a;">Add Recipient Name</span>
+                        <span style="font-size: 11px; color: #94a3b8;">Great Vibes • Calligraphy • 56px</span>
+                    </button>
+
+                    <button type="button" class="add-text-btn" onclick="addTextElement('In recognition of outstanding dedication, exemplary leadership, and significant contributions throughout the certified program with highest honors.', { fontSize: 13.5, fontFamily: 'Inter', fontWeight: '400', fill: '#cbd5e1', lineHeight: 1.55 })">
+                        <span style="font-size: 12.5px; font-weight: 500; color: #cbd5e1;">Add Citation Paragraph</span>
+                        <span style="font-size: 11px; color: #64748b;">Inter • 13.5px • High Legibility</span>
+                    </button>
+
+                    <button type="button" class="add-text-btn" onclick="addTextElement('Dr. Catherine Howard\n_____________________\nAcademic Dean', { fontSize: 12, fontFamily: 'Montserrat', fontWeight: '600', fill: '#cbd5e1' })">
+                        <span style="font-size: 12px; font-weight: 600; color: #cbd5e1;">Add Signatory Block</span>
+                        <span style="font-size: 11px; color: #64748b;">Name, Line & Title</span>
+                    </button>
+
+                    <button type="button" class="add-text-btn" onclick="addTextElement('VERIFIED CREDENTIAL ID: CERT-2026-X99 • SECURE REGISTRY', { fontSize: 10, fontFamily: 'JetBrains Mono', fontWeight: '700', fill: '#64748b', letterSpacing: 1.5 })">
+                        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #64748b;">Add Credential ID Stamp</span>
+                        <span style="font-size: 10px; color: #64748b;">Monospace • Tracking</span>
+                    </button>
+
+                </div>
+            </div>
+
+
+            <!-- ========================================================
+                 DRAWER 3: ELEMENTS & ORNAMENTS
+                 ======================================================== -->
+            <div id="tab-pane-elements" class="drawer-pane hidden">
+                <div class="drawer-header">
+                    <span class="drawer-title"><span>✨</span> Graphics & Badges</span>
+                </div>
+                <div class="drawer-content-pane">
+                    
+                    <!-- Golden Seals & Badges -->
+                    <div class="elements-section-header">
+                        <span>Golden Seals & Medals</span>
+                        <span style="color: #fbbf24; font-size: 10px;">Vector SVG</span>
+                    </div>
+                    <div class="elements-grid-3">
+                        <div class="element-item-card" onclick="addSvgElement('gold_wax_seal')">
+                            <span style="font-size: 26px;">🏵️</span>
+                            <span class="element-item-title">Wax Seal</span>
+                        </div>
+                        <div class="element-item-card" onclick="addSvgElement('excellence_rosette')">
+                            <span style="font-size: 26px;">🎖️</span>
+                            <span class="element-item-title">Excellence</span>
+                        </div>
+                        <div class="element-item-card" onclick="addSvgElement('laurel_wreath')">
+                            <span style="font-size: 26px;">🌿</span>
+                            <span class="element-item-title">Laurel Wreath</span>
+                        </div>
+                        <div class="element-item-card" onclick="addSvgElement('verified_star_badge')">
+                            <span style="font-size: 26px;">⭐</span>
+                            <span class="element-item-title">Star Badge</span>
+                        </div>
+                        <div class="element-item-card" onclick="addSvgElement('gold_shield')">
+                            <span style="font-size: 26px;">🛡️</span>
+                            <span class="element-item-title">Gold Shield</span>
+                        </div>
+                        <div class="element-item-card" onclick="addSvgElement('golden_trophy')">
+                            <span style="font-size: 26px;">🏆</span>
+                            <span class="element-item-title">Gold Trophy</span>
+                        </div>
+                    </div>
+
+                    <!-- Certificate Borders & Frames -->
+                    <div class="elements-section-header">
+                        <span>Ornate Borders & Frames</span>
+                    </div>
+                    <div class="elements-grid-3">
+                        <div class="element-item-card" onclick="applyBorderPreset('double_gold')">
+                            <span style="font-size: 20px;">🔲</span>
+                            <span class="element-item-title">Gold Double</span>
+                        </div>
+                        <div class="element-item-card" onclick="applyBorderPreset('vintage_baroque')">
+                            <span style="font-size: 20px;">🏛️</span>
+                            <span class="element-item-title">Baroque</span>
+                        </div>
+                        <div class="element-item-card" onclick="applyBorderPreset('modern_corner')">
+                            <span style="font-size: 20px;">📐</span>
+                            <span class="element-item-title">Art-Deco</span>
+                        </div>
+                        <div class="element-item-card" onclick="applyBorderPreset('neon_glow')">
+                            <span style="font-size: 20px;">💡</span>
+                            <span class="element-item-title">Neon Cyber</span>
+                        </div>
+                        <div class="element-item-card" onclick="applyBorderPreset('thin_minimal')">
+                            <span style="font-size: 20px;">▫️</span>
+                            <span class="element-item-title">Minimalist</span>
+                        </div>
+                        <div class="element-item-card" onclick="applyBorderPreset('none')">
+                            <span style="font-size: 20px;">🚫</span>
+                            <span class="element-item-title">No Border</span>
+                        </div>
+                    </div>
+
+                    <!-- Digital Verification QR Code -->
+                    <div class="elements-section-header">
+                        <span>Verification Tools</span>
+                    </div>
+                    <button type="button" class="add-text-btn" onclick="addQrCodeElement()">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 24px;">📱</span>
+                            <div>
+                                <div style="font-weight: 800; color: #f8fafc; font-size: 13px;">Add Dynamic Verification QR Code</div>
+                                <div style="font-size: 11px; color: #38bdf8;">Scan to verify certificate credential</div>
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- Signatures Studio -->
+                    <div class="elements-section-header">
+                        <span>Digital Signatures</span>
+                    </div>
+                    <button type="button" class="add-text-btn" onclick="openSignatureModal()">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 24px;">✍️</span>
+                            <div>
+                                <div style="font-weight: 800; color: #f8fafc; font-size: 13px;">Draw Authentic Signature</div>
+                                <div style="font-size: 11px; color: #34d399;">Sign with mouse, stylus or touchpad</div>
+                            </div>
+                        </div>
+                    </button>
+
+                    <div class="elements-grid-3">
+                        <div class="element-item-card" onclick="addCursiveSignature('Alex Vance', 'Great Vibes')">
+                            <span style="font-family: 'Great Vibes', cursive; font-size: 18px; color: #38bdf8;">Alex V.</span>
+                            <span class="element-item-title">Script 1</span>
+                        </div>
+                        <div class="element-item-card" onclick="addCursiveSignature('Catherine Howard', 'Alex Brush')">
+                            <span style="font-family: 'Alex Brush', cursive; font-size: 18px; color: #34d399;">C. Howard</span>
+                            <span class="element-item-title">Script 2</span>
+                        </div>
+                        <div class="element-item-card" onclick="addCursiveSignature('David Harrison', 'Dancing Script')">
+                            <span style="font-family: 'Dancing Script', cursive; font-size: 16px; color: #ec4899;">D. Harrison</span>
+                            <span class="element-item-title">Script 3</span>
+                        </div>
+                    </div>
+
+                    <!-- Shapes & Dividers -->
+                    <div class="elements-section-header">
+                        <span>Lines & Geometric Shapes</span>
+                    </div>
+                    <div class="elements-grid-3">
+                        <div class="element-item-card" onclick="addShapeElement('line')">
+                            <span style="font-size: 18px;">━</span>
+                            <span class="element-item-title">Divider Line</span>
+                        </div>
+                        <div class="element-item-card" onclick="addShapeElement('rect')">
+                            <span style="font-size: 18px;">▬</span>
+                            <span class="element-item-title">Rectangle</span>
+                        </div>
+                        <div class="element-item-card" onclick="addShapeElement('circle')">
+                            <span style="font-size: 18px;">⬤</span>
+                            <span class="element-item-title">Circle</span>
+                        </div>
+                        <div class="element-item-card" onclick="addShapeElement('star')">
+                            <span style="font-size: 18px;">★</span>
+                            <span class="element-item-title">5-Star</span>
+                        </div>
+                        <div class="element-item-card" onclick="addShapeElement('stars3')">
+                            <span style="font-size: 18px;">★★★</span>
+                            <span class="element-item-title">Triple Star</span>
+                        </div>
+                        <div class="element-item-card" onclick="addShapeElement('ribbon_banner')">
+                            <span style="font-size: 18px;">🏷️</span>
+                            <span class="element-item-title">Banner Box</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- ========================================================
+                 DRAWER 4: COLORS & BACKGROUNDS
+                 ======================================================== -->
+            <div id="tab-pane-background" class="drawer-pane hidden">
+                <div class="drawer-header">
+                    <span class="drawer-title"><span>🎨</span> Canvas Background</span>
+                </div>
+                <div class="drawer-content-pane">
+                    
+                    <div class="elements-section-header">
+                        <span>Curated Themes</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button type="button" class="resize-option-btn" onclick="applyArtboardBackground('obsidian_gold')">
+                            <span style="width: 20px; height: 20px; border-radius: 4px; background: #090d16; border: 1px solid #d4af37;"></span>
+                            <span class="resize-opt-name">Obsidian Black & Gold</span>
+                        </button>
+                        <button type="button" class="resize-option-btn" onclick="applyArtboardBackground('royal_sapphire')">
+                            <span style="width: 20px; height: 20px; border-radius: 4px; background: #0a1738; border: 1px solid #38bdf8;"></span>
+                            <span class="resize-opt-name">Royal Midnight Sapphire</span>
+                        </button>
+                        <button type="button" class="resize-option-btn" onclick="applyArtboardBackground('imperial_emerald')">
+                            <span style="width: 20px; height: 20px; border-radius: 4px; background: #022c22; border: 1px solid #34d399;"></span>
+                            <span class="resize-opt-name">Imperial Forest Emerald</span>
+                        </button>
+                        <button type="button" class="resize-option-btn" onclick="applyArtboardBackground('classic_ivory')">
+                            <span style="width: 20px; height: 20px; border-radius: 4px; background: #fdfbf7; border: 1px solid #d4af37;"></span>
+                            <span class="resize-opt-name">Classic Ivory Parchment</span>
+                        </button>
+                        <button type="button" class="resize-option-btn" onclick="applyArtboardBackground('crimson_ruby')">
+                            <span style="width: 20px; height: 20px; border-radius: 4px; background: #3f0713; border: 1px solid #fbbf24;"></span>
+                            <span class="resize-opt-name">Crimson Grand Ruby</span>
+                        </button>
+                        <button type="button" class="resize-option-btn" onclick="applyArtboardBackground('pure_white')">
+                            <span style="width: 20px; height: 20px; border-radius: 4px; background: #ffffff; border: 1px solid #cbd5e1;"></span>
+                            <span class="resize-opt-name">Pure Crisp White</span>
+                        </button>
+                    </div>
+
+                    <div class="elements-section-header" style="margin-top: 20px;">
+                        <span>Guilloche Security Waves</span>
+                    </div>
+                    <label class="scale-toggle-label">
+                        <input type="checkbox" id="chk-guilloche-toggle" checked onchange="toggleGuillochePattern(this.checked)">
+                        <span>Show Guilloche Security Waves Pattern</span>
+                    </label>
+
+                </div>
+            </div>
+
+
+            <!-- ========================================================
+                 DRAWER 5: UPLOADS
+                 ======================================================== -->
+            <div id="tab-pane-uploads" class="drawer-pane hidden">
+                <div class="drawer-header">
+                    <span class="drawer-title"><span>📤</span> Upload Assets</span>
+                </div>
+                <div class="drawer-content-pane">
+                    
+                    <div style="border: 2px dashed rgba(255,255,255,0.2); border-radius: 12px; padding: 24px 14px; text-align: center; cursor: pointer;" onclick="document.getElementById('asset-file-picker').click()">
+                        <span style="font-size: 32px;">📁</span>
+                        <div style="font-size: 13px; font-weight: 700; color: #fff; margin-top: 6px;">Click or Drag to Upload</div>
+                        <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">Logos, Stamps, Badges, Signatures (PNG, JPG, SVG)</div>
+                        <input type="file" id="asset-file-picker" style="display: none;" accept="image/*" onchange="handleAssetFileInput(this)">
+                    </div>
+
+                    <div class="elements-section-header" style="margin-top: 20px;">
+                        <span>Your Uploaded Assets</span>
+                    </div>
+                    <div id="user-assets-grid" class="elements-grid-3">
+                        <!-- Populated on upload -->
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- ========================================================
+                 DRAWER 6: LAYERS
+                 ======================================================== -->
+            <div id="tab-pane-layers" class="drawer-pane hidden">
+                <div class="drawer-header">
+                    <span class="drawer-title"><span>📑</span> Canvas Layers</span>
+                </div>
+                <div class="drawer-content-pane">
+                    <div id="layers-list-container" style="display: flex; flex-direction: column; gap: 6px;">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+
+        <!-- -------------------------------------------------------------
+             CENTER STAGE: CONTEXTUAL TOOLBAR + CANVAS VIEWPORT
+             ------------------------------------------------------------- -->
+        <section class="center-canvas-stage">
+            
+            <!-- Contextual Toolbar -->
+            <div class="context-toolbar" id="context-toolbar">
+                
+                <!-- Font Family -->
+                <div class="toolbar-group">
+                    <select id="ctx-font-family" class="font-select" onchange="updateSelectedTextProp('fontFamily', this.value)">
+                        <option value="Cinzel">Cinzel (Roman)</option>
+                        <option value="Cinzel Decorative">Cinzel Decorative</option>
+                        <option value="Great Vibes">Great Vibes (Script)</option>
+                        <option value="Alex Brush">Alex Brush (Calligraphy)</option>
+                        <option value="Dancing Script">Dancing Script (Cursive)</option>
+                        <option value="Playfair Display">Playfair Display (Serif)</option>
+                        <option value="Montserrat">Montserrat (Clean)</option>
+                        <option value="Inter">Inter (Modern)</option>
+                        <option value="Outfit">Outfit (Display)</option>
+                        <option value="Cormorant Garamond">Cormorant Garamond</option>
+                        <option value="JetBrains Mono">JetBrains Mono</option>
+                        <option value="Prata">Prata (Luxury)</option>
+                        <option value="Marcellus">Marcellus (Formal)</option>
+                    </select>
+                </div>
+
+                <!-- Font Size Stepper -->
+                <div class="toolbar-group">
+                    <div class="number-stepper">
+                        <button type="button" class="stepper-btn" onclick="stepFontSize(-2)">-</button>
+                        <input type="text" id="ctx-font-size" class="stepper-input" value="32" onchange="updateSelectedTextProp('fontSize', parseInt(this.value) || 16)">
+                        <button type="button" class="stepper-btn" onclick="stepFontSize(2)">+</button>
+                    </div>
+                </div>
+
+                <!-- Color Swatch -->
+                <div class="toolbar-group">
+                    <label class="color-picker-pill" title="Change Color">
+                        <input type="color" id="ctx-color-picker" onchange="updateSelectedColor(this.value)" style="opacity: 0; width: 0; height: 0; position: absolute;">
+                        <div class="color-swatch-circle" id="ctx-color-swatch" style="background: #d4af37;"></div>
+                        <span style="font-size: 11px; font-weight: 700; color: #cbd5e1;">Color</span>
+                    </label>
+                </div>
+
+                <!-- Styling Toggles (B, I, U, aA) -->
+                <div class="toolbar-group">
+                    <button type="button" class="format-toggle-btn" id="btn-toggle-bold" onclick="toggleTextFormat('bold')" title="Bold (Ctrl+B)">B</button>
+                    <button type="button" class="format-toggle-btn" id="btn-toggle-italic" onclick="toggleTextFormat('italic')" title="Italic (Ctrl+I)"><em>I</em></button>
+                    <button type="button" class="format-toggle-btn" id="btn-toggle-underline" onclick="toggleTextFormat('underline')" title="Underline (Ctrl+U)"><u>U</u></button>
+                    <button type="button" class="format-toggle-btn" id="btn-toggle-upper" onclick="toggleTextFormat('uppercase')" title="Uppercase">aA</button>
+                </div>
+
+                <!-- Text Alignment -->
+                <div class="toolbar-group">
+                    <button type="button" class="format-toggle-btn" id="btn-align-left" onclick="updateSelectedTextProp('textAlign', 'left')" title="Align Left">⇤</button>
+                    <button type="button" class="format-toggle-btn active" id="btn-align-center" onclick="updateSelectedTextProp('textAlign', 'center')" title="Align Center">≡</button>
+                    <button type="button" class="format-toggle-btn" id="btn-align-right" onclick="updateSelectedTextProp('textAlign', 'right')" title="Align Right">⇥</button>
+                </div>
+
+                <!-- Letter Spacing Stepper -->
+                <div class="toolbar-group" title="Letter Spacing / Tracking">
+                    <span style="font-size: 11px; font-weight: 700; color: #94a3b8; margin-right: 2px;">AV</span>
+                    <div class="number-stepper">
+                        <button type="button" class="stepper-btn" onclick="stepLetterSpacing(-1)">-</button>
+                        <input type="text" id="ctx-letter-spacing" class="stepper-input" value="0" style="width: 28px;" onchange="updateSelectedTextProp('letterSpacing', parseInt(this.value) || 0)">
+                        <button type="button" class="stepper-btn" onclick="stepLetterSpacing(1)">+</button>
+                    </div>
+                </div>
+
+                <!-- Opacity Slider -->
+                <div class="toolbar-group" title="Transparency / Opacity">
+                    <span style="font-size: 11px; font-weight: 700; color: #94a3b8; margin-right: 4px;">👁️</span>
+                    <input type="range" id="ctx-opacity-slider" min="10" max="100" value="100" style="width: 60px; accent-color: #38bdf8;" oninput="updateSelectedOpacity(this.value)">
+                </div>
+
+                <!-- Layer Arrange & Center -->
+                <div class="toolbar-group">
+                    <button type="button" class="format-toggle-btn" onclick="alignElementToCenter('x')" title="Center Horizontally">↔</button>
+                    <button type="button" class="format-toggle-btn" onclick="alignElementToCenter('y')" title="Center Vertically">↕</button>
+                    <button type="button" class="format-toggle-btn" onclick="bringForward()" title="Bring Forward">▲</button>
+                    <button type="button" class="format-toggle-btn" onclick="sendBackward()" title="Send Backward">▼</button>
+                </div>
+
+                <!-- Lock, Duplicate & Delete -->
+                <div style="display: flex; align-items: center; gap: 4px; margin-left: auto;">
+                    <button type="button" class="format-toggle-btn" id="btn-lock-toggle" onclick="toggleLockSelectedElement()" title="Lock / Unlock Element">🔓</button>
+                    <button type="button" class="format-toggle-btn" onclick="duplicateSelectedElement()" title="Duplicate (Ctrl+D)">⧉</button>
+                    <button type="button" class="format-toggle-btn" onclick="deleteSelectedElement()" title="Delete (Del)" style="color: #f43f5e;">🗑️</button>
+                </div>
+
+            </div>
+
+            <!-- Canvas Viewport -->
+            <div class="canvas-viewport" id="canvas-viewport" onclick="handleViewportClick(event)" tabindex="0">
+                
+                <!-- Main Certificate Artboard -->
+                <div class="artboard-container" id="artboard" style="width: 1050px; height: 742px;">
+                    
+                    <!-- Dynamic Background -->
+                    <div class="artboard-bg" id="artboard-bg"></div>
+
+                    <!-- Guilloche Security Pattern -->
+                    <svg class="guilloche-overlay" id="guilloche-svg" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <pattern id="guilloche-pattern" width="120" height="120" patternUnits="userSpaceOnUse">
+                                <path d="M 0,60 C 30,20 90,20 120,60 C 90,100 30,100 0,60 Z" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.4"/>
+                                <circle cx="60" cy="60" r="45" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.3"/>
+                                <circle cx="60" cy="60" r="30" fill="none" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2,2" opacity="0.3"/>
+                            </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#guilloche-pattern)" style="color: #d4af37;"/>
+                    </svg>
+
+                    <!-- Smart Alignment Guides -->
+                    <div class="smart-guide-x" id="guide-center-x"></div>
+                    <div class="smart-guide-y" id="guide-center-y"></div>
+                    <div class="rotation-badge" id="rotation-angle-badge">0°</div>
+
+                    <!-- Canvas Elements Container -->
+                    <div id="artboard-elements-layer" style="position: absolute; top:0; left:0; width:100%; height:100%; z-index: 10;"></div>
+
+                </div>
+
+            </div>
+
+            <!-- Floating Bottom Zoom & Fit Dock -->
+            <div class="floating-zoom-bar" id="canva-floating-zoom-bar">
+                <button type="button" class="tool-icon-btn" onclick="adjustZoom(-0.1)" title="Zoom Out (Ctrl -)">-</button>
+                
+                <!-- Zoom Slider -->
+                <input type="range" id="zoom-slider" class="canva-zoom-slider" min="20" max="250" value="100" oninput="handleZoomSliderInput(this.value)">
+                
+                <button type="button" class="tool-icon-btn" onclick="adjustZoom(0.1)" title="Zoom In (Ctrl +)">+</button>
+
+                <!-- Zoom Dropdown Trigger -->
+                <div style="position: relative;">
+                    <button type="button" class="zoom-dropdown-trigger" onclick="toggleZoomMenu(event)">
+                        <span id="zoom-percentage-text">100%</span>
+                        <span style="font-size: 9px;">▾</span>
+                    </button>
+                    <!-- Preset Zoom Menu -->
+                    <div id="zoom-menu-dropdown" class="dropdown-panel hidden" style="bottom: 42px; right: 0; width: 175px; z-index: 2000;">
+                        <button type="button" class="dropdown-action-btn" onclick="fitCanvasToScreen(); hideZoomMenu();">
+                            <span>⛶ Fit to Screen</span>
+                            <span class="shortcut-pill">Ctrl+0</span>
+                        </button>
+                        <button type="button" class="dropdown-action-btn" onclick="fillCanvasToScreen(); hideZoomMenu();">
+                            <span>🔲 Fill Screen</span>
+                        </button>
+                        <div class="dropdown-divider"></div>
+                        <button type="button" class="dropdown-action-btn" onclick="setExplicitZoom(0.5); hideZoomMenu();">
+                            <span>50%</span>
+                        </button>
+                        <button type="button" class="dropdown-action-btn" onclick="setExplicitZoom(0.75); hideZoomMenu();">
+                            <span>75%</span>
+                        </button>
+                        <button type="button" class="dropdown-action-btn" onclick="setExplicitZoom(1.0); hideZoomMenu();">
+                            <span>100% (Actual)</span>
+                            <span class="shortcut-pill">Ctrl+1</span>
+                        </button>
+                        <button type="button" class="dropdown-action-btn" onclick="setExplicitZoom(1.25); hideZoomMenu();">
+                            <span>125%</span>
+                        </button>
+                        <button type="button" class="dropdown-action-btn" onclick="setExplicitZoom(1.5); hideZoomMenu();">
+                            <span>150%</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Direct Fit Screen Button -->
+                <button type="button" class="canva-fit-btn" onclick="fitCanvasToScreen()" title="Fit Canvas to Screen (Ctrl+0)">
+                    <span>⛶</span>
+                    <span>Fit Screen</span>
+                </button>
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- -------------------------------------------------------------
+         DIGITAL SIGNATURE DRAWING PAD MODAL
+         ------------------------------------------------------------- -->
+    <div class="sig-modal-backdrop hidden" id="sig-pad-modal">
+        <div class="sig-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 17px; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 8px;">
+                    <span>✍️</span> Digital Signature Studio
+                </h3>
+                <button type="button" class="tool-icon-btn" onclick="closeSignatureModal()">✕</button>
+            </div>
+            <p style="color: #94a3b8; font-size: 12px; margin-top: 4px;">
+                Draw your authentic signature below using mouse, stylus, or touchpad.
+            </p>
+
+            <canvas id="sig-canvas" class="sig-canvas-box"></canvas>
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span style="font-size: 11px; color: #94a3b8; font-weight: 700;">Ink:</span>
+                    <button type="button" style="width: 20px; height: 20px; border-radius: 50%; background: #0f172a; border: 1.5px solid white; cursor: pointer;" onclick="setSigInkColor('#0f172a')"></button>
+                    <button type="button" style="width: 20px; height: 20px; border-radius: 50%; background: #1e3a8a; border: 1.5px solid white; cursor: pointer;" onclick="setSigInkColor('#1e3a8a')"></button>
+                    <button type="button" style="width: 20px; height: 20px; border-radius: 50%; background: #b45309; border: 1.5px solid white; cursor: pointer;" onclick="setSigInkColor('#b45309')"></button>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="back-nav-btn" style="padding: 6px 12px; font-size: 11.5px;" onclick="clearSignaturePad()">Clear</button>
+                    <button type="button" class="canva-fit-btn" onclick="insertDrawnSignature()">Insert to Canvas</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- -------------------------------------------------------------
+         CANVA STUDIO JAVASCRIPT ENGINE
+         ------------------------------------------------------------- -->
+    <script>
+        // GLOBAL CANVAS STATE
+        let canvasElements = [];
+        let selectedElementId = null;
+        let canvasZoom = 1.0;
+        let currentPreset = 'landscape-a4';
+        let currentBackground = { type: 'theme', value: 'obsidian_gold', border: 'double_gold' };
+
+        // Dragging, Resizing & Rotating Flags
+        let isDraggingElement = false;
+        let isResizingElement = false;
+        let isRotatingElement = false;
+        let resizeDirection = null;
+        let dragStartX = 0, dragStartY = 0;
+        let initialElX = 0, initialElY = 0, initialElW = 0, initialElH = 0;
+        let rotateCenter = { x: 0, y: 0 };
+
+        // Undo / Redo History Stack
+        let historyStack = [];
+        let historyIndex = -1;
+
+        // DOM Element Cache
+        const artboard = document.getElementById('artboard');
+        const elementsContainer = document.getElementById('artboard-elements-layer');
+        const guideX = document.getElementById('guide-center-x');
+        const guideY = document.getElementById('guide-center-y');
+        const rotBadge = document.getElementById('rotation-angle-badge');
+
+        // Safe dimension getter
+        function getArtboardDimensions() {
+            const w = parseInt(artboard.style.width) || artboard.offsetWidth || 1050;
+            const h = parseInt(artboard.style.height) || artboard.offsetHeight || 742;
+            return { width: w, height: h };
+        }
+
+        // ============================================================
+        // INITIALIZATION
+        // ============================================================
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Set artboard dimensions explicitly
+            artboard.style.width = '1050px';
+            artboard.style.height = '742px';
+
+            initKeyboardShortcuts();
+            initSignaturePad();
+            initCanvasNavigation();
+            renderCatalogGrid();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const designId = urlParams.get('id');
+            const autoExcel = urlParams.get('auto_excel');
+
+            if (designId) {
+                const loaded = await loadDesignFromCloud(designId);
+                if (!loaded) {
+                    loadMasterTemplate('master_royal_gold');
+                }
+            } else {
+                loadMasterTemplate('master_royal_gold');
+            }
+
+            // Fit canvas smoothly to available viewport
+            setTimeout(() => {
+                fitCanvasToScreen();
+            }, 100);
+
+            if (autoExcel === '1') {
+                setTimeout(() => {
+                    useInBulkGenerator();
+                }, 600);
+            }
+        });
+
+        // Window resize keeps fit
+        window.addEventListener('resize', () => {
+            fitCanvasToScreen();
+        });
+
+        // ============================================================
+        // DRAWER NAVIGATION
+        // ============================================================
+        function switchDrawerTab(tabId) {
+            document.querySelectorAll('.ribbon-tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
+
+            document.querySelectorAll('.drawer-pane').forEach(pane => pane.classList.add('hidden'));
+            const targetPane = document.getElementById(`tab-pane-${tabId}`);
+            if (targetPane) {
+                targetPane.classList.remove('hidden');
+            }
+        }
+
+        // ============================================================
+        // ZOOM & FIT ENGINE (REAL CANVA FIT & FILL)
+        // ============================================================
+        function fitCanvasToScreen() {
+            const viewport = document.getElementById('canvas-viewport');
+            if (!viewport) return;
+
+            const paddingX = 70;
+            const paddingY = 70;
+            const availableW = Math.max(160, viewport.clientWidth - paddingX);
+            const availableH = Math.max(160, viewport.clientHeight - paddingY);
+
+            const dims = getArtboardDimensions();
+            const scaleX = availableW / dims.width;
+            const scaleY = availableH / dims.height;
+
+            const bestFit = Math.min(scaleX, scaleY);
+            // Clamp between 20% and 200%
+            canvasZoom = Math.max(0.2, Math.min(2.0, Math.round(bestFit * 100) / 100));
+            applyZoom();
+
+            // Center scroll inside viewport
+            setTimeout(() => {
+                viewport.scrollLeft = Math.max(0, (viewport.scrollWidth - viewport.clientWidth) / 2);
+                viewport.scrollTop = Math.max(0, (viewport.scrollHeight - viewport.clientHeight) / 2);
+            }, 50);
+        }
+
+        function fillCanvasToScreen() {
+            const viewport = document.getElementById('canvas-viewport');
+            if (!viewport) return;
+            const dims = getArtboardDimensions();
+            const fillScale = Math.max(viewport.clientWidth / dims.width, viewport.clientHeight / dims.height);
+            canvasZoom = Math.max(0.2, Math.min(2.5, Math.round(fillScale * 100) / 100));
+            applyZoom();
+        }
+
+        function applyZoom() {
+            artboard.style.transform = `scale(${canvasZoom})`;
+            const pct = Math.round(canvasZoom * 100);
+            const zoomText = document.getElementById('zoom-percentage-text');
+            if (zoomText) zoomText.textContent = pct + '%';
+            const slider = document.getElementById('zoom-slider');
+            if (slider) slider.value = pct;
+        }
+
+        function adjustZoom(delta) {
+            canvasZoom = Math.max(0.2, Math.min(2.5, Math.round((canvasZoom + delta) * 10) / 10));
+            applyZoom();
+        }
+
+        function setExplicitZoom(zoomVal) {
+            canvasZoom = zoomVal;
+            applyZoom();
+        }
+
+        function handleZoomSliderInput(val) {
+            canvasZoom = Math.max(0.2, Math.min(2.5, parseInt(val) / 100));
+            applyZoom();
+        }
+
+        function toggleZoomMenu(e) {
+            e.stopPropagation();
+            document.getElementById('zoom-menu-dropdown').classList.toggle('hidden');
+        }
+        function hideZoomMenu() {
+            const menu = document.getElementById('zoom-menu-dropdown');
+            if (menu) menu.classList.add('hidden');
+        }
+
+        // ============================================================
+        // CANVA RESIZE & RATIO ENGINE (MAGIC SWITCH)
+        // ============================================================
+        function toggleResizeMenu(e) {
+            e.stopPropagation();
+            document.getElementById('resize-menu-dropdown').classList.toggle('hidden');
+        }
+        function hideResizeMenu() {
+            const menu = document.getElementById('resize-menu-dropdown');
+            if (menu) menu.classList.add('hidden');
+        }
+
+        window.addEventListener('click', () => {
+            hideResizeMenu();
+            hideZoomMenu();
+            const expMenu = document.getElementById('export-menu-dropdown');
+            if (expMenu) expMenu.classList.add('hidden');
+        });
+
+        function applyCanvasResize(newW, newH, presetKey, presetLabel) {
+            const chk = document.getElementById('chk-scale-elements-proportional');
+            const shouldScale = chk ? chk.checked : true;
+
+            const oldDims = getArtboardDimensions();
+            const oldW = oldDims.width;
+            const oldH = oldDims.height;
+
+            if (shouldScale && oldW > 0 && oldH > 0 && (oldW !== newW || oldH !== newH)) {
+                const scaleX = newW / oldW;
+                const scaleY = newH / oldH;
+                const scaleFont = Math.min(scaleX, scaleY);
+
+                canvasElements.forEach(el => {
+                    el.x = Math.round(el.x * scaleX);
+                    el.y = Math.round(el.y * scaleY);
+                    el.width = Math.round(el.width * scaleX);
+                    el.height = Math.round(el.height * scaleY);
+                    if (el.type === 'text' && el.fontSize) {
+                        el.fontSize = Math.max(8, Math.round(el.fontSize * scaleFont));
+                    }
+                });
+            }
+
+            artboard.style.width = newW + 'px';
+            artboard.style.height = newH + 'px';
+            currentPreset = presetKey || 'custom';
+
+            // Update Label
+            const label = document.getElementById('current-ratio-label');
+            if (label) label.textContent = `${presetLabel || 'Custom'} (${newW}×${newH})`;
+
+            // Highlight active button in list
+            document.querySelectorAll('.resize-option-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById(`btn-ratio-${presetKey}`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            // Sync legacy select
+            const legacySel = document.getElementById('canvas-preset-select');
+            if (legacySel) legacySel.value = presetKey;
+
+            // Re-render border if exists
+            if (currentBackground.border) {
+                applyBorderPreset(currentBackground.border);
+            }
+
+            renderAllCanvasElements();
+            recordHistorySnapshot();
+            fitCanvasToScreen();
+            hideResizeMenu();
+        }
+
+        function applyCustomDimensions() {
+            const wInput = document.getElementById('custom-resize-w');
+            const hInput = document.getElementById('custom-resize-h');
+            const w = Math.max(300, Math.min(3000, parseInt(wInput.value) || 1050));
+            const h = Math.max(300, Math.min(3000, parseInt(hInput.value) || 742));
+            applyCanvasResize(w, h, 'custom', 'Custom Size');
+        }
+
+        function flipCanvasOrientation() {
+            const dims = getArtboardDimensions();
+            const newW = dims.height;
+            const newH = dims.width;
+            const isLandscape = (newW > newH);
+            const label = isLandscape ? 'Landscape' : 'Portrait';
+            applyCanvasResize(newW, newH, isLandscape ? 'landscape-a4' : 'portrait-a4', label);
+        }
+
+        // Backward compatibility
+        function changeCanvasPreset(presetVal) {
+            if (presetVal === 'landscape-a4') applyCanvasResize(1050, 742, 'landscape-a4', 'A4 Landscape');
+            else if (presetVal === 'us-letter') applyCanvasResize(1100, 850, 'us-letter', 'US Letter');
+            else if (presetVal === 'square') applyCanvasResize(900, 900, 'square', 'Square Award');
+            else if (presetVal === 'portrait-a4') applyCanvasResize(742, 1050, 'portrait-a4', 'A4 Portrait');
+        }
+
+        // ============================================================
+        // MOUSE & KEYBOARD NAVIGATION (PAN & ZOOM)
+        // ============================================================
+        function initCanvasNavigation() {
+            const vp = document.getElementById('canvas-viewport');
+            if (!vp) return;
+
+            // Ctrl + Wheel Zoom
+            vp.addEventListener('wheel', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    const delta = e.deltaY < 0 ? 0.08 : -0.08;
+                    adjustZoom(delta);
+                }
+            }, { passive: false });
+
+            // Space + Drag Hand Panning
+            let isPanning = false;
+            let panStartX = 0, panStartY = 0;
+            let scrollStartX = 0, scrollStartY = 0;
+            let isSpaceDown = false;
+
+            window.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' && e.target.tagName !== 'INPUT' && !e.target.isContentEditable) {
+                    if (!isSpaceDown) {
+                        isSpaceDown = true;
+                        vp.style.cursor = 'grab';
+                    }
+                }
+            });
+
+            window.addEventListener('keyup', (e) => {
+                if (e.code === 'Space') {
+                    isSpaceDown = false;
+                    if (!isPanning) vp.style.cursor = 'default';
+                }
+            });
+
+            vp.addEventListener('mousedown', (e) => {
+                if (isSpaceDown || e.button === 1) { // Space or middle mouse
+                    isPanning = true;
+                    panStartX = e.clientX;
+                    panStartY = e.clientY;
+                    scrollStartX = vp.scrollLeft;
+                    scrollStartY = vp.scrollTop;
+                    vp.style.cursor = 'grabbing';
+                    e.preventDefault();
+                }
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (isPanning) {
+                    vp.scrollLeft = scrollStartX - (e.clientX - panStartX);
+                    vp.scrollTop = scrollStartY - (e.clientY - panStartY);
+                }
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (isPanning) {
+                    isPanning = false;
+                    vp.style.cursor = isSpaceDown ? 'grab' : 'default';
+                }
+            });
+        }
+
+        // ============================================================
+        // KEYBOARD SHORTCUTS ENGINE
+        // ============================================================
+        function initKeyboardShortcuts() {
+            window.addEventListener('keydown', (e) => {
+                if (e.target.tagName === 'INPUT' || e.target.isContentEditable) return;
+
+                if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                    e.preventDefault();
+                    undo();
+                } else if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+                    e.preventDefault();
+                    redo();
+                } else if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+                    e.preventDefault();
+                    duplicateSelectedElement();
+                } else if ((e.ctrlKey || e.metaKey) && e.key === '0') {
+                    e.preventDefault();
+                    fitCanvasToScreen();
+                } else if ((e.ctrlKey || e.metaKey) && e.key === '1') {
+                    e.preventDefault();
+                    setExplicitZoom(1.0);
+                } else if (e.key === 'Delete' || e.key === 'Backspace') {
+                    e.preventDefault();
+                    deleteSelectedElement();
+                } else if (e.key === 'Escape') {
+                    selectedElementId = null;
+                    renderAllCanvasElements();
+                } else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                    if (!selectedElementId) return;
+                    const elData = canvasElements.find(i => i.id === selectedElementId);
+                    if (!elData || elData.locked) return;
+                    e.preventDefault();
+                    const step = e.shiftKey ? 10 : 1;
+                    if (e.key === 'ArrowUp') elData.y -= step;
+                    if (e.key === 'ArrowDown') elData.y += step;
+                    if (e.key === 'ArrowLeft') elData.x -= step;
+                    if (e.key === 'ArrowRight') elData.x += step;
+                    renderAllCanvasElements();
+                }
+            });
+        }
+
+        // ============================================================
+        // ELEMENT FACTORY & DATA MODEL
+        // ============================================================
+        function createElementData(overrides = {}) {
+            return {
+                id: 'el_' + Math.random().toString(36).substr(2, 9),
+                type: 'text',
+                text: 'Sample Text',
+                x: 100, y: 100,
+                width: 300, height: 50,
+                rotation: 0,
+                opacity: 1,
+                locked: false,
+                fontSize: 24,
+                fontFamily: 'Montserrat',
+                fontWeight: '600',
+                fontStyle: 'normal',
+                textDecoration: 'none',
+                textTransform: 'none',
+                textAlign: 'center',
+                letterSpacing: 0,
+                lineHeight: 1.3,
+                fill: '#ffffff',
+                ...overrides
+            };
+        }
+
+        function addTextElement(text, overrides = {}) {
+            const dims = getArtboardDimensions();
+            const w = overrides.width || 500;
+            const h = overrides.height || 60;
+            const newEl = createElementData({
+                type: 'text',
+                text: text,
+                x: Math.round((dims.width - w) / 2),
+                y: Math.round((dims.height - h) / 2),
+                width: w,
+                height: h,
+                ...overrides
+            });
+            canvasElements.push(newEl);
+            renderAllCanvasElements();
+            selectElement(newEl.id);
+            recordHistorySnapshot();
+        }
+
+        function addSvgElement(svgType) {
+            const dims = getArtboardDimensions();
+            const newEl = createElementData({
+                type: 'svg',
+                svgType: svgType,
+                x: Math.round((dims.width - 100) / 2),
+                y: Math.round((dims.height - 100) / 2),
+                width: 100,
+                height: 100
+            });
+            canvasElements.push(newEl);
+            renderAllCanvasElements();
+            selectElement(newEl.id);
+            recordHistorySnapshot();
+        }
+
+        function addShapeElement(shapeType) {
+            const dims = getArtboardDimensions();
+            const isLine = (shapeType === 'line');
+            const w = isLine ? 400 : 120;
+            const h = isLine ? 2 : 120;
+            const newEl = createElementData({
+                type: 'shape',
+                shapeType: shapeType,
+                x: Math.round((dims.width - w) / 2),
+                y: Math.round((dims.height - h) / 2),
+                width: w,
+                height: h,
+                fill: '#d4af37'
+            });
+            canvasElements.push(newEl);
+            renderAllCanvasElements();
+            selectElement(newEl.id);
+            recordHistorySnapshot();
+        }
+
+        function addQrCodeElement() {
+            const dims = getArtboardDimensions();
+            const newEl = createElementData({
+                type: 'qr',
+                qrText: 'https://certstudio.pro/verify?id=' + Math.random().toString(36).substr(2, 9),
+                x: Math.round((dims.width - 85) / 2),
+                y: Math.round(dims.height - 140),
+                width: 85,
+                height: 85
+            });
+            canvasElements.push(newEl);
+            renderAllCanvasElements();
+            selectElement(newEl.id);
+            recordHistorySnapshot();
+        }
+
+        function addCursiveSignature(name, font) {
+            addTextElement(name, {
+                fontSize: 42,
+                fontFamily: font,
+                fontWeight: '400',
+                fill: '#38bdf8',
+                width: 260,
+                height: 60
+            });
+        }
+
+        // ============================================================
+        // CANVAS RENDERING ENGINE
+        // ============================================================
+        function renderAllCanvasElements() {
+            elementsContainer.innerHTML = '';
+
+            canvasElements.forEach(el => {
+                const domEl = document.createElement('div');
+                domEl.className = 'canvas-element' + (el.id === selectedElementId ? ' selected' : '') + (el.locked ? ' locked' : '');
+                domEl.id = el.id;
+                domEl.style.left = el.x + 'px';
+                domEl.style.top = el.y + 'px';
+                domEl.style.width = el.width + 'px';
+                domEl.style.height = el.height + 'px';
+                domEl.style.transform = `rotate(${el.rotation || 0}deg)`;
+                domEl.style.opacity = (el.opacity !== undefined) ? el.opacity : 1;
+
+                if (el.type === 'text') {
+                    domEl.style.fontFamily = `'${el.fontFamily}', sans-serif`;
+                    domEl.style.fontSize = el.fontSize + 'px';
+                    domEl.style.fontWeight = el.fontWeight;
+                    domEl.style.fontStyle = el.fontStyle;
+                    domEl.style.textDecoration = el.textDecoration;
+                    domEl.style.textTransform = el.textTransform;
+                    domEl.style.textAlign = el.textAlign;
+                    domEl.style.color = el.fill;
+                    domEl.style.letterSpacing = (el.letterSpacing || 0) + 'px';
+                    domEl.style.lineHeight = el.lineHeight || 1.3;
+                    domEl.style.whiteSpace = 'pre-wrap';
+                    domEl.style.wordBreak = 'break-word';
+                    domEl.innerText = el.text;
+
+                    // Double click to inline edit text
+                    domEl.addEventListener('dblclick', (e) => {
+                        e.stopPropagation();
+                        if (!el.locked) makeElementEditable(el.id);
+                    });
+
+                } else if (el.type === 'svg') {
+                    domEl.innerHTML = getSvgHtml(el.svgType);
+
+                } else if (el.type === 'shape') {
+                    domEl.innerHTML = getShapeHtml(el);
+
+                } else if (el.type === 'qr') {
+                    const qrDiv = document.createElement('div');
+                    qrDiv.style.width = '100%';
+                    qrDiv.style.height = '100%';
+                    domEl.appendChild(qrDiv);
+                    new QRCode(qrDiv, {
+                        text: el.qrText || 'https://certstudio.pro',
+                        width: el.width,
+                        height: el.height,
+                        colorDark: '#0f172a',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+
+                } else if (el.type === 'image') {
+                    const img = document.createElement('img');
+                    img.src = el.imageUrl;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'contain';
+                    img.draggable = false;
+                    domEl.appendChild(img);
+                }
+
+                // Add 8 Resize Handles + Rotation Handle
+                ['nw', 'ne', 'se', 'sw', 'n', 's', 'w', 'e'].forEach(dir => {
+                    const h = document.createElement('div');
+                    h.className = `resize-handle handle-${dir}`;
+                    h.dataset.handle = dir;
+                    domEl.appendChild(h);
+                });
+
+                const rotateH = document.createElement('div');
+                rotateH.className = 'rotate-handle';
+                domEl.appendChild(rotateH);
+
+                // Mouse interaction listeners
+                domEl.addEventListener('mousedown', (e) => handleElementMouseDown(e, el.id));
+
+                elementsContainer.appendChild(domEl);
+            });
+
+            updateContextToolbar();
+            renderLayersList();
+        }
+
+        // ============================================================
+        // SVG & SHAPE RENDERERS
+        // ============================================================
+        function getSvgHtml(svgType) {
+            if (svgType === 'gold_wax_seal') {
+                return `
+                <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="46" fill="#b45309" filter="drop-shadow(0 4px 10px rgba(0,0,0,0.5))"/>
+                    <circle cx="50" cy="50" r="42" fill="#d97706"/>
+                    <circle cx="50" cy="50" r="38" fill="#f59e0b"/>
+                    <circle cx="50" cy="50" r="35" fill="none" stroke="#fef3c7" stroke-width="1.5" stroke-dasharray="3,2"/>
+                    <polygon points="50,22 58,38 76,38 61,49 67,66 50,55 33,66 39,49 24,38 42,38" fill="#fef08a"/>
+                    <text x="50" y="80" font-family="'Cinzel', serif" font-size="8" font-weight="900" fill="#78350f" text-anchor="middle" letter-spacing="1">VERIFIED</text>
+                </svg>`;
+            } else if (svgType === 'excellence_rosette') {
+                return `
+                <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M 35 60 L 30 95 L 45 85 L 50 95 L 45 60 Z" fill="#b45309"/>
+                    <path d="M 65 60 L 70 95 L 55 85 L 50 95 L 55 60 Z" fill="#92400e"/>
+                    <circle cx="50" cy="45" r="36" fill="#f59e0b" filter="drop-shadow(0 4px 12px rgba(0,0,0,0.4))"/>
+                    <circle cx="50" cy="45" r="30" fill="#d97706"/>
+                    <circle cx="50" cy="45" r="26" fill="#fef08a"/>
+                    <text x="50" y="42" font-family="'Cinzel', serif" font-size="9" font-weight="900" fill="#78350f" text-anchor="middle">AWARD OF</text>
+                    <text x="50" y="53" font-family="'Montserrat', sans-serif" font-size="7.5" font-weight="800" fill="#b45309" text-anchor="middle">EXCELLENCE</text>
+                </svg>`;
+            } else if (svgType === 'laurel_wreath') {
+                return `
+                <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#d4af37">
+                        <path d="M 45 80 C 25 70 20 40 35 20 C 37 25 32 45 42 65 Z"/>
+                        <circle cx="28" cy="35" r="4"/><circle cx="24" cy="48" r="4"/><circle cx="28" cy="62" r="4"/>
+                        <path d="M 55 80 C 75 70 80 40 65 20 C 63 25 68 45 58 65 Z"/>
+                        <circle cx="72" cy="35" r="4"/><circle cx="76" cy="48" r="4"/><circle cx="72" cy="62" r="4"/>
+                        <polygon points="50,40 53,48 62,48 55,54 57,62 50,57 43,62 45,54 38,48 47,48" fill="#fbbf24"/>
+                    </g>
+                </svg>`;
+            } else if (svgType === 'gold_shield') {
+                return `
+                <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M 50 15 Q 85 15 80 45 Q 75 80 50 92 Q 25 80 20 45 Q 15 15 50 15 Z" fill="#d4af37" filter="drop-shadow(0 4px 10px rgba(0,0,0,0.5))"/>
+                    <path d="M 50 20 Q 78 20 74 46 Q 70 74 50 85 Q 30 74 26 46 Q 22 20 50 20 Z" fill="#b45309"/>
+                    <polygon points="50,30 55,42 67,42 57,50 61,62 50,54 39,62 43,50 33,42 45,42" fill="#fef08a"/>
+                </svg>`;
+            } else if (svgType === 'golden_trophy') {
+                return `
+                <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M 30 20 L 70 20 L 65 52 Q 60 70 50 72 Q 40 70 35 52 Z" fill="#f59e0b" filter="drop-shadow(0 4px 8px rgba(0,0,0,0.4))"/>
+                    <path d="M 30 25 C 15 25 15 45 33 48" fill="none" stroke="#d97706" stroke-width="4"/>
+                    <path d="M 70 25 C 85 25 85 45 67 48" fill="none" stroke="#d97706" stroke-width="4"/>
+                    <rect x="45" y="72" width="10" height="12" fill="#b45309"/>
+                    <rect x="35" y="84" width="30" height="8" rx="2" fill="#78350f"/>
+                    <polygon points="50,32 53,40 61,40 55,45 57,53 50,48 43,53 45,45 39,40 47,40" fill="#fef08a"/>
+                </svg>`;
+            } else {
+                return `
+                <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="45" fill="#f59e0b"/>
+                    <polygon points="50,15 61,38 85,38 66,52 73,76 50,62 27,76 34,52 15,38 39,38" fill="#ffffff"/>
+                </svg>`;
+            }
+        }
+
+        function getShapeHtml(el) {
+            if (el.shapeType === 'line') {
+                return `<div style="width: 100%; height: ${el.height}px; background: ${el.fill};"></div>`;
+            } else if (el.shapeType === 'circle') {
+                return `<div style="width: 100%; height: 100%; border-radius: 50%; background: ${el.fill};"></div>`;
+            } else if (el.shapeType === 'stars3') {
+                return `<div style="font-size: 24px; color: ${el.fill}; letter-spacing: 8px; text-align: center;">★★★</div>`;
+            } else if (el.shapeType === 'star') {
+                return `<div style="font-size: 32px; color: ${el.fill}; text-align: center;">★</div>`;
+            } else if (el.shapeType === 'ribbon_banner') {
+                return `<div style="width: 100%; height: 100%; border: 2px solid ${el.fill}; border-radius: 6px; background: rgba(0,0,0,0.2);"></div>`;
+            } else {
+                return `<div style="width: 100%; height: 100%; border-radius: 6px; background: ${el.fill};"></div>`;
+            }
+        }
+
+        // ============================================================
+        // BACKGROUNDS & BORDERS
+        // ============================================================
+        function applyArtboardBackground(themeKey) {
+            const bg = document.getElementById('artboard-bg');
+            currentBackground.value = themeKey;
+
+            if (themeKey === 'obsidian_gold') {
+                bg.style.background = 'linear-gradient(135deg, #090d16 0%, #030408 100%)';
+            } else if (themeKey === 'royal_sapphire') {
+                bg.style.background = 'linear-gradient(135deg, #0a1738 0%, #030816 100%)';
+            } else if (themeKey === 'imperial_emerald') {
+                bg.style.background = 'linear-gradient(135deg, #022c22 0%, #041410 100%)';
+            } else if (themeKey === 'classic_ivory') {
+                bg.style.background = '#fdfbf7';
+            } else if (themeKey === 'crimson_ruby') {
+                bg.style.background = 'linear-gradient(135deg, #3f0713 0%, #150207 100%)';
+            } else if (themeKey === 'pure_white') {
+                bg.style.background = '#ffffff';
+            }
+        }
+
+        function applyBorderPreset(borderKey) {
+            currentBackground.border = borderKey;
+            let existingBorder = document.getElementById('custom-canvas-border');
+            if (existingBorder) existingBorder.remove();
+
+            if (borderKey === 'none') return;
+
+            const borderDiv = document.createElement('div');
+            borderDiv.id = 'custom-canvas-border';
+            borderDiv.style.position = 'absolute';
+            borderDiv.style.pointerEvents = 'none';
+            borderDiv.style.zIndex = '5';
+
+            if (borderKey === 'double_gold') {
+                borderDiv.style.top = '22px';
+                borderDiv.style.left = '22px';
+                borderDiv.style.right = '22px';
+                borderDiv.style.bottom = '22px';
+                borderDiv.style.border = '2px solid #d4af37';
+                borderDiv.style.outline = '6px solid rgba(212, 175, 55, 0.3)';
+                borderDiv.style.outlineOffset = '-10px';
+            } else if (borderKey === 'vintage_baroque') {
+                borderDiv.style.top = '25px';
+                borderDiv.style.left = '25px';
+                borderDiv.style.right = '25px';
+                borderDiv.style.bottom = '25px';
+                borderDiv.style.border = '3px double #34d399';
+                borderDiv.style.boxShadow = 'inset 0 0 20px rgba(52, 211, 153, 0.2)';
+            } else if (borderKey === 'neon_glow') {
+                borderDiv.style.top = '20px';
+                borderDiv.style.left = '20px';
+                borderDiv.style.right = '20px';
+                borderDiv.style.bottom = '20px';
+                borderDiv.style.border = '2px solid #38bdf8';
+                borderDiv.style.boxShadow = '0 0 20px rgba(56, 189, 248, 0.4), inset 0 0 20px rgba(236, 72, 153, 0.3)';
+            } else if (borderKey === 'modern_corner') {
+                borderDiv.style.top = '28px';
+                borderDiv.style.left = '28px';
+                borderDiv.style.right = '28px';
+                borderDiv.style.bottom = '28px';
+                borderDiv.style.border = '1px solid #d4af37';
+            } else if (borderKey === 'thin_minimal') {
+                borderDiv.style.top = '16px';
+                borderDiv.style.left = '16px';
+                borderDiv.style.right = '16px';
+                borderDiv.style.bottom = '16px';
+                borderDiv.style.border = '1px solid rgba(15, 23, 42, 0.25)';
+            }
+
+            artboard.appendChild(borderDiv);
+        }
+
+        function toggleGuillochePattern(show) {
+            const svg = document.getElementById('guilloche-svg');
+            if (svg) svg.style.display = show ? 'block' : 'none';
+        }
+
+        // ============================================================
+        // ELEMENT SELECTION, DRAGGING, RESIZING & ROTATING
+        // ============================================================
+        function selectElement(id) {
+            selectedElementId = id;
+            document.querySelectorAll('.canvas-element').forEach(el => {
+                el.classList.toggle('selected', el.id === id);
+            });
+            updateContextToolbar();
+            renderLayersList();
+        }
+
+        function handleViewportClick(e) {
+            if (e.target.id === 'canvas-viewport' || e.target.id === 'artboard' || e.target.id === 'artboard-bg') {
+                selectedElementId = null;
+                document.querySelectorAll('.canvas-element').forEach(el => el.classList.remove('selected'));
+                updateContextToolbar();
+                renderLayersList();
+            }
+        }
+
+        function handleElementMouseDown(e, id) {
+            e.stopPropagation();
+            const elData = canvasElements.find(item => item.id === id);
+            if (!elData) return;
+
+            selectElement(id);
+
+            if (elData.locked) return; // Prevent drag/resize on locked elements
+
+            // Check if clicking rotation handle
+            if (e.target.classList.contains('rotate-handle')) {
+                isRotatingElement = true;
+                const domEl = document.getElementById(id);
+                const rect = domEl.getBoundingClientRect();
+                rotateCenter = {
+                    x: rect.left + rect.width / 2,
+                    y: rect.top + rect.height / 2
+                };
+                if (rotBadge) {
+                    rotBadge.style.display = 'block';
+                    rotBadge.textContent = `${elData.rotation || 0}°`;
+                }
+            } else if (e.target.classList.contains('resize-handle')) {
+                isResizingElement = true;
+                resizeDirection = e.target.dataset.handle;
+            } else {
+                isDraggingElement = true;
+            }
+
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            initialElX = elData.x;
+            initialElY = elData.y;
+            initialElW = elData.width;
+            initialElH = elData.height;
+
+            window.addEventListener('mousemove', handleElementMouseMove);
+            window.addEventListener('mouseup', handleElementMouseUp);
+        }
+
+        function handleElementMouseMove(e) {
+            const elData = canvasElements.find(item => item.id === selectedElementId);
+            if (!elData || elData.locked) return;
+
+            const deltaX = (e.clientX - dragStartX) / canvasZoom;
+            const deltaY = (e.clientY - dragStartY) / canvasZoom;
+
+            if (isRotatingElement) {
+                const rad = Math.atan2(e.clientY - rotateCenter.y, e.clientX - rotateCenter.x);
+                let deg = Math.round(rad * (180 / Math.PI)) + 90;
+                if (deg < 0) deg += 360;
+                if (deg >= 360) deg -= 360;
+
+                // Shift key snaps to 15-degree increments
+                if (e.shiftKey) {
+                    deg = Math.round(deg / 15) * 15;
+                } else {
+                    if (Math.abs(deg - 0) < 4 || Math.abs(deg - 360) < 4) deg = 0;
+                    else if (Math.abs(deg - 45) < 4) deg = 45;
+                    else if (Math.abs(deg - 90) < 4) deg = 90;
+                    else if (Math.abs(deg - 180) < 4) deg = 180;
+                    else if (Math.abs(deg - 270) < 4) deg = 270;
+                }
+
+                elData.rotation = deg;
+                const domEl = document.getElementById(elData.id);
+                if (domEl) {
+                    domEl.style.transform = `rotate(${deg}deg)`;
+                }
+                if (rotBadge) {
+                    rotBadge.textContent = `${deg}°`;
+                }
+
+            } else if (isDraggingElement) {
+                let targetX = Math.round(initialElX + deltaX);
+                let targetY = Math.round(initialElY + deltaY);
+
+                // Magnetic Center Snapping
+                const dims = getArtboardDimensions();
+                const centerX = (dims.width - elData.width) / 2;
+                const centerY = (dims.height - elData.height) / 2;
+
+                if (Math.abs(targetX - centerX) < 7) {
+                    targetX = centerX;
+                    guideX.style.left = (dims.width / 2) + 'px';
+                    guideX.style.display = 'block';
+                } else {
+                    guideX.style.display = 'none';
+                }
+
+                if (Math.abs(targetY - centerY) < 7) {
+                    targetY = centerY;
+                    guideY.style.top = (dims.height / 2) + 'px';
+                    guideY.style.display = 'block';
+                } else {
+                    guideY.style.display = 'none';
+                }
+
+                elData.x = targetX;
+                elData.y = targetY;
+
+                const domEl = document.getElementById(elData.id);
+                if (domEl) {
+                    domEl.style.left = targetX + 'px';
+                    domEl.style.top = targetY + 'px';
+                }
+
+            } else if (isResizingElement) {
+                let newW = initialElW;
+                let newH = initialElH;
+                let newX = initialElX;
+                let newY = initialElY;
+
+                if (resizeDirection.includes('e')) newW = Math.max(30, initialElW + deltaX);
+                if (resizeDirection.includes('s')) newH = Math.max(20, initialElH + deltaY);
+                if (resizeDirection.includes('w')) {
+                    newW = Math.max(30, initialElW - deltaX);
+                    newX = initialElX + (initialElW - newW);
+                }
+                if (resizeDirection.includes('n')) {
+                    newH = Math.max(20, initialElH - deltaY);
+                    newY = initialElY + (initialElH - newH);
+                }
+
+                elData.width = Math.round(newW);
+                elData.height = Math.round(newH);
+                elData.x = Math.round(newX);
+                elData.y = Math.round(newY);
+
+                const domEl = document.getElementById(elData.id);
+                if (domEl) {
+                    domEl.style.width = elData.width + 'px';
+                    domEl.style.height = elData.height + 'px';
+                    domEl.style.left = elData.x + 'px';
+                    domEl.style.top = elData.y + 'px';
+                }
+            }
+        }
+
+        function handleElementMouseUp() {
+            guideX.style.display = 'none';
+            guideY.style.display = 'none';
+            if (rotBadge) rotBadge.style.display = 'none';
+
+            if (isDraggingElement || isResizingElement || isRotatingElement) {
+                recordHistorySnapshot();
+            }
+
+            isDraggingElement = false;
+            isResizingElement = false;
+            isRotatingElement = false;
+            resizeDirection = null;
+
+            window.removeEventListener('mousemove', handleElementMouseMove);
+            window.removeEventListener('mouseup', handleElementMouseUp);
+        }
+
+        // Inline Text Editing
+        function makeElementEditable(id) {
+            const elData = canvasElements.find(item => item.id === id);
+            if (!elData || elData.type !== 'text') return;
+
+            const domEl = document.getElementById(id);
+            if (!domEl) return;
+
+            domEl.contentEditable = "true";
+            domEl.focus();
+            document.execCommand('selectAll', false, null);
+
+            function finishEdit() {
+                domEl.contentEditable = "false";
+                elData.text = domEl.innerText;
+                recordHistorySnapshot();
+                domEl.removeEventListener('blur', finishEdit);
+            }
+            domEl.addEventListener('blur', finishEdit);
+        }
+
+        // ============================================================
+        // CONTEXTUAL TOOLBAR UPDATES & CONTROLS
+        // ============================================================
+        function updateContextToolbar() {
+            const elData = canvasElements.find(item => item.id === selectedElementId);
+            const fontSelect = document.getElementById('ctx-font-family');
+            const fontSizeInput = document.getElementById('ctx-font-size');
+            const colorPicker = document.getElementById('ctx-color-picker');
+            const colorSwatch = document.getElementById('ctx-color-swatch');
+            const boldBtn = document.getElementById('btn-toggle-bold');
+            const italicBtn = document.getElementById('btn-toggle-italic');
+            const underBtn = document.getElementById('btn-toggle-underline');
+            const upperBtn = document.getElementById('btn-toggle-upper');
+            const spaceInput = document.getElementById('ctx-letter-spacing');
+            const opacitySlider = document.getElementById('ctx-opacity-slider');
+            const lockBtn = document.getElementById('btn-lock-toggle');
+
+            if (!elData) return;
+
+            if (lockBtn) lockBtn.textContent = elData.locked ? '🔒' : '🔓';
+            if (opacitySlider) opacitySlider.value = Math.round((elData.opacity !== undefined ? elData.opacity : 1) * 100);
+
+            if (elData.type === 'text') {
+                if (fontSelect) fontSelect.value = elData.fontFamily;
+                if (fontSizeInput) fontSizeInput.value = elData.fontSize;
+                if (colorPicker) colorPicker.value = (elData.fill && elData.fill.startsWith('#')) ? elData.fill : '#ffffff';
+                if (colorSwatch) colorSwatch.style.background = elData.fill;
+                if (boldBtn) boldBtn.classList.toggle('active', elData.fontWeight === '800' || elData.fontWeight === 'bold' || elData.fontWeight === '900');
+                if (italicBtn) italicBtn.classList.toggle('active', elData.fontStyle === 'italic');
+                if (underBtn) underBtn.classList.toggle('active', elData.textDecoration === 'underline');
+                if (upperBtn) upperBtn.classList.toggle('active', elData.textTransform === 'uppercase');
+                if (spaceInput) spaceInput.value = elData.letterSpacing || 0;
+            } else {
+                if (colorSwatch) colorSwatch.style.background = elData.fill || '#d4af37';
+            }
+        }
+
+        function updateSelectedTextProp(prop, val) {
+            const elData = canvasElements.find(item => item.id === selectedElementId);
+            if (!elData || elData.locked) return;
+            elData[prop] = val;
+            renderAllCanvasElements();
+            recordHistorySnapshot();
+        }
+
+        function updateSelectedColor(hexColor) {
+            const elData = canvasElements.find(item => item.id === selectedElementId);
+            if (!elData || elData.locked) return;
+            elData.fill = hexColor;
+            renderAllCanvasElements();
+            recordHistorySnapshot();
+        }
+
+        function stepFontSize(delta) {
+            const elData = canvasElements.find(item => item.id === selectedElementId);
+            if (!elData || elData.type !== 'text' || elData.locked) return;
+            elData.fontSize = Math.max(8, elData.fontSize + delta);
+            renderAllCanvasElements();
+            recordHistorySnapshot();
+        }
+
+        function stepLetterSpacing(delta) {
+            const elData = canvasElements.find(item => item.id === selectedElementId);
+            if (!elData || elData.type !== 'text' || elData.locked) return;
+            elData.letterSpacing = Math.max(-2, Math.min(24, (elData.letterSpacing || 0) + delta));
+            renderAllCanvasElements();
+            recordHistorySnapshot();
+        }
+
+        function updateSelectedOpacity(pct) {
+            const elData = canvasElements.find(item => item.id === selectedElementId);
+            if (!elData || elData.locked) return;
+            elData.opacity = parseInt(pct) / 100;
+            renderAllCanvasElements();
+        }
+
+        function toggleTextFormat(type) {
+            const elData = canvasElements.find(item => item.id === selectedElementId);
+            if (!elData || elData.type !== 'text' || elData.locked) return;
+
+            if (type === 'bold') {
+                elData.fontWeight = (elData.fontWeight === '800' || elData.fontWeight === 'bold' || elData.fontWeight === '900') ? '400' : '800';
+            } else if (type === 'italic') {
+                elData.fontStyle = (elData.fontStyle === 'italic') ? 'normal' : 'italic';
+            } else if (type === 'underline') {
+                elData.textDecoration = (elData.textDecoration === 'underline') ? 'none' : 'underline';
+            } else if (type === 'uppercase') {
+                elData.textTransform = (elData.textTransform === 'uppercase') ? 'none' : 'uppercase';
+            }
+            renderAllCanvasElements();
+            recordHistorySnapshot();
+        }
+
+        function toggleLockSelectedElement() {
+            const elData = canvasElements.find(item => item.id === selectedElementId);
+            if (!elData) return;
+            elData.locked = !elData.locked;
+            renderAllCanvasElements();
+            recordHistorySnapshot();
+        }
+
+        function alignElementToCenter(axis) {
+            const elData = canvasElements.find(item => item.id === selectedElementId);
+            if (!elData || elData.locked) return;
+            const dims = getArtboardDimensions();
+
+            if (axis === 'x') elData.x = Math.round((dims.width - elData.width) / 2);
+            if (axis === 'y') elData.y = Math.round((dims.height - elData.height) / 2);
+
+            renderAllCanvasElements();
+            recordHistorySnapshot();
+        }
+
+        function bringForward() {
+            if (!selectedElementId) return;
+            const idx = canvasElements.findIndex(i => i.id === selectedElementId);
+            if (idx < canvasElements.length - 1) {
+                const item = canvasElements.splice(idx, 1)[0];
+                canvasElements.splice(idx + 1, 0, item);
+                renderAllCanvasElements();
+                recordHistorySnapshot();
+            }
+        }
+
+        function sendBackward() {
+            if (!selectedElementId) return;
+            const idx = canvasElements.findIndex(i => i.id === selectedElementId);
+            if (idx > 0) {
+                const item = canvasElements.splice(idx, 1)[0];
+                canvasElements.splice(idx - 1, 0, item);
+                renderAllCanvasElements();
+                recordHistorySnapshot();
+            }
+        }
+
+        function duplicateSelectedElement() {
+            const elData = canvasElements.find(item => item.id === selectedElementId);
+            if (!elData) return;
+            const clone = JSON.parse(JSON.stringify(elData));
+            clone.id = 'el_' + Math.random().toString(36).substr(2, 9);
+            clone.x += 20;
+            clone.y += 20;
+            clone.locked = false;
+            canvasElements.push(clone);
+            renderAllCanvasElements();
+            selectElement(clone.id);
+            recordHistorySnapshot();
+        }
+
+        function deleteSelectedElement() {
+            if (!selectedElementId) return;
+            const elData = canvasElements.find(i => i.id === selectedElementId);
+            if (elData && elData.locked) return;
+            canvasElements = canvasElements.filter(item => item.id !== selectedElementId);
+            selectedElementId = null;
+            renderAllCanvasElements();
+            recordHistorySnapshot();
+        }
+
+        // ============================================================
+        // LAYERS DRAWER RENDERING
+        // ============================================================
+        function renderLayersList() {
+            const container = document.getElementById('layers-list-container');
+            if (!container) return;
+
+            if (canvasElements.length === 0) {
+                container.innerHTML = `<div style="text-align: center; color: #64748b; font-size: 11px; padding: 20px 0;">No elements on artboard.</div>`;
+                return;
+            }
+
+            container.innerHTML = canvasElements.slice().reverse().map((el, revIdx) => {
+                const isSelected = (el.id === selectedElementId);
+                const title = el.type === 'text' ? (el.text.substring(0, 24) || 'Empty Text') : `${el.type.toUpperCase()} Element`;
+                const icon = el.type === 'text' ? '🔤' : (el.type === 'svg' ? '✨' : (el.type === 'qr' ? '📱' : '🖼️'));
+
+                return `
+                <div class="resize-option-btn ${isSelected ? 'active' : ''}" style="padding: 6px 10px;" onclick="selectElement('${el.id}')">
+                    <span>${icon}</span>
+                    <span style="font-size: 11.5px; font-weight: 700; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${title}</span>
+                    <span style="font-size: 11px; cursor: pointer;" onclick="event.stopPropagation(); toggleLockElementById('${el.id}')">${el.locked ? '🔒' : '🔓'}</span>
+                </div>`;
+            }).join('');
+        }
+
+        function toggleLockElementById(id) {
+            const el = canvasElements.find(i => i.id === id);
+            if (el) {
+                el.locked = !el.locked;
+                renderAllCanvasElements();
+                recordHistorySnapshot();
+            }
+        }
+
+        // ============================================================
+        // CANVA MASTER TEMPLATES LOADER (7 PRO MASTERPIECES)
+        // ============================================================
+        function loadMasterTemplate(key) {
+            canvasElements = [];
+            selectedElementId = null;
+            const dims = getArtboardDimensions();
+
+            if (key === 'master_royal_gold') {
+                applyArtboardBackground('obsidian_gold');
+                applyBorderPreset('double_gold');
+                document.getElementById('document-title').value = "Certificate of Excellence & Achievement";
+
+                // 1. Accreditation Tag
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'HONORARY ACCREDITATION & LEADERSHIP COUNCIL',
+                    x: 75, y: 95, width: 900, height: 35,
+                    fontSize: 13, fontFamily: 'Cinzel', fontWeight: '800',
+                    fill: '#d4af37', letterSpacing: 5, textAlign: 'center'
+                }));
+
+                // 2. Main Title
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'CERTIFICATE OF EXCELLENCE',
+                    x: 50, y: 130, width: 950, height: 60,
+                    fontSize: 35, fontFamily: 'Cinzel', fontWeight: '900',
+                    fill: '#ffffff', letterSpacing: 3, textAlign: 'center'
+                }));
+
+                // 3. Subheading / Lead
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'THIS OFFICIAL CREDENTIAL IS PROUDLY CONFERRED UPON',
+                    x: 175, y: 195, width: 700, height: 30,
+                    fontSize: 11.5, fontFamily: 'Montserrat', fontWeight: '700',
+                    fill: '#94a3b8', letterSpacing: 3, textAlign: 'center'
+                }));
+
+                // 4. Recipient Name
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Alexander Vance Hawthorne',
+                    x: 100, y: 235, width: 850, height: 90,
+                    fontSize: 58, fontFamily: 'Great Vibes', fontWeight: '400',
+                    fill: '#fef08a', textAlign: 'center'
+                }));
+
+                // 5. Gold Divider Line
+                canvasElements.push(createElementData({
+                    type: 'shape', shapeType: 'line',
+                    x: 350, y: 345, width: 350, height: 2,
+                    fill: '#d4af37'
+                }));
+
+                // 6. Citation Paragraph
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'In recognition of outstanding dedication, visionary leadership, and highest distinction demonstrated throughout the 2026 Global Leadership & Innovation Honors Program.',
+                    x: 150, y: 375, width: 750, height: 65,
+                    fontSize: 13.5, fontFamily: 'Inter', fontWeight: '400',
+                    fill: '#cbd5e1', textAlign: 'center', lineHeight: 1.55
+                }));
+
+                // 7. Official Gold Wax Seal
+                canvasElements.push(createElementData({
+                    type: 'svg', svgType: 'gold_wax_seal',
+                    x: 475, y: 505, width: 100, height: 100
+                }));
+
+                // 8. Signature Left
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Dr. Catherine Howard\n_____________________\nAcademic Dean',
+                    x: 140, y: 575, width: 230, height: 75,
+                    fontSize: 12, fontFamily: 'Montserrat', fontWeight: '600',
+                    fill: '#cbd5e1', textAlign: 'center'
+                }));
+
+                // 9. Signature Right
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Lord Julian Sterling\n_____________________\nBoard Chancellor',
+                    x: 680, y: 575, width: 230, height: 75,
+                    fontSize: 12, fontFamily: 'Montserrat', fontWeight: '600',
+                    fill: '#cbd5e1', textAlign: 'center'
+                }));
+
+                // 10. Security QR Code
+                canvasElements.push(createElementData({
+                    type: 'qr',
+                    qrText: 'https://certstudio.pro/verify?id=CANVA-GOLD-2026',
+                    x: 485, y: 620, width: 80, height: 80
+                }));
+
+                // 11. Credential ID
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'VERIFIED CREDENTIAL • ID: CANVA-2026-X8892 • SECURE BLOCKCHAIN REGISTRY',
+                    x: 175, y: 695, width: 700, height: 25,
+                    fontSize: 9.5, fontFamily: 'JetBrains Mono', fontWeight: '700',
+                    fill: '#64748b', letterSpacing: 1.5, textAlign: 'center'
+                }));
+
+            } else if (key === 'master_sapphire_crest') {
+                applyArtboardBackground('royal_sapphire');
+                applyBorderPreset('neon_glow');
+                document.getElementById('document-title').value = "Honorary Diploma of Leadership";
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'INTERNATIONAL SUMMIT ON ARTIFICIAL INTELLIGENCE',
+                    x: 75, y: 95, width: 900, height: 35,
+                    fontSize: 13, fontFamily: 'Montserrat', fontWeight: '800',
+                    fill: '#38bdf8', letterSpacing: 4, textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'HONORARY DIPLOMA OF DISTINCTION',
+                    x: 50, y: 130, width: 950, height: 60,
+                    fontSize: 34, fontFamily: 'Playfair Display', fontWeight: '900',
+                    fill: '#ffffff', letterSpacing: 2.5, textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'FOR BREAKTHROUGH CONTRIBUTIONS & INNOVATIVE EXCELLENCE CONFERRED UPON',
+                    x: 175, y: 195, width: 700, height: 30,
+                    fontSize: 11, fontFamily: 'Montserrat', fontWeight: '700',
+                    fill: '#94a3b8', letterSpacing: 2.5, textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Sophia Eleanor Sterling',
+                    x: 100, y: 235, width: 850, height: 90,
+                    fontSize: 56, fontFamily: 'Alex Brush', fontWeight: '400',
+                    fill: '#38bdf8', textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'shape', shapeType: 'line',
+                    x: 350, y: 345, width: 350, height: 2,
+                    fill: '#38bdf8'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Presented with highest honors for pioneering breakthroughs in machine intelligence, scalable autonomous architectures, and visionary collaborative leadership.',
+                    x: 150, y: 375, width: 750, height: 65,
+                    fontSize: 13.5, fontFamily: 'Inter', fontWeight: '400',
+                    fill: '#cbd5e1', textAlign: 'center', lineHeight: 1.55
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'svg', svgType: 'excellence_rosette',
+                    x: 475, y: 505, width: 100, height: 100
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Elena Rostova\n_____________________\nChief Scientist',
+                    x: 140, y: 575, width: 230, height: 75,
+                    fontSize: 12, fontFamily: 'Montserrat', fontWeight: '600',
+                    fill: '#cbd5e1', textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Marcus Vance\n_____________________\nProgram Chair',
+                    x: 680, y: 575, width: 230, height: 75,
+                    fontSize: 12, fontFamily: 'Montserrat', fontWeight: '600',
+                    fill: '#cbd5e1', textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'CREDENTIAL ID: AISUMMIT-2026-9042 • VERIFIED ENTERPRISE SEAL',
+                    x: 175, y: 695, width: 700, height: 25,
+                    fontSize: 9.5, fontFamily: 'JetBrains Mono', fontWeight: '700',
+                    fill: '#38bdf8', letterSpacing: 1.5, textAlign: 'center'
+                }));
+
+            } else if (key === 'master_imperial_emerald') {
+                applyArtboardBackground('imperial_emerald');
+                applyBorderPreset('vintage_baroque');
+                document.getElementById('document-title').value = "Fellowship of Highest Scholastic Merit";
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'EUROPEAN ACADEMY OF HIGHER SCIENCES',
+                    x: 75, y: 95, width: 900, height: 35,
+                    fontSize: 13, fontFamily: 'Cinzel', fontWeight: '800',
+                    fill: '#6ee7b7', letterSpacing: 5, textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'FELLOWSHIP OF HIGHEST MERIT',
+                    x: 50, y: 130, width: 950, height: 60,
+                    fontSize: 34, fontFamily: 'Cinzel', fontWeight: '900',
+                    fill: '#fef08a', letterSpacing: 3, textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'UPON THE FORMAL RECOMMENDATION OF THE ACADEMIC SENATE',
+                    x: 175, y: 195, width: 700, height: 30,
+                    fontSize: 11, fontFamily: 'Montserrat', fontWeight: '700',
+                    fill: '#a7f3d0', letterSpacing: 3, textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Dr. Jonathan David Montgomery',
+                    x: 100, y: 240, width: 850, height: 80,
+                    fontSize: 48, fontFamily: 'Cormorant Garamond', fontWeight: '700',
+                    fill: '#ffffff', textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'shape', shapeType: 'line',
+                    x: 350, y: 345, width: 350, height: 2,
+                    fill: '#34d399'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'In formal recognition of distinguished doctoral research, profound advancements in theoretical sciences, and extraordinary tenure as Fellow of the Royal Society.',
+                    x: 150, y: 375, width: 750, height: 65,
+                    fontSize: 13.5, fontFamily: 'Inter', fontWeight: '400',
+                    fill: '#d1fae5', textAlign: 'center', lineHeight: 1.55
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'svg', svgType: 'laurel_wreath',
+                    x: 475, y: 505, width: 100, height: 100
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Prof. Arthur Pendelton\n_____________________\nSenate President',
+                    x: 140, y: 575, width: 230, height: 75,
+                    fontSize: 12, fontFamily: 'Montserrat', fontWeight: '600',
+                    fill: '#a7f3d0', textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Prof. Beatrice Sinclair\n_____________________\nDirector of Research',
+                    x: 680, y: 575, width: 230, height: 75,
+                    fontSize: 12, fontFamily: 'Montserrat', fontWeight: '600',
+                    fill: '#a7f3d0', textAlign: 'center'
+                }));
+
+            } else if (key === 'master_platinum_executive') {
+                applyArtboardBackground('pure_white');
+                applyBorderPreset('thin_minimal');
+                document.getElementById('document-title').value = "Executive Leadership Certificate";
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'GLOBAL STRATEGY & EXECUTIVE MANAGEMENT INSTITUTE',
+                    x: 75, y: 95, width: 900, height: 35,
+                    fontSize: 12.5, fontFamily: 'Outfit', fontWeight: '800',
+                    fill: '#78350f', letterSpacing: 4, textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'EXECUTIVE LEADERSHIP CERTIFICATE',
+                    x: 50, y: 130, width: 950, height: 60,
+                    fontSize: 34, fontFamily: 'Outfit', fontWeight: '900',
+                    fill: '#0f172a', letterSpacing: 2, textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'THIS OFFICIAL CREDENTIAL IS AWARDED IN HIGH RECOGNITION TO',
+                    x: 175, y: 195, width: 700, height: 30,
+                    fontSize: 11, fontFamily: 'Montserrat', fontWeight: '700',
+                    fill: '#64748b', letterSpacing: 2.5, textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Olivia Madeleine Cross',
+                    x: 100, y: 240, width: 850, height: 80,
+                    fontSize: 46, fontFamily: 'Cinzel', fontWeight: '800',
+                    fill: '#b45309', textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'shape', shapeType: 'line',
+                    x: 350, y: 345, width: 350, height: 2,
+                    fill: '#b45309'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Having fulfilled all milestones, executive benchmarks, and board-level strategic management simulations with highest tier distinction.',
+                    x: 150, y: 375, width: 750, height: 65,
+                    fontSize: 13.5, fontFamily: 'Inter', fontWeight: '400',
+                    fill: '#475569', textAlign: 'center', lineHeight: 1.55
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'svg', svgType: 'gold_shield',
+                    x: 475, y: 505, width: 95, height: 95
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Richard Sterling\n_____________________\nManaging Director',
+                    x: 140, y: 575, width: 230, height: 75,
+                    fontSize: 12, fontFamily: 'Montserrat', fontWeight: '600',
+                    fill: '#475569', textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Board of Governors\n_____________________\nExecutive Council',
+                    x: 680, y: 575, width: 230, height: 75,
+                    fontSize: 12, fontFamily: 'Montserrat', fontWeight: '600',
+                    fill: '#475569', textAlign: 'center'
+                }));
+
+            } else if (key === 'master_cyber_hackathon') {
+                applyArtboardBackground('obsidian_gold');
+                applyBorderPreset('neon_glow');
+                document.getElementById('document-title').value = "Global Autonomous AI First Place Champion";
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: '2026 GLOBAL DEEPTECH & AI HACKATHON',
+                    x: 75, y: 95, width: 900, height: 35,
+                    fontSize: 13, fontFamily: 'JetBrains Mono', fontWeight: '800',
+                    fill: '#38bdf8', letterSpacing: 4, textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'FIRST PLACE GRAND CHAMPION',
+                    x: 50, y: 130, width: 950, height: 60,
+                    fontSize: 36, fontFamily: 'Outfit', fontWeight: '900',
+                    fill: '#ec4899', letterSpacing: 3, textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'FOR ARCHITECTING BREAKTHROUGH AUTONOMOUS SYSTEMS CONFERRED UPON',
+                    x: 175, y: 195, width: 700, height: 30,
+                    fontSize: 11, fontFamily: 'Montserrat', fontWeight: '700',
+                    fill: '#94a3b8', letterSpacing: 3, textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'David Kowalski',
+                    x: 100, y: 235, width: 850, height: 85,
+                    fontSize: 54, fontFamily: 'Outfit', fontWeight: '900',
+                    fill: '#ffffff', textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'shape', shapeType: 'line',
+                    x: 350, y: 345, width: 350, height: 2,
+                    fill: '#ec4899'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Awarded with supreme distinction for groundbreaking ingenuity, autonomous intelligent reasoning swarms, and stellar performance in the 2026 Global AI Finals.',
+                    x: 150, y: 375, width: 750, height: 65,
+                    fontSize: 13.5, fontFamily: 'Inter', fontWeight: '400',
+                    fill: '#94a3b8', textAlign: 'center', lineHeight: 1.55
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'svg', svgType: 'golden_trophy',
+                    x: 475, y: 505, width: 100, height: 100
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Hacking Council\n_____________________\nLead Judge',
+                    x: 140, y: 575, width: 230, height: 75,
+                    fontSize: 12, fontFamily: 'Montserrat', fontWeight: '600',
+                    fill: '#cbd5e1', textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'AI Foundation\n_____________________\nExecutive Sponsor',
+                    x: 680, y: 575, width: 230, height: 75,
+                    fontSize: 12, fontFamily: 'Montserrat', fontWeight: '600',
+                    fill: '#cbd5e1', textAlign: 'center'
+                }));
+
+            } else if (key === 'master_baroque_diploma') {
+                applyArtboardBackground('classic_ivory');
+                applyBorderPreset('double_gold');
+                document.getElementById('document-title').value = "Diploma of Scholastic Excellence";
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'THE RECTOR AND FACULTY OF THE UNIVERSITY',
+                    x: 75, y: 95, width: 900, height: 35,
+                    fontSize: 12.5, fontFamily: 'Cinzel', fontWeight: '800',
+                    fill: '#78350f', letterSpacing: 5, textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'DIPLOMA OF SCHOLASTIC EXCELLENCE',
+                    x: 50, y: 130, width: 950, height: 60,
+                    fontSize: 34, fontFamily: 'Cinzel', fontWeight: '900',
+                    fill: '#1e293b', letterSpacing: 2.5, textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'BE IT KNOWN TO ALL PERSONS PRESENT THAT',
+                    x: 175, y: 195, width: 700, height: 30,
+                    fontSize: 11, fontFamily: 'Montserrat', fontWeight: '700',
+                    fill: '#64748b', letterSpacing: 3, textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Christopher William Harrison',
+                    x: 100, y: 235, width: 850, height: 90,
+                    fontSize: 56, fontFamily: 'Great Vibes', fontWeight: '400',
+                    fill: '#78350f', textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'shape', shapeType: 'line',
+                    x: 350, y: 345, width: 350, height: 2,
+                    fill: '#d4af37'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Having satisfactorily completed all rigorous academic coursework, scholastic research, and examinations prescribed by the Governing Council with highest distinction.',
+                    x: 150, y: 375, width: 750, height: 65,
+                    fontSize: 13.5, fontFamily: 'Cormorant Garamond', fontWeight: '600',
+                    fill: '#334155', textAlign: 'center', lineHeight: 1.55
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'svg', svgType: 'gold_wax_seal',
+                    x: 475, y: 505, width: 95, height: 95
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Prof. Julian Vance\n_____________________\nUniversity Registrar',
+                    x: 140, y: 575, width: 230, height: 75,
+                    fontSize: 12, fontFamily: 'Montserrat', fontWeight: '600',
+                    fill: '#475569', textAlign: 'center'
+                }));
+
+                canvasElements.push(createElementData({
+                    type: 'text',
+                    text: 'Lord Montgomery\n_____________________\nChancellor',
+                    x: 680, y: 575, width: 230, height: 75,
+                    fontSize: 12, fontFamily: 'Montserrat', fontWeight: '600',
+                    fill: '#475569', textAlign: 'center'
+                }));
+
+            } else {
+                // Fallback: master royal gold
+                loadMasterTemplate('master_royal_gold');
+                return;
+            }
+
+            renderAllCanvasElements();
+            renderLayersList();
+            updateContextToolbar();
+            recordHistorySnapshot();
+
+            const statusText = document.getElementById('cloud-status-text');
+            if (statusText) {
+                statusText.textContent = 'Template Loaded';
+                setTimeout(() => { statusText.textContent = 'Cloud Synchronized'; }, 2000);
+            }
+        }
+
+        // Backward compatibility for existing tests
+        function loadPresetTemplate(presetKey) {
+            if (presetKey === 'royal_gold') {
+                loadMasterTemplate('master_royal_gold');
+            } else if (presetKey === 'corporate_executive') {
+                loadMasterTemplate('master_imperial_emerald');
+            } else if (presetKey === 'tech_innovation') {
+                loadMasterTemplate('master_cyber_hackathon');
+            } else {
+                loadMasterTemplate('master_royal_gold');
+            }
+        }
+
+        // ============================================================
+        // 1,000 CERTIFICATE TEMPLATES MEGA CATALOG
+        // ============================================================
+        let currentCatalogCategory = 'all';
+        let currentCatalogSearch = '';
+        let catalogRenderLimit = 20;
+
+        function filterCatalogCategory(catId, btn) {
+            currentCatalogCategory = catId;
+            document.querySelectorAll('.cat-pill-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            catalogRenderLimit = 20;
+            renderCatalogGrid();
+        }
+
+        function handleCatalogSearch(query) {
+            currentCatalogSearch = query.trim().toLowerCase();
+            catalogRenderLimit = 20;
+            renderCatalogGrid();
+        }
+
+        function loadMoreCatalogTemplates() {
+            catalogRenderLimit += 24;
+            renderCatalogGrid();
+        }
+
+        function shuffleCatalog() {
+            if (window.MEGA_CERTIFICATE_TEMPLATES && window.MEGA_CERTIFICATE_TEMPLATES.length > 0) {
+                for (let i = window.MEGA_CERTIFICATE_TEMPLATES.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [window.MEGA_CERTIFICATE_TEMPLATES[i], window.MEGA_CERTIFICATE_TEMPLATES[j]] = 
+                    [window.MEGA_CERTIFICATE_TEMPLATES[j], window.MEGA_CERTIFICATE_TEMPLATES[i]];
+                }
+            }
+            catalogRenderLimit = 20;
+            renderCatalogGrid();
+        }
+
+        function renderCatalogGrid() {
+            const grid = document.getElementById('mega-template-grid');
+            if (!grid) return;
+
+            const allTemplates = window.MEGA_CERTIFICATE_TEMPLATES || [];
+            let filtered = allTemplates;
+
+            if (currentCatalogCategory !== 'all') {
+                filtered = filtered.filter(t => t.category === currentCatalogCategory);
+            }
+
+            if (currentCatalogSearch) {
+                filtered = filtered.filter(t => 
+                    t.title.toLowerCase().includes(currentCatalogSearch) ||
+                    t.categoryName.toLowerCase().includes(currentCatalogSearch)
+                );
+            }
+
+            const countLabel = document.getElementById('catalog-count-label');
+            if (countLabel) {
+                countLabel.textContent = `Showing ${Math.min(catalogRenderLimit, filtered.length)} of ${filtered.length} templates`;
+            }
+
+            const loadMoreBtn = document.getElementById('btn-load-more-catalog');
+            if (loadMoreBtn) {
+                loadMoreBtn.style.display = (catalogRenderLimit < filtered.length) ? 'flex' : 'none';
+            }
+
+            const sliced = filtered.slice(0, catalogRenderLimit);
+
+            if (sliced.length === 0) {
+                grid.innerHTML = `
+                    <div style="text-align: center; padding: 30px 10px; color: #94a3b8; font-size: 13px;">
+                        <div style="font-size: 32px; margin-bottom: 8px;">🔍</div>
+                        No templates found matching "${currentCatalogSearch}".
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = sliced.map(t => {
+                let bgStyle = 'background: #090d16; border: 1.5px solid #d4af37;';
+                let textColor = '#d4af37';
+                let titleColor = '#ffffff';
+
+                if (t.theme === 'royal_sapphire') {
+                    bgStyle = 'background: linear-gradient(135deg, #0a1738 0%, #030816 100%); border: 1.5px solid #38bdf8;';
+                    textColor = '#38bdf8';
+                } else if (t.theme === 'imperial_emerald') {
+                    bgStyle = 'background: linear-gradient(135deg, #022c22 0%, #064e3b 100%); border: 1.5px solid #34d399;';
+                    textColor = '#34d399';
+                } else if (t.theme === 'crimson_ruby') {
+                    bgStyle = 'background: linear-gradient(135deg, #3f0713 0%, #7f1d1d 100%); border: 1.5px solid #fbbf24;';
+                    textColor = '#fbbf24';
+                } else if (t.theme === 'classic_ivory') {
+                    bgStyle = 'background: #fdfbf7; border: 1.5px solid #d4af37;';
+                    textColor = '#78350f';
+                    titleColor = '#1e293b';
+                } else if (t.theme === 'cyber_neon') {
+                    bgStyle = 'background: linear-gradient(135deg, #090d16 0%, #17112c 100%); border: 1.5px solid #ec4899;';
+                    textColor = '#ec4899';
+                }
+
+                return `
+                <div class="template-preview-card" onclick="loadMegaTemplate('${t.id}')">
+                    <div class="template-thumb-box" style="${bgStyle}">
+                        <div style="font-size: 9px; font-weight: 800; letter-spacing: 1.5px; color: ${textColor}; text-transform: uppercase;">
+                            ${t.categoryName}
+                        </div>
+                        <div style="font-family: '${t.fontTitle}', serif; font-size: 11px; font-weight: 800; color: ${titleColor}; margin: 4px 0; line-height: 1.2; max-height: 28px; overflow: hidden;">
+                            ${t.title}
+                        </div>
+                        <div style="font-family: '${t.fontRecipient}', cursive; font-size: 15px; color: ${textColor};">
+                            Recipient Name
+                        </div>
+                        <div style="font-size: 8px; color: #94a3b8; margin-top: 2px;">
+                            ${t.qr ? '📱 QR Code • ' : ''}⭐ Verified Seal
+                        </div>
+                    </div>
+                    <div class="template-meta-row">
+                        <span class="template-name" title="${t.title}">${t.title}</span>
+                        <span class="template-tag">${t.categoryIcon} #${String(t.index).padStart(3, '0')}</span>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function loadMegaTemplate(templateId) {
+            const allTemplates = window.MEGA_CERTIFICATE_TEMPLATES || [];
+            const t = allTemplates.find(item => item.id === templateId);
+            if (!t) return;
+
+            canvasElements = [];
+            selectedElementId = null;
+
+            applyArtboardBackground(t.theme);
+            applyBorderPreset(t.border);
+
+            const docTitle = document.getElementById('document-title');
+            if (docTitle) docTitle.value = t.title;
+
+            const isLight = (t.theme === 'classic_ivory' || t.theme === 'pure_white');
+            const primaryGold = isLight ? '#78350f' : '#d4af37';
+            const textDark = isLight ? '#1e293b' : '#ffffff';
+            const textMuted = isLight ? '#475569' : '#94a3b8';
+            const textSub = isLight ? '#64748b' : '#cbd5e1';
+
+            // 1. Header Category Tag
+            canvasElements.push(createElementData({
+                type: 'text',
+                text: `CERTIFICATE OF ${t.categoryName.toUpperCase()}`,
+                x: 105, y: 100, width: 840, height: 40,
+                fontSize: 14, fontFamily: 'Montserrat', fontWeight: '800',
+                fill: primaryGold, letterSpacing: 5, textAlign: 'center'
+            }));
+
+            // 2. Main Title
+            canvasElements.push(createElementData({
+                type: 'text',
+                text: t.title.toUpperCase(),
+                x: 75, y: 135, width: 900, height: 60,
+                fontSize: 26, fontFamily: t.fontTitle || 'Cinzel', fontWeight: '900',
+                fill: textDark, letterSpacing: 2.5, textAlign: 'center'
+            }));
+
+            // 3. Subtitle / Lead
+            canvasElements.push(createElementData({
+                type: 'text',
+                text: 'THIS OFFICIAL CREDENTIAL IS PROUDLY CONFERRED UPON',
+                x: 175, y: 195, width: 700, height: 30,
+                fontSize: 11, fontFamily: 'Montserrat', fontWeight: '700',
+                fill: textMuted, letterSpacing: 3, textAlign: 'center'
+            }));
+
+            // 4. Recipient Name
+            canvasElements.push(createElementData({
+                type: 'text',
+                text: 'Alexander Vance Hawthorne',
+                x: 125, y: 240, width: 800, height: 85,
+                fontSize: 54, fontFamily: t.fontRecipient || 'Great Vibes', fontWeight: '400',
+                fill: primaryGold, textAlign: 'center'
+            }));
+
+            // 5. Divider Line
+            canvasElements.push(createElementData({
+                type: 'shape', shapeType: 'line',
+                x: 350, y: 345, width: 350, height: 2,
+                fill: primaryGold
+            }));
+
+            // 6. Category-Tailored Description Paragraph
+            let descText = `In recognition of outstanding dedication, exemplary commitment, and highest distinction demonstrated in ${t.title}.`;
+            if (t.category === 'event') {
+                descText = `For actively participating as an honored delegate, contributing valuable insights, and fostering collaborative innovation throughout the ${t.title}.`;
+            } else if (t.category === 'participation') {
+                descText = `For successfully completing all interactive challenges, workshops, and competitive benchmarks in the ${t.title} with commendable diligence.`;
+            } else if (t.category === 'club') {
+                descText = `In recognition of dedicated service, exemplary leadership, and extraordinary contributions as an esteemed member of the ${t.title}.`;
+            } else if (t.category === 'academic') {
+                descText = `Having satisfactorily completed all rigorous academic coursework, scholastic research, and examinations prescribed for the ${t.title}.`;
+            } else if (t.category === 'appreciation') {
+                descText = `Presented with deep gratitude and highest esteem for your visionary impact, unwavering loyalty, and exceptional service rendered toward ${t.title}.`;
+            } else if (t.category === 'sports') {
+                descText = `For demonstrating athletic mastery, extraordinary sportsmanship, and outstanding physical prowess in triumphing at the ${t.title}.`;
+            } else if (t.category === 'corporate') {
+                descText = `For fulfilling all enterprise milestones, professional deliverables, and corporate competency benchmarks with superior excellence in ${t.title}.`;
+            } else if (t.category === 'workshop') {
+                descText = `For successfully mastering all advanced hands-on technical labs, practical architectures, and project implementations in the ${t.title}.`;
+            } else if (t.category === 'achievement') {
+                descText = `Awarded with supreme distinction for groundbreaking ingenuity, stellar merit, and triumphant first-rank achievement in ${t.title}.`;
+            } else if (t.category === 'community') {
+                descText = `With profound appreciation for selfless dedication, altruistic impact, and tireless volunteer service toward community well-being in ${t.title}.`;
+            }
+
+            canvasElements.push(createElementData({
+                type: 'text',
+                text: descText,
+                x: 150, y: 375, width: 750, height: 65,
+                fontSize: 13.5, fontFamily: 'Inter', fontWeight: '400',
+                fill: textSub, textAlign: 'center', lineHeight: 1.55
+            }));
+
+            // 7. Seal / Badge Element
+            canvasElements.push(createElementData({
+                type: 'svg', svgType: t.seal || 'gold_wax_seal',
+                x: 475, y: 505, width: 95, height: 95
+            }));
+
+            // 8. Signatory Left
+            canvasElements.push(createElementData({
+                type: 'text',
+                text: `Dr. Catherine Howard\n_____________________\n${t.sig1Role || 'Academic Director'}`,
+                x: 140, y: 575, width: 230, height: 75,
+                fontSize: 12, fontFamily: 'Montserrat', fontWeight: '600',
+                fill: textSub, textAlign: 'center'
+            }));
+
+            // 9. Signatory Right
+            canvasElements.push(createElementData({
+                type: 'text',
+                text: `Official Authority\n_____________________\n${t.sig2Role || 'Board President'}`,
+                x: 680, y: 575, width: 230, height: 75,
+                fontSize: 12, fontFamily: 'Montserrat', fontWeight: '600',
+                fill: textSub, textAlign: 'center'
+            }));
+
+            // 10. Verification QR Code
+            if (t.qr) {
+                canvasElements.push(createElementData({
+                    type: 'qr',
+                    qrText: `https://certstudio.pro/verify?id=${t.id}`,
+                    x: 485, y: 615, width: 80, height: 80
+                }));
+            }
+
+            // 11. Security Credential ID Footer
+            canvasElements.push(createElementData({
+                type: 'text',
+                text: `OFFICIAL CREDENTIAL ID: ${t.id.toUpperCase()}-2026 • ISSUED VIA CERTIFICATE STUDIO PRO`,
+                x: 175, y: 695, width: 700, height: 25,
+                fontSize: 9.5, fontFamily: 'JetBrains Mono', fontWeight: '700',
+                fill: textMuted, letterSpacing: 1.5, textAlign: 'center'
+            }));
+
+            renderAllCanvasElements();
+            renderLayersList();
+            updateContextToolbar();
+            recordHistorySnapshot();
+
+            const statusText = document.getElementById('cloud-status-text');
+            if (statusText) {
+                statusText.textContent = `Loaded: ${t.categoryName}`;
+                setTimeout(() => { statusText.textContent = 'Cloud Synchronized'; }, 2000);
+            }
+        }
+
+        // ============================================================
+        // BLANK CANVAS ENGINE
+        // ============================================================
+        let selectedBlankRatio = 'landscape-a4';
+        let selectedBlankColor = 'pure_white';
+
+        function selectBlankRatio(ratio, btn) {
+            selectedBlankRatio = ratio;
+            document.querySelectorAll('.blank-ratio-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function selectBlankColor(colorKey, dot) {
+            selectedBlankColor = colorKey;
+            document.querySelectorAll('.blank-color-dot').forEach(d => d.classList.remove('active'));
+            dot.classList.add('active');
+        }
+
+        function createBlankCanvas() {
+            changeCanvasPreset(selectedBlankRatio);
+            applyArtboardBackground(selectedBlankColor);
+            applyBorderPreset('thin_minimal');
+
+            canvasElements = [];
+            selectedElementId = null;
+
+            const docTitle = document.getElementById('document-title');
+            if (docTitle) docTitle.value = 'Blank Certificate Canvas';
+
+            renderAllCanvasElements();
+            renderLayersList();
+            updateContextToolbar();
+            recordHistorySnapshot();
+        }
+
+        function clearCanvasToBlank() {
+            if (canvasElements.length > 0) {
+                if (!confirm("Are you sure you want to clear all elements?")) return;
+            }
+            canvasElements = [];
+            selectedElementId = null;
+            renderAllCanvasElements();
+            renderLayersList();
+            updateContextToolbar();
+            recordHistorySnapshot();
+        }
+
+        // ============================================================
+        // UNDO / REDO HISTORY ENGINE
+        // ============================================================
+        function recordHistorySnapshot() {
+            if (historyIndex < historyStack.length - 1) {
+                historyStack = historyStack.slice(0, historyIndex + 1);
+            }
+            historyStack.push(JSON.stringify(canvasElements));
+            historyIndex = historyStack.length - 1;
+
+            const btnUndo = document.getElementById('btn-undo');
+            const btnRedo = document.getElementById('btn-redo');
+            if (btnUndo) btnUndo.disabled = (historyIndex <= 0);
+            if (btnRedo) btnRedo.disabled = (historyIndex >= historyStack.length - 1);
+        }
+
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                canvasElements = JSON.parse(historyStack[historyIndex]);
+                renderAllCanvasElements();
+                const btnUndo = document.getElementById('btn-undo');
+                const btnRedo = document.getElementById('btn-redo');
+                if (btnUndo) btnUndo.disabled = (historyIndex <= 0);
+                if (btnRedo) btnRedo.disabled = (historyIndex >= historyStack.length - 1);
+            }
+        }
+
+        function redo() {
+            if (historyIndex < historyStack.length - 1) {
+                historyIndex++;
+                canvasElements = JSON.parse(historyStack[historyIndex]);
+                renderAllCanvasElements();
+                const btnUndo = document.getElementById('btn-undo');
+                const btnRedo = document.getElementById('btn-redo');
+                if (btnUndo) btnUndo.disabled = (historyIndex <= 0);
+                if (btnRedo) btnRedo.disabled = (historyIndex >= historyStack.length - 1);
+            }
+        }
+
+        // ============================================================
+        // SIGNATURE DRAWING PAD ENGINE
+        // ============================================================
+        let sigCanvas, sigCtx, isDrawingSig = false;
+        let sigInkColor = '#0f172a';
+
+        function initSignaturePad() {
+            sigCanvas = document.getElementById('sig-canvas');
+            if (!sigCanvas) return;
+            sigCtx = sigCanvas.getContext('2d');
+            sigCanvas.width = 468;
+            sigCanvas.height = 180;
+
+            sigCtx.lineWidth = 2.5;
+            sigCtx.lineCap = 'round';
+            sigCtx.lineJoin = 'round';
+            sigCtx.strokeStyle = sigInkColor;
+
+            function startDraw(e) {
+                isDrawingSig = true;
+                const rect = sigCanvas.getBoundingClientRect();
+                sigCtx.beginPath();
+                sigCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+            }
+            function draw(e) {
+                if (!isDrawingSig) return;
+                const rect = sigCanvas.getBoundingClientRect();
+                sigCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+                sigCtx.stroke();
+            }
+            function stopDraw() { isDrawingSig = false; }
+
+            sigCanvas.addEventListener('mousedown', startDraw);
+            sigCanvas.addEventListener('mousemove', draw);
+            window.addEventListener('mouseup', stopDraw);
+        }
+
+        function openSignatureModal() {
+            document.getElementById('sig-pad-modal').classList.remove('hidden');
+            clearSignaturePad();
+        }
+        function closeSignatureModal() {
+            document.getElementById('sig-pad-modal').classList.add('hidden');
+        }
+        function clearSignaturePad() {
+            if (sigCtx) sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+        }
+        function setSigInkColor(color) {
+            sigInkColor = color;
+            if (sigCtx) sigCtx.strokeStyle = color;
+        }
+
+        function insertDrawnSignature() {
+            const dataUrl = sigCanvas.toDataURL('image/png');
+            const dims = getArtboardDimensions();
+            const newEl = createElementData({
+                type: 'image',
+                imageUrl: dataUrl,
+                x: Math.round((dims.width - 200) / 2),
+                y: Math.round(dims.height - 180),
+                width: 200, height: 80
+            });
+            canvasElements.push(newEl);
+            renderAllCanvasElements();
+            selectElement(newEl.id);
+            closeSignatureModal();
+            recordHistorySnapshot();
+        }
+
+        // ============================================================
+        // ASSET UPLOADS
+        // ============================================================
+        async function handleAssetFileInput(input) {
+            if (!input.files || !input.files[0]) return;
+            uploadAssetFile(input.files[0]);
+        }
+
+        async function uploadAssetFile(file) {
+            const formData = new FormData();
+            formData.append('asset', file);
+
+            try {
+                const res = await fetch('/api/upload-designer-asset', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success && data.url) {
+                    addUploadedAssetToCanvas(data.url);
+                } else {
+                    const localUrl = URL.createObjectURL(file);
+                    addUploadedAssetToCanvas(localUrl);
+                }
+            } catch (err) {
+                const localUrl = URL.createObjectURL(file);
+                addUploadedAssetToCanvas(localUrl);
+            }
+        }
+
+        function addUploadedAssetToCanvas(url) {
+            const dims = getArtboardDimensions();
+            const newEl = createElementData({
+                type: 'image',
+                imageUrl: url,
+                x: Math.round((dims.width - 140) / 2),
+                y: Math.round((dims.height - 140) / 2),
+                width: 140, height: 140
+            });
+            canvasElements.push(newEl);
+            renderAllCanvasElements();
+            selectElement(newEl.id);
+            recordHistorySnapshot();
+        }
+
+        // ============================================================
+        // EXPORT & CLOUD SYNC
+        // ============================================================
+        function toggleExportMenu(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('export-menu-dropdown');
+            menu.classList.toggle('hidden');
+        }
+
+        async function rasterizeCanvasToBlob() {
+            const prevSelected = selectedElementId;
+            selectedElementId = null;
+            renderAllCanvasElements();
+
+            const origTransform = artboard.style.transform;
+            artboard.style.transform = 'scale(1)';
+
+            const canvas = await html2canvas(artboard, {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: null
+            });
+
+            artboard.style.transform = origTransform;
+            selectedElementId = prevSelected;
+            renderAllCanvasElements();
+
+            return canvas;
+        }
+
+        async function exportImage(format) {
+            const canvas = await rasterizeCanvasToBlob();
+            const mime = format === 'jpg' ? 'image/jpeg' : 'image/png';
+            const dataUrl = canvas.toDataURL(mime, 0.95);
+            const docTitle = document.getElementById('document-title').value.trim() || 'Certificate';
+
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = `${docTitle}.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        async function exportPDF() {
+            const canvas = await rasterizeCanvasToBlob();
+            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+            const { jsPDF } = window.jspdf;
+            
+            const isLandscape = canvas.width >= canvas.height;
+            const pdf = new jsPDF({
+                orientation: isLandscape ? 'landscape' : 'portrait',
+                unit: 'px',
+                format: [canvas.width / 2, canvas.height / 2]
+            });
+            pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width / 2, canvas.height / 2);
+            const docTitle = document.getElementById('document-title').value.trim() || 'Certificate';
+            pdf.save(`${docTitle}.pdf`);
+        }
+
+        let currentDesignId = null;
+
+        async function loadDesignFromCloud(designId) {
+            try {
+                const statusText = document.getElementById('cloud-status-text');
+                if (statusText) statusText.textContent = 'Loading Project...';
+                const res = await fetch('/api/my-designs');
+                const data = await res.json();
+                if (data.success && data.designs) {
+                    const match = data.designs.find(d => d.id === designId);
+                    if (match) {
+                        currentDesignId = match.id;
+                        if (match.title) {
+                            document.getElementById('document-title').value = match.title;
+                        }
+                        if (match.canvas_size) {
+                            artboard.style.width = match.canvas_size.width + 'px';
+                            artboard.style.height = match.canvas_size.height + 'px';
+                        }
+                        if (match.aspect_ratio) {
+                            currentPreset = match.aspect_ratio;
+                            const legacySel = document.getElementById('canvas-preset-select');
+                            if (legacySel) legacySel.value = match.aspect_ratio;
+                        }
+                        if (match.background) {
+                            currentBackground = match.background;
+                            if (match.background.value) applyArtboardBackground(match.background.value);
+                            if (match.background.border) applyBorderPreset(match.background.border);
+                        }
+                        canvasElements = match.elements || [];
+                        renderAllCanvasElements();
+                        recordHistorySnapshot();
+                        fitCanvasToScreen();
+                        if (statusText) statusText.textContent = 'Project Loaded';
+                        return true;
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to load design:', e);
+            }
+            return false;
+        }
+
+        async function saveDesignToCloud() {
+            const docTitle = document.getElementById('document-title').value.trim() || 'Untitled Certificate';
+            const statusText = document.getElementById('cloud-status-text');
+            statusText.textContent = 'Saving...';
+
+            let previewThumb = '';
+            try {
+                const canvas = await rasterizeCanvasToBlob();
+                const thumb = document.createElement('canvas');
+                thumb.width = 300;
+                thumb.height = Math.round(300 * (canvas.height / canvas.width));
+                const tCtx = thumb.getContext('2d');
+                tCtx.drawImage(canvas, 0, 0, thumb.width, thumb.height);
+                previewThumb = thumb.toDataURL('image/jpeg', 0.82);
+            } catch (e) {
+                console.warn('Thumbnail generation skipped:', e);
+            }
+
+            const dims = getArtboardDimensions();
+            const payload = {
+                id: currentDesignId,
+                title: docTitle,
+                canvas_size: { width: dims.width, height: dims.height },
+                background: currentBackground,
+                elements: canvasElements,
+                preview_image: previewThumb,
+                aspect_ratio: currentPreset
+            };
+
+            try {
+                const res = await fetch('/api/save-design', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    if (data.design_id) {
+                        currentDesignId = data.design_id;
+                        const newUrl = new URL(window.location);
+                        newUrl.searchParams.set('id', currentDesignId);
+                        window.history.replaceState({}, '', newUrl);
+                    }
+                    statusText.textContent = 'Saved to Cloud';
+                    setTimeout(() => { statusText.textContent = 'Cloud Synchronized'; }, 2500);
+                } else {
+                    statusText.textContent = 'Save Failed';
+                }
+            } catch (err) {
+                statusText.textContent = 'Cloud Offline';
+            }
+        }
+
+        // ============================================================
+        // DIRECT INTEGRATION: USE IN BULK GENERATOR
+        // ============================================================
+        async function useInBulkGenerator() {
+            const btn = document.getElementById('btn-use-bulk');
+            const prevText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner"></span> Exporting Template...';
+            btn.disabled = true;
+
+            try {
+                const canvas = await rasterizeCanvasToBlob();
+                const dataUrl = canvas.toDataURL('image/png', 0.95);
+                const title = document.getElementById('document-title').value.trim() || 'Designed Certificate';
+
+                const res = await fetch('/api/export-designer-template', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        image_data: dataUrl,
+                        title: title
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success && data.redirect) {
+                    window.location.href = data.redirect;
+                } else {
+                    alert('Export failed: ' + (data.error || 'Server error'));
+                    btn.innerHTML = prevText;
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                alert('Connection error during template export: ' + err.message);
+                btn.innerHTML = prevText;
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
+'''
+
+target_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'templates', 'designer.html')
+with open(target_path, 'w', encoding='utf-8') as f:
+    f.write(html_content.strip() + '\n')
+
+print(f"Successfully written {len(html_content)} bytes to {target_path}")

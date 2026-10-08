@@ -1,0 +1,194 @@
+<!-- Living Ambient Mesh Container (Included Across All Pages) -->
+<div class="ambient-mesh">
+    <div class="mesh-grid"></div>
+    <div class="aurora-orb orb-1"></div>
+    <div class="aurora-orb orb-2"></div>
+    <div class="aurora-orb orb-3"></div>
+</div>
+
+<header class="studio-header">
+    <div class="header-left">
+        <a href="/dashboard" class="brand-logo">
+            <span class="logo-box">
+                <span class="logo-gradient">CS</span>
+            </span>
+            <span class="brand-text">
+                <span class="brand-title">Certificate<span class="accent-dot">.</span>Studio</span>
+                <span class="brand-tag">PRO ENTERPRISE</span>
+            </span>
+        </a>
+    </div>
+
+    <div class="header-center">
+        <nav class="nav-links">
+            <a href="/dashboard" class="nav-item {% if request.path == '/dashboard' %}active{% endif %}">
+                <span class="nav-icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="/create-certificate" class="nav-item {% if request.path in ['/create-certificate', '/designer'] %}active{% endif %}" style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(139, 92, 246, 0.15)); border: 1px solid rgba(236, 72, 153, 0.35);">
+                <span class="nav-icon">🎨</span>
+                <span style="font-weight: 800; background: linear-gradient(135deg, #ec4899, #8b5cf6, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Canva Studio</span>
+            </a>
+            <a href="/studio" class="nav-item {% if request.path == '/studio' %}active{% endif %}">
+                <span class="nav-icon">🚀</span>
+                <span>Batch Studio</span>
+            </a>
+            <a href="/smtp-settings" class="nav-item {% if request.path == '/smtp-settings' %}active{% endif %}">
+                <span class="nav-icon">📧</span>
+                <span>SMTP Mailer</span>
+            </a>
+            <a href="/account-settings" class="nav-item {% if request.path == '/account-settings' %}active{% endif %}">
+                <span class="nav-icon">⚙️</span>
+                <span>Settings</span>
+            </a>
+        </nav>
+    </div>
+    
+    <div class="header-right">
+        <div class="user-pill" onclick="toggleDropdown(event)">
+            <div class="header-avatar">
+                {% if session.get('user_avatar') %}
+                    <img src="{{ url_for('static', filename=session.get('user_avatar')) }}" alt="Avatar">
+                {% else %}
+                    {{ session.get('user_name', 'U')[0]|upper }}
+                {% endif %}
+            </div>
+            <div class="user-info-text">
+                <span class="user-name-label">{{ session.get('user_name', 'Account') }}</span>
+                <span class="user-tier-label">PRO MEMBER</span>
+            </div>
+            <span class="dropdown-chevron">▾</span>
+
+            <!-- Dropdown Menu -->
+            <div id="account-dropdown" class="dropdown-menu">
+                <div class="dropdown-header">
+                    <div style="font-weight: 800; color: #f8fafc; font-size: 14px;">{{ session.get('user_name', 'User') }}</div>
+                    <div style="font-size: 11px; color: #94a3b8; font-family: var(--font-mono);">{{ session.get('user_contact', '') }}</div>
+                </div>
+                <a href="/dashboard" class="dropdown-item">📊 Dashboard Overview</a>
+                <a href="/create-certificate" class="dropdown-item">🎨 Canva Certificate Designer</a>
+                <a href="/studio" class="dropdown-item">🚀 Bulk Batch Generator</a>
+                <a href="/smtp-settings" class="dropdown-item">📧 SMTP Email Settings</a>
+                <a href="/account-settings" class="dropdown-item">⚙️ Profile & Security</a>
+                <div class="dropdown-divider"></div>
+                <a href="/logout" class="dropdown-item dropdown-logout">🚪 Sign Out</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<style>
+    .studio-header {
+        position: fixed; top: 0; left: 0; width: 100%; height: 72px;
+        background: rgba(7, 9, 19, 0.75); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08); display: flex;
+        justify-content: space-between; align-items: center; padding: 0 35px; z-index: 1000;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .studio-header::after {
+        content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(236, 72, 153, 0.6), rgba(139, 92, 246, 0.6), rgba(59, 130, 246, 0.6), transparent);
+    }
+
+    .brand-logo { text-decoration: none; display: flex; align-items: center; gap: 12px; }
+    .logo-box {
+        width: 40px; height: 40px; border-radius: 12px;
+        background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(139, 92, 246, 0.2));
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+        position: relative; overflow: hidden;
+    }
+    .logo-box::before {
+        content: ''; position: absolute; width: 100%; height: 100%;
+        background: linear-gradient(135deg, #ec4899, #8b5cf6, #3b82f6);
+        opacity: 0.85; z-index: 1;
+    }
+    .logo-gradient {
+        position: relative; z-index: 2; font-family: var(--font-heading);
+        font-weight: 900; font-size: 17px; color: white; letter-spacing: -0.5px;
+    }
+    .brand-title {
+        font-family: var(--font-heading); font-size: 19px; font-weight: 800;
+        letter-spacing: -0.5px; color: #ffffff; display: block;
+    }
+    .accent-dot { color: #ec4899; }
+    .brand-tag {
+        font-size: 9px; font-weight: 800; letter-spacing: 1.5px;
+        color: #38bdf8; text-transform: uppercase; display: block; margin-top: -2px;
+    }
+
+    .nav-links {
+        display: flex; align-items: center; gap: 6px;
+        background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 5px 8px; border-radius: 50px;
+    }
+    .nav-item {
+        color: #94a3b8; text-decoration: none; font-size: 13px; font-weight: 600;
+        padding: 7px 16px; border-radius: 50px; display: flex; align-items: center; gap: 6px;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .nav-item:hover { color: #f8fafc; background: rgba(255, 255, 255, 0.08); }
+    .nav-item.active {
+        color: white; background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(139, 92, 246, 0.3));
+        border: 1px solid rgba(236, 72, 153, 0.4);
+        box-shadow: 0 0 15px rgba(236, 72, 153, 0.25);
+    }
+
+    .user-pill {
+        display: flex; align-items: center; gap: 10px;
+        background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.12);
+        padding: 5px 14px 5px 6px; border-radius: 50px; cursor: pointer; position: relative;
+        transition: all 0.25s;
+    }
+    .user-pill:hover {
+        background: rgba(255, 255, 255, 0.08); border-color: rgba(168, 85, 247, 0.4);
+        box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+    }
+    .header-avatar {
+        width: 38px; height: 38px; border-radius: 50%;
+        background: linear-gradient(135deg, #ec4899, #8b5cf6);
+        display: flex; justify-content: center; align-items: center;
+        color: white; font-weight: 800; font-size: 15px;
+        overflow: hidden; border: 2px solid rgba(255, 255, 255, 0.25);
+        box-shadow: 0 0 10px rgba(236, 72, 153, 0.4);
+    }
+    .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .user-name-label { font-size: 13px; font-weight: 700; color: #f1f5f9; display: block; line-height: 1.2; }
+    .user-tier-label { font-size: 9px; font-weight: 800; color: #34d399; letter-spacing: 0.8px; }
+    .dropdown-chevron { font-size: 10px; color: #94a3b8; transition: transform 0.2s; }
+
+    .dropdown-menu {
+        position: absolute; top: 58px; right: 0; width: 240px;
+        background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 18px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(139, 92, 246, 0.2);
+        padding: 8px; display: none; flex-direction: column; gap: 4px; z-index: 1100;
+        animation: dropAnim 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes dropAnim {
+        from { opacity: 0; transform: translateY(-12px) scale(0.96); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .dropdown-header { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 4px; }
+    .dropdown-item {
+        color: #cbd5e1; text-decoration: none; padding: 10px 14px; border-radius: 10px;
+        font-size: 13px; font-weight: 600; transition: all 0.2s; display: block;
+    }
+    .dropdown-item:hover { background: rgba(255, 255, 255, 0.08); color: white; transform: translateX(3px); }
+    .dropdown-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0; }
+    .dropdown-logout { color: #fb7185; }
+    .dropdown-logout:hover { background: rgba(244, 63, 94, 0.15); color: #fda4af; }
+</style>
+
+<script>
+    function toggleDropdown(e) {
+        e.stopPropagation();
+        const menu = document.getElementById('account-dropdown');
+        menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    }
+    window.addEventListener('click', () => {
+        const menu = document.getElementById('account-dropdown');
+        if(menu) menu.style.display = 'none';
+    });
+</script>

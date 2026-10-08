@@ -1,0 +1,2485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pro Certificate Mapping Studio</title>
+    <!-- Master Ultra-Animated Theme -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Great+Vibes&family=Inter:wght@400;600;700;800&family=Montserrat:wght@500;700&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+    
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: var(--font-body), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #070913;
+            color: #f1f5f9;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Application Bar */
+        .studio-topbar {
+            height: 60px;
+            background: rgba(10, 15, 29, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 22px;
+            z-index: 100;
+            flex-shrink: 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        .topbar-left { display: flex; align-items: center; gap: 14px; }
+        .logo-pill {
+            background: var(--grad-primary);
+            color: white; font-weight: 800; font-size: 13px;
+            padding: 6px 14px; border-radius: 10px; text-decoration: none;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+            display: flex; align-items: center; gap: 6px;
+            letter-spacing: 0.5px;
+        }
+        .topbar-title { font-family: var(--font-heading); font-size: 15px; font-weight: 800; color: #f8fafc; }
+        .back-link {
+            color: #94a3b8; font-size: 12px; text-decoration: none; display: flex; align-items: center; gap: 6px;
+            padding: 7px 14px; border-radius: 10px; background: rgba(255, 255, 255, 0.05); transition: 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.08); font-weight: 600;
+        }
+        .back-link:hover { color: white; background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.2); }
+
+        .zoom-controls {
+            display: flex; align-items: center; gap: 6px;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 4px 10px; border-radius: 12px;
+        }
+        .zoom-btn {
+            background: transparent; border: none; color: #cbd5e1; cursor: pointer;
+            width: 28px; height: 28px; border-radius: 8px; font-size: 14px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s;
+        }
+        .zoom-btn:hover { background: rgba(255, 255, 255, 0.15); color: white; }
+        .zoom-val { font-size: 12px; font-weight: 800; color: #38bdf8; min-width: 44px; text-align: center; font-family: var(--font-mono); }
+        .fit-btn {
+            background: rgba(168, 85, 247, 0.2); border: 1px solid rgba(168, 85, 247, 0.4);
+            color: #c084fc; font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 8px; cursor: pointer;
+            transition: 0.2s;
+        }
+        .fit-btn:hover { background: rgba(168, 85, 247, 0.4); color: white; }
+
+        .map-area-zoom-btn {
+            background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.35);
+            color: #38bdf8; font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 8px; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 5px; transition: 0.2s;
+        }
+        .map-area-zoom-btn:hover { background: rgba(56, 189, 248, 0.25); color: white; border-color: #38bdf8; }
+        .map-area-zoom-btn.active {
+            background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
+            border-color: #38bdf8; color: white; box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+        }
+
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+        .preview-btn {
+            background: var(--grad-emerald);
+            color: white; border: none; padding: 9px 20px; border-radius: 12px;
+            font-family: var(--font-heading);
+            font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.25s;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); display: flex; align-items: center; gap: 8px;
+        }
+        .preview-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6); }
+        .preview-btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+        /* Main Studio Layout: Left Toolbar + Center Stage + Right Layers */
+        .studio-body {
+            flex: 1;
+            display: flex;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Left Toolbar */
+        .left-ribbon {
+            width: 320px;
+            background: rgba(10, 15, 29, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+            flex-shrink: 0;
+            z-index: 50;
+        }
+        .tool-card {
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 16px;
+            transition: all 0.25s;
+        }
+        .tool-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .card-label {
+            font-family: var(--font-heading);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #a5b4fc;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .select-field {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: white;
+            font-family: var(--font-body);
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .select-field:focus {
+            border-color: #a855f7;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.35);
+        }
+
+        .control-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .control-row:last-child { margin-bottom: 0; }
+
+        .tool-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tool-btn:hover { background: rgba(255, 255, 255, 0.14); color: white; transform: translateY(-1px); }
+        .tool-btn.active {
+            background: var(--grad-primary);
+            color: white;
+            border-color: #ec4899;
+            box-shadow: 0 0 16px rgba(236, 72, 153, 0.5);
+        }
+
+        .stepper-btn {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .stepper-btn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
+
+        .num-input {
+            width: 58px;
+            text-align: center;
+            padding: 6px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #38bdf8;
+            font-weight: 800;
+            border-radius: 10px;
+            font-size: 13px;
+            font-family: var(--font-mono);
+        }
+
+        /* Preset color palette dots */
+        .color-palette { display: flex; align-items: center; gap: 7px; margin-top: 8px; }
+        .color-dot {
+            width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.2); transition: 0.2s;
+        }
+        .color-dot:hover { transform: scale(1.25); border-color: white; box-shadow: 0 0 10px rgba(255,255,255,0.4); }
+
+        /* Stage Viewport */
+        .stage-viewport {
+            flex: 1;
+            background: radial-gradient(circle at center, #111827 0%, #070913 100%);
+            overflow: auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        #canvas-wrapper {
+            position: relative;
+            display: inline-block;
+            box-shadow: 
+                0 30px 70px rgba(0, 0, 0, 0.9),
+                0 0 50px rgba(139, 92, 246, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            cursor: crosshair;
+        }
+        #cert-canvas { display: block; }
+
+        /* Right Layer Panel */
+        .right-layers {
+            width: 270px;
+            background: rgba(10, 15, 29, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
+            z-index: 50;
+        }
+        .layer-item {
+            background: rgba(255, 255, 255, 0.035);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 11px 14px;
+            margin-bottom: 9px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .layer-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(168, 85, 247, 0.4);
+            transform: translateX(-2px);
+        }
+        .layer-item.active {
+            background: rgba(168, 85, 247, 0.18);
+            border-color: #a855f7;
+            box-shadow: 0 0 16px rgba(168, 85, 247, 0.35);
+        }
+        .layer-title { font-family: var(--font-heading); font-size: 13px; font-weight: 700; color: #f8fafc; }
+        .layer-subtitle { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+        /* Floating Status Badge */
+        .floating-status {
+            position: absolute;
+            bottom: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 15, 29, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 9px 20px;
+            border-radius: 50px;
+            font-size: 12px;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 80;
+            pointer-events: none;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 20px rgba(139, 92, 246, 0.2);
+            transition: all 0.3s;
+        }
+
+        /* =============================================================
+           VOICE COMMAND STUDIO & AUDIO ENHANCEMENT STYLES
+           ============================================================= */
+        .voice-topbar-btn {
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-family: var(--font-heading);
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+            position: relative;
+        }
+        .voice-topbar-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.6);
+        }
+        .voice-topbar-btn.listening {
+            background: linear-gradient(135deg, #f43f5e 0%, #ec4899 100%);
+            box-shadow: 0 0 25px rgba(244, 63, 94, 0.7);
+            animation: pulseVoiceBtn 1.5s infinite;
+        }
+        @keyframes pulseVoiceBtn {
+            0% { box-shadow: 0 0 10px rgba(244, 63, 94, 0.5); }
+            50% { box-shadow: 0 0 25px rgba(244, 63, 94, 0.9), 0 0 40px rgba(236, 72, 153, 0.4); }
+            100% { box-shadow: 0 0 10px rgba(244, 63, 94, 0.5); }
+        }
+
+        .audio-enhance-topbar-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+        .audio-enhance-topbar-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+            border-color: #8b5cf6;
+        }
+
+        /* Floating Voice Command Dock / HUD */
+        .voice-hud-dock {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 15, 29, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            z-index: 85;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(139, 92, 246, 0.25);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            max-width: 90vw;
+        }
+
+        .voice-hud-dock.hidden-dock {
+            opacity: 0;
+            transform: translate(-50%, 30px);
+            pointer-events: none;
+        }
+
+        .voice-hud-mic-ring {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .voice-hud-mic-ring.active-speaking {
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.7);
+            transform: scale(1.08);
+        }
+        .voice-hud-mic-ring.noise-gated {
+            background: linear-gradient(135deg, #64748b, #475569);
+            box-shadow: none;
+            opacity: 0.7;
+        }
+
+        .voice-hud-visualizer {
+            width: 90px;
+            height: 28px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #voice-mini-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .voice-hud-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            text-align: left;
+            min-width: 180px;
+            max-width: 360px;
+        }
+
+        .voice-hud-title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .voice-hud-badge {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 2px 7px;
+            border-radius: 50px;
+        }
+        .voice-badge-listening { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .voice-badge-gated { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+        .voice-badge-focus { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+
+        .voice-hud-transcript {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #f8fafc;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .voice-hud-feedback {
+            font-size: 11px;
+            color: #38bdf8;
+            font-weight: 700;
+        }
+
+        .voice-hud-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            padding-left: 10px;
+        }
+
+        .voice-hud-action-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .voice-hud-action-btn:hover { background: rgba(255, 255, 255, 0.18); color: white; }
+
+        /* Executed Command Toast */
+        .voice-command-toast {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(6, 182, 212, 0.95));
+            color: white;
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-family: var(--font-heading);
+            font-size: 12.5px;
+            font-weight: 800;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.5);
+            display: none;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            animation: toastPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+        @keyframes toastPop {
+            from { opacity: 0; transform: translate(-50%, 15px) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+        }
+
+        /* Voice Enhancement & Noise Control Modal */
+        .audio-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(7, 9, 19, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .audio-modal-card {
+            background: rgba(15, 23, 42, 0.96);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            width: 780px;
+            max-width: 96%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 32px;
+            text-align: left;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8), 0 0 50px rgba(139, 92, 246, 0.25);
+            animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .audio-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .audio-feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .audio-feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 16px;
+            transition: all 0.25s;
+        }
+        .audio-feature-card:hover {
+            border-color: rgba(168, 85, 247, 0.35);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .feature-toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .feature-title {
+            font-family: var(--font-heading);
+            font-size: 14px;
+            font-weight: 800;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feature-desc {
+            font-size: 11.5px;
+            color: #94a3b8;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        /* Modern Toggle Switch */
+        .switch-toggle {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .switch-toggle input { opacity: 0; width: 0; height: 0; }
+        .slider-round {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(255, 255, 255, 0.15);
+            transition: .3s;
+            border-radius: 34px;
+        }
+        .slider-round:before {
+            position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider-round {
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+        }
+        input:checked + .slider-round:before {
+            transform: translateX(20px);
+        }
+
+        /* Spectrum / Decibel Analyzer Banner */
+        .audio-analyzer-box {
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .analyzer-canvas-container {
+            width: 100%;
+            height: 70px;
+            position: relative;
+            margin: 10px 0;
+        }
+        #voice-full-spectrum {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Command Cheatsheet Section */
+        .commands-cheatsheet {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 18px;
+        }
+
+        .cheatsheet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .cheatsheet-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 11.5px;
+        }
+        .cheatsheet-card-title {
+            color: #38bdf8;
+            font-weight: 800;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .command-tag {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+            color: #f1f5f9;
+            display: inline-block;
+            margin: 2px 2px 2px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOPBAR -->
+    <header class="studio-topbar">
+        <div class="topbar-left">
+            <a href="/studio" class="back-link">⬅️ Back to Uploads</a>
+            <div style="height: 20px; width: 1px; background: rgba(255,255,255,0.1);"></div>
+            <span class="logo-pill">STUDIO</span>
+            <span class="topbar-title">Certificate Coordinate & Styling Mapper</span>
+        </div>
+
+        <!-- Zoom & Viewport Controls -->
+        <div class="zoom-controls">
+            <button class="zoom-btn" onclick="adjustZoom(-0.1)" title="Zoom Out (-)">−</button>
+            <span class="zoom-val" id="zoom-text">Fit</span>
+            <button class="zoom-btn" onclick="adjustZoom(0.1)" title="Zoom In (+)">+</button>
+            <button class="fit-btn" onclick="fitToWindow()" title="Fit to Screen">Fit Window</button>
+            <button class="fit-btn" onclick="setZoom(1.0)" style="background: rgba(255,255,255,0.08); color: #cbd5e1;">100%</button>
+            <button class="map-area-zoom-btn" id="btn-map-area-zoom" onclick="toggleMapAreaZoom()" title="Particular Area Zoom: Click a spot or drag a box on template [Z]">
+                <span>🔍 Area Zoom</span>
+            </button>
+        </div>
+
+        <div class="topbar-right">
+            <!-- Voice AI Command Button -->
+            <button type="button" class="voice-topbar-btn" id="voice-topbar-toggle" onclick="toggleVoiceCommandStudio()" title="Start Voice-Command Certificate Editor (Speech-to-Text)">
+                <span id="voice-topbar-icon">🎙️</span>
+                <span id="voice-topbar-text">Voice Control</span>
+            </button>
+
+            <!-- Audio Enhancement & Noise Control Settings Button -->
+            <button type="button" class="audio-enhance-topbar-btn" onclick="openAudioSettingsModal()" title="Voice Enhancement, Noise Gate & Voice Focus Settings">
+                <span>🎛️</span>
+                <span>Audio Engine</span>
+            </button>
+
+            <button type="button" class="tool-btn" onclick="undoBox()" title="Undo Last Box (Ctrl+Z)">↩️ Undo</button>
+            <button type="button" class="tool-btn" onclick="clearAllBoxes()" style="color: #f87171;" title="Clear All Boxes">🧹 Clear</button>
+            
+            <form action="/preview-sample" method="POST" id="mapping-form" style="display: inline;">
+                <input type="hidden" name="mappings" id="mappings-input">
+                <button type="submit" id="gen-btn" class="preview-btn" disabled>
+                    <span>Preview Certificate</span>
+                    <span>➔</span>
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <!-- MAIN STUDIO BODY -->
+    <div class="studio-body">
+        
+        <!-- LEFT EDITING TOOLBAR -->
+        <aside class="left-ribbon">
+            
+            <!-- 1. Field Mapping Target -->
+            <div class="tool-card">
+                <div class="card-label">
+                    <span>1. Target Excel Column</span>
+                    <span style="color: #38bdf8; font-size: 10px;">Mapped Data</span>
+                </div>
+                <select id="field-name" class="select-field" onchange="updateSelectedBoxProperties()">
+                    {% for header in headers %}
+                        <option value="{{ header }}">{{ header }}</option>
+                    {% endfor %}
+                </select>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 6px;">
+                    💡 Drag on the canvas to draw a text bounding box.
+                </div>
+            </div>
+
+            <!-- 2. Typography & Fonts -->
+            <div class="tool-card">
+                <div class="card-label">2. Typography & Styles</div>
+                
+                <div class="control-row">
+                    <select id="font-family" class="select-field" style="padding: 7px 10px;" onchange="updateSelectedBoxProperties()">
+                        <optgroup label="Certificate Display Fonts">
+                            <option value="Playfair Display" style="font-family: 'Playfair Display', serif;">Playfair Display</option>
+                            <option value="Cinzel" style="font-family: 'Cinzel', serif;">Cinzel (Formal Classic)</option>
+                            <option value="Great Vibes" style="font-family: 'Great Vibes', cursive;">Great Vibes (Calligraphy)</option>
+                            <option value="Montserrat" style="font-family: 'Montserrat', sans-serif;">Montserrat</option>
+                            <option value="Inter" style="font-family: 'Inter', sans-serif;">Inter (Clean Modern)</option>
+                        </optgroup>
+                        <optgroup label="Standard System Fonts">
+                            <option value="Times New Roman" selected>Times New Roman</option>
+                            <option value="Arial">Arial</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Garamond">Garamond</option>
+                            <option value="Courier New">Courier New</option>
+                            <option value="Verdana">Verdana</option>
+                            <option value="Tahoma">Tahoma</option>
+                            <option value="Impact">Impact</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <!-- Size Stepper & Formatting -->
+                <div class="control-row">
+                    <button type="button" class="stepper-btn" onclick="stepFontSize(-2)">−</button>
+                    <input type="number" id="font-size" value="42" min="8" max="250" class="num-input" onchange="updateSelectedBoxProperties()">
+                    <button type="button" class="stepper-btn" onclick="stepFontSize(2)">+</button>
+                    
+                    <button type="button" id="btn-bold" class="tool-btn" onclick="toggleStyle('bold')" title="Bold"><b>B</b></button>
+                    <button type="button" id="btn-italic" class="tool-btn" onclick="toggleStyle('italic')" title="Italic"><i>I</i></button>
+                    <button type="button" id="btn-underline" class="tool-btn" onclick="toggleStyle('underline')" title="Underline"><u>U</u></button>
+                </div>
+
+                <!-- Text Case & Alignment -->
+                <div class="control-row">
+                    <button type="button" id="btn-align-left" class="tool-btn active" onclick="setAlign('left')" title="Align Left">Left</button>
+                    <button type="button" id="btn-align-center" class="tool-btn" onclick="setAlign('center')" title="Center">Center</button>
+                    <button type="button" id="btn-align-right" class="tool-btn" onclick="setAlign('right')" title="Align Right">Right</button>
+                    
+                    <button type="button" id="btn-case-upper" class="tool-btn" onclick="setCase('upper')" title="UPPERCASE">AA</button>
+                    <button type="button" id="btn-case-title" class="tool-btn" onclick="setCase('title')" title="Title Case">Aa</button>
+                </div>
+
+                <!-- Color Palette -->
+                <div style="margin-top: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span style="font-size: 11px; font-weight: 700; color: #94a3b8;">Text Color:</span>
+                        <input type="color" id="font-color" value="#0f172a" style="width: 28px; height: 22px; cursor: pointer; border: none; background: transparent;" oninput="updateSelectedBoxProperties()">
+                    </div>
+                    <div class="color-palette">
+                        <div class="color-dot" style="background: #0f172a;" onclick="setColor('#0f172a')" title="Deep Navy"></div>
+                        <div class="color-dot" style="background: #1e3a8a;" onclick="setColor('#1e3a8a')" title="Royal Blue"></div>
+                        <div class="color-dot" style="background: #d4af37;" onclick="setColor('#d4af37')" title="Classic Gold"></div>
+                        <div class="color-dot" style="background: #991b1b;" onclick="setColor('#991b1b')" title="Crimson"></div>
+                        <div class="color-dot" style="background: #065f46;" onclick="setColor('#065f46')" title="Emerald"></div>
+                        <div class="color-dot" style="background: #334155;" onclick="setColor('#334155')" title="Charcoal"></div>
+                        <div class="color-dot" style="background: #ffffff;" onclick="setColor('#ffffff')" title="Pure White"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Smart Layout & Alignment Helpers -->
+            <div class="tool-card">
+                <div class="card-label">3. Smart Helpers & Positioning</div>
+                <div class="control-row">
+                    <button type="button" class="tool-btn" style="flex: 1;" onclick="centerBoxHorizontally()" title="Center Box on Certificate X-Axis">
+                        🎯 Center on Certificate
+                    </button>
+                </div>
+                <div class="control-row">
+                    <button type="button" class="tool-btn" style="flex: 1;" onclick="duplicateSelectedBox()" title="Duplicate Selected Box">
+                        📋 Duplicate Box
+                    </button>
+                    <button type="button" class="tool-btn" style="color: #fb7185;" onclick="deleteSelectedBox()" title="Delete Selected Box (Del)">
+                        🗑️ Delete
+                    </button>
+                </div>
+
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 8px;">
+                    ⌨️ <b>Keyboard:</b> Use <b>Arrow Keys</b> to nudge 1px (Shift + Arrow for 10px). Press <b>Delete</b> to remove box.
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- CENTER STAGE (RESPONSIVE VIEWPORT) -->
+        <main class="stage-viewport" id="stage-viewport">
+            <div id="canvas-wrapper">
+                <canvas id="cert-canvas"></canvas>
+            </div>
+            
+            <div class="floating-status" id="floating-status">
+                <span>📍 Ready: Draw a box to place field.</span>
+            </div>
+        </main>
+
+        <!-- RIGHT LAYERS DRAWER -->
+        <aside class="right-layers">
+            <div class="card-label">
+                <span>Mapped Fields (<span id="layer-count">0</span>)</span>
+            </div>
+            <div id="layers-list">
+                <div style="font-size: 12px; color: #64748b; text-align: center; margin-top: 20px;">
+                    No fields mapped yet.<br>Click and drag on the certificate to map your first field!
+                </div>
+            </div>
+        </aside>
+
+        <!-- FLOATING VOICE COMMAND HUD -->
+        <div class="voice-hud-dock hidden-dock" id="voice-hud">
+            <!-- Toast notification when a voice command executes -->
+            <div class="voice-command-toast" id="voice-toast">
+                <span>✨</span>
+                <span id="voice-toast-text">Action Executed</span>
+            </div>
+
+            <div class="voice-hud-mic-ring" id="voice-mic-indicator" onclick="toggleVoiceCommandStudio()" title="Click to Pause/Resume Voice Control">
+                🎙️
+            </div>
+
+            <!-- Mini Neon Audio Waveform Visualizer -->
+            <div class="voice-hud-visualizer">
+                <canvas id="voice-mini-canvas" width="90" height="28"></canvas>
+            </div>
+
+            <!-- Voice Activity & Transcript Info -->
+            <div class="voice-hud-info">
+                <div class="voice-hud-title-row">
+                    <span class="voice-hud-badge voice-badge-listening" id="voice-hud-status-badge">LISTENING</span>
+                    <span class="voice-hud-badge voice-badge-focus" id="voice-hud-focus-badge">VOICE FOCUS ACTIVE</span>
+                </div>
+                <div class="voice-hud-transcript" id="voice-hud-transcript">Speak a command (e.g. "bold", "font size 48")...</div>
+                <div class="voice-hud-feedback" id="voice-hud-feedback">AI Speech Engine Active</div>
+            </div>
+
+            <!-- Fast Action Controls -->
+            <div class="voice-hud-actions">
+                <button type="button" class="voice-hud-action-btn" onclick="openAudioSettingsModal('guide')" title="Spoken Commands Cheat Sheet">
+                    ❓
+                </button>
+                <button type="button" class="voice-hud-action-btn" onclick="openAudioSettingsModal()" title="Voice Enhancement & Noise Controls">
+                    ⚙️
+                </button>
+                <button type="button" class="voice-hud-action-btn" onclick="stopVoiceCommandStudio()" title="Exit Voice Control">
+                    ✕
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- VOICE ENHANCEMENT & BACKGROUND NOISE CONTROL MODAL -->
+    <div class="audio-modal-overlay" id="audio-settings-modal">
+        <div class="audio-modal-card">
+            
+            <div class="audio-modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="font-size: 26px;">🎙️</div>
+                    <div>
+                        <div style="font-family: var(--font-heading); font-size: 18px; font-weight: 800; color: #f8fafc;">
+                            Voice-Command Editor & Audio Enhancement Engine
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">
+                            Web Audio DSP with Voice Focus, Background Noise Control & Natural Language Speech-to-Text
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="tool-btn" onclick="closeAudioSettingsModal()" style="width: 32px; height: 32px; border-radius: 50%;">✕</button>
+            </div>
+
+            <!-- Live Frequency Spectrum & Decibel VU Visualizer -->
+            <div class="audio-analyzer-box">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 12px; font-weight: 700; color: #cbd5e1;">Live Audio Spectrum & Voice Energy:</span>
+                    <span style="font-family: var(--font-mono); font-size: 11px; color: #38bdf8;" id="analyzer-db-text">Signal: -∞ dB | Status: Idle</span>
+                </div>
+                <div class="analyzer-canvas-container">
+                    <canvas id="voice-full-spectrum" width="700" height="70"></canvas>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 10.5px; color: #64748b;">
+                    <span>85 Hz (Low Rumble Cut)</span>
+                    <span style="color: #c084fc; font-weight: 700;">★ 3.0 kHz (Voice Focus Peak)</span>
+                    <span>3.5 kHz (Hiss Cut)</span>
+                </div>
+            </div>
+
+            <!-- Enhancement Feature Controls Grid -->
+            <div class="audio-feature-grid">
+                
+                <!-- Feature 1: Voice Focus (Speech Clarity) -->
+                <div class="audio-feature-card">
+                    <div class="feature-toggle-row">
+                        <div class="feature-title">
+                            <span>🎯</span>
+                            <span>Voice Focus (Speech Clarity)</span>
+                        </div>
+                        <label class="switch-toggle">
+                            <input type="checkbox" id="toggle-voice-focus" checked onchange="updateAudioDspSettings()">
+                            <span class="slider-round"></span>
+                        </label>
+                    </div>
+                    <div class="feature-desc">
+                        Applies a calibrated 3-band parametric EQ curve to accentuate human speech presence (2.5 kHz – 3.5 kHz) while damping surrounding room echoes.
+                    </div>
+                    <div class="badge-pill badge-pill-purple" style="font-size: 10px;">
+                        <span>✓ Active Parametric Vocal Boost</span>
+                    </div>
+                </div>
+
+                <!-- Feature 2: Background Noise Control (Noise Gate) -->
+                <div class="audio-feature-card">
+                    <div class="feature-toggle-row">
+                        <div class="feature-title">
+                            <span>🛡️</span>
+                            <span>Background Noise Control</span>
+                        </div>
+                        <label class="switch-toggle">
+                            <input type="checkbox" id="toggle-noise-gate" checked onchange="updateAudioDspSettings()">
+                            <span class="slider-round"></span>
+                        </label>
+                    </div>
+                    <div class="feature-desc">
+                        Digital noise gate that suppresses background air conditioner hum, computer fan noise, and keyboard clicking below the threshold.
+                    </div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #cbd5e1; margin-bottom: 4px;">
+                            <span>Gate Sensitivity Threshold:</span>
+                            <b id="gate-threshold-val" style="color: #38bdf8;">-42 dB</b>
+                        </div>
+                        <input type="range" id="noise-gate-slider" min="-65" max="-20" value="-42" step="1" style="width: 100%; accent-color: #38bdf8;" oninput="updateGateThreshold(this.value)">
+                    </div>
+                </div>
+
+                <!-- Feature 3: Microphone Digital Gain -->
+                <div class="audio-feature-card">
+                    <div class="feature-toggle-row">
+                        <div class="feature-title">
+                            <span>🔊</span>
+                            <span>Microphone Pre-Gain</span>
+                        </div>
+                        <span id="mic-gain-val" style="font-family: var(--font-mono); font-size: 12px; color: #34d399; font-weight: 700;">120%</span>
+                    </div>
+                    <div class="feature-desc">
+                        Digital gain multiplier to normalize quiet microphones or distant speakers for consistent speech-to-text recognition.
+                    </div>
+                    <input type="range" id="mic-gain-slider" min="50" max="300" value="120" step="5" style="width: 100%; accent-color: #10b981;" oninput="updateMicGain(this.value)">
+                </div>
+
+                <!-- Feature 4: Auditory Feedback Chimes -->
+                <div class="audio-feature-card">
+                    <div class="feature-toggle-row">
+                        <div class="feature-title">
+                            <span>🔔</span>
+                            <span>Audio Command Chimes</span>
+                        </div>
+                        <label class="switch-toggle">
+                            <input type="checkbox" id="toggle-audio-chimes" checked onchange="updateAudioDspSettings()">
+                            <span class="slider-round"></span>
+                        </label>
+                    </div>
+                    <div class="feature-desc">
+                        Plays a pleasant synthesized two-tone confirmation chime when a spoken voice command is successfully parsed and executed.
+                    </div>
+                    <button type="button" class="tool-btn" onclick="testAudioChime()" style="padding: 4px 10px; font-size: 11px;">
+                        Test Chime 🎵
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Interactive Voice Commands Reference Guide -->
+            <div class="commands-cheatsheet" id="commands-cheatsheet-section">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-family: var(--font-heading); font-size: 14px; font-weight: 800; color: #f8fafc;">
+                        📖 Spoken Voice Commands Cheat Sheet
+                    </div>
+                    <span style="font-size: 11px; color: #94a3b8;">Speak clearly into your microphone</span>
+                </div>
+
+                <div class="cheatsheet-grid">
+                    <div class="cheatsheet-card">
+                        <div class="cheatsheet-card-title"><span>🏷️</span> Field Selection</div>
+                        <span class="command-tag">select [name]</span>
+                        <span class="command-tag">next field</span>
+                        <span class="command-tag">previous field</span>
+                    </div>
+
+                    <div class="cheatsheet-card">
+                        <div class="cheatsheet-card-title"><span>🔤</span> Typography</div>
+                        <span class="command-tag">font cinzel</span>
+                        <span class="command-tag">font great vibes</span>
+                        <span class="command-tag">font montserrat</span>
+                        <span class="command-tag">font times</span>
+                    </div>
+
+                    <div class="cheatsheet-card">
+                        <div class="cheatsheet-card-title"><span>📏</span> Sizing</div>
+                        <span class="command-tag">font size 48</span>
+                        <span class="command-tag">bigger</span>
+                        <span class="command-tag">smaller</span>
+                        <span class="command-tag">size 60</span>
+                    </div>
+
+                    <div class="cheatsheet-card">
+                        <div class="cheatsheet-card-title"><span>✨</span> Styling & Casing</div>
+                        <span class="command-tag">bold</span>
+                        <span class="command-tag">italic</span>
+                        <span class="command-tag">underline</span>
+                        <span class="command-tag">uppercase</span>
+                        <span class="command-tag">capitalize</span>
+                    </div>
+
+                    <div class="cheatsheet-card">
+                        <div class="cheatsheet-card-title"><span>🎨</span> Colors</div>
+                        <span class="command-tag">color gold</span>
+                        <span class="command-tag">color navy</span>
+                        <span class="command-tag">color red</span>
+                        <span class="command-tag">color black</span>
+                        <span class="command-tag">color white</span>
+                    </div>
+
+                    <div class="cheatsheet-card">
+                        <div class="cheatsheet-card-title"><span>🧭</span> Positioning</div>
+                        <span class="command-tag">center horizontally</span>
+                        <span class="command-tag">move up</span>
+                        <span class="command-tag">move down</span>
+                        <span class="command-tag">align left/center/right</span>
+                    </div>
+
+                    <div class="cheatsheet-card">
+                        <div class="cheatsheet-card-title"><span>⚡</span> Actions</div>
+                        <span class="command-tag">duplicate</span>
+                        <span class="command-tag">delete field</span>
+                        <span class="command-tag">undo</span>
+                        <span class="command-tag">clear all</span>
+                        <span class="command-tag">fit window</span>
+                        <span class="command-tag">preview certificate</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script id="server-sample-data" type="application/json">{{ sample_data|tojson }}</script>
+    <script id="server-headers" type="application/json">{{ headers|tojson }}</script>
+    <script>
+        // Sample data injected from server for true live WYSIWYG preview
+        const sampleData = JSON.parse(document.getElementById('server-sample-data')?.textContent || '{}');
+        const headers = JSON.parse(document.getElementById('server-headers')?.textContent || '[]');
+
+        const canvas = document.getElementById('cert-canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.src = "{{ url_for('user_template') }}";
+
+        let currentBold = false;
+        let currentItalic = false;
+        let currentUnderline = false;
+        let currentAlign = 'left';
+        let currentCase = 'none';
+        let currentZoom = 1.0;
+        let originalWidth = 1920;
+        let originalHeight = 1080;
+
+        let boxes = [];
+        try {
+            const saved = sessionStorage.getItem('saved_mappings');
+            if (saved) boxes = JSON.parse(saved);
+        } catch(e) {}
+
+        let selectedBoxIndex = -1;
+        let isDrawing = false, isDragging = false, isResizing = false;
+        let startX, startY, dragOffsetX, dragOffsetY;
+
+        img.onload = function() {
+            originalWidth = img.naturalWidth || img.width;
+            originalHeight = img.naturalHeight || img.height;
+            canvas.width = originalWidth;
+            canvas.height = originalHeight;
+            
+            // Auto fit to window on first load
+            fitToWindow();
+            redrawCanvas();
+            renderLayers();
+            updateForm();
+        };
+
+        // Window Resize Listener for auto-responsiveness
+        window.addEventListener('resize', () => {
+            if (document.getElementById('zoom-text').textContent === 'Fit') {
+                fitToWindow();
+            }
+        });
+
+        // -------------------------------------------------------------
+        // Viewport & Zoom Engine
+        // -------------------------------------------------------------
+        function fitToWindow() {
+            const viewport = document.getElementById('stage-viewport');
+            const padding = 60;
+            const availableW = viewport.clientWidth - padding;
+            const availableH = viewport.clientHeight - padding;
+            
+            const scale = Math.min(availableW / originalWidth, availableH / originalHeight);
+            currentZoom = Math.min(Math.max(scale, 0.15), 1.0);
+            applyZoom();
+            document.getElementById('zoom-text').textContent = 'Fit';
+        }
+
+        function setZoom(val) {
+            currentZoom = Math.min(Math.max(val, 0.2), 3.0);
+            applyZoom();
+            document.getElementById('zoom-text').textContent = `${Math.round(currentZoom * 100)}%`;
+        }
+
+        function adjustZoom(delta) {
+            currentZoom = Math.min(Math.max(currentZoom + delta, 0.2), 3.0);
+            applyZoom();
+            document.getElementById('zoom-text').textContent = `${Math.round(currentZoom * 100)}%`;
+        }
+
+        function applyZoom() {
+            const dispW = Math.round(originalWidth * currentZoom);
+            const dispH = Math.round(originalHeight * currentZoom);
+            canvas.style.width = dispW + 'px';
+            canvas.style.height = dispH + 'px';
+        }
+
+        // Translates screen mouse event coordinates to exact 1:1 image coordinates
+        function getCanvasCoordinates(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            return {
+                x: (e.clientX - rect.left) * scaleX,
+                y: (e.clientY - rect.top) * scaleY
+            };
+        }
+
+        // -------------------------------------------------------------
+        // Canvas Rendering (True WYSIWYG Live Sample Text)
+        // -------------------------------------------------------------
+        function redrawCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+
+            boxes.forEach((b, index) => {
+                const isSelected = (index === selectedBoxIndex);
+
+                // Draw bounding box outline
+                ctx.save();
+                ctx.strokeStyle = isSelected ? '#6366f1' : (b.color || '#3b82f6');
+                ctx.lineWidth = isSelected ? 3 : 1.5;
+                if (!isSelected) ctx.setLineDash([6, 6]);
+                ctx.strokeRect(b.x, b.y, b.w, b.h);
+                ctx.restore();
+
+                // Draw resize handles if selected
+                if (isSelected) {
+                    ctx.fillStyle = '#6366f1';
+                    const handleSize = Math.max(10, Math.round(12 / currentZoom));
+                    // Bottom-Right resize handle
+                    ctx.fillRect(b.x + b.w - handleSize / 2, b.y + b.h - handleSize / 2, handleSize, handleSize);
+                    // Top-Left corner handle
+                    ctx.fillRect(b.x - handleSize / 2, b.y - handleSize / 2, handleSize, handleSize);
+                }
+
+                // Render Live WYSIWYG Sample Data
+                ctx.save();
+                let textToDisplay = sampleData[b.field] || `[${b.field}]`;
+                if (b.caseMode === 'upper') textToDisplay = textToDisplay.toUpperCase();
+                else if (b.caseMode === 'lower') textToDisplay = textToDisplay.toLowerCase();
+                else if (b.caseMode === 'title') textToDisplay = toTitleCase(textToDisplay);
+
+                let fontStyle = '';
+                if (b.italic) fontStyle += 'italic ';
+                if (b.bold) fontStyle += 'bold ';
+                
+                let fontSize = parseInt(b.size) || 40;
+                ctx.font = `${fontStyle}${fontSize}px "${b.font || 'Times New Roman'}", serif`;
+                
+                // Auto downscale font if text exceeds box width
+                let textWidth = ctx.measureText(textToDisplay).width;
+                while (textWidth > b.w - 10 && fontSize > 10) {
+                    fontSize -= 2;
+                    ctx.font = `${fontStyle}${fontSize}px "${b.font || 'Times New Roman'}", serif`;
+                    textWidth = ctx.measureText(textToDisplay).width;
+                }
+
+                ctx.fillStyle = b.color || '#1a1a2e';
+                
+                let textX = b.x;
+                if (b.align === 'center') textX = b.x + (b.w - textWidth) / 2;
+                else if (b.align === 'right') textX = b.x + b.w - textWidth;
+
+                // Vertical center baseline inside box
+                const textY = b.y + b.h / 2 + fontSize / 3;
+                ctx.fillText(textToDisplay, textX, textY);
+
+                // Draw Underline if active
+                if (b.underline) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = b.color || '#1a1a2e';
+                    ctx.lineWidth = Math.max(1, fontSize / 20);
+                    ctx.moveTo(textX, textY + 4);
+                    ctx.lineTo(textX + textWidth, textY + 4);
+                    ctx.stroke();
+                }
+
+                // Draw Field Badge Tag
+                ctx.fillStyle = isSelected ? '#4f46e5' : 'rgba(15, 23, 42, 0.85)';
+                ctx.font = 'bold 12px Inter, sans-serif';
+                const tag = `${index + 1}. ${b.field}`;
+                const tagW = ctx.measureText(tag).width + 12;
+                ctx.fillRect(b.x, b.y - 20, tagW, 18);
+                ctx.fillStyle = 'white';
+                ctx.fillText(tag, b.x + 6, b.y - 6);
+
+                ctx.restore();
+            });
+        }
+
+        function toTitleCase(str) {
+            return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+        }
+
+        // -------------------------------------------------------------
+        // Particular Area Zoom Engine for Template Mapping
+        // -------------------------------------------------------------
+        let isMapAreaZoom = false;
+        let mapAreaZoomStartX = 0;
+        let mapAreaZoomStartY = 0;
+        let isMapAreaZoomDragging = false;
+
+        function toggleMapAreaZoom() {
+            isMapAreaZoom = !isMapAreaZoom;
+            const btn = document.getElementById('btn-map-area-zoom');
+            if (btn) btn.classList.toggle('active', isMapAreaZoom);
+            canvas.style.cursor = isMapAreaZoom ? 'crosshair' : 'crosshair';
+            if (isMapAreaZoom) {
+                updateStatusText('🔍 Area Zoom Active: Click a point to magnify, or drag a box over any certificate area • [Esc] to exit');
+            } else {
+                updateStatusText('📍 Ready: Draw a box to place field.');
+                redrawCanvas();
+            }
+        }
+
+        function centerMapViewportOnCoord(imgX, imgY) {
+            const viewport = document.getElementById('stage-viewport');
+            const wrapper = document.getElementById('canvas-wrapper');
+            if (!viewport || !wrapper) return;
+            const targetX = wrapper.offsetLeft + (imgX * currentZoom);
+            const targetY = wrapper.offsetTop + (imgY * currentZoom);
+            viewport.scrollTo({
+                left: Math.max(0, targetX - viewport.clientWidth / 2),
+                top: Math.max(0, targetY - viewport.clientHeight / 2),
+                behavior: 'smooth'
+            });
+        }
+
+        // -------------------------------------------------------------
+        // Mouse Interactions: Draw, Drag, Resize
+        // -------------------------------------------------------------
+        canvas.addEventListener('mousedown', (e) => {
+            const pos = getCanvasCoordinates(e);
+
+            if (isMapAreaZoom) {
+                isMapAreaZoomDragging = true;
+                mapAreaZoomStartX = pos.x;
+                mapAreaZoomStartY = pos.y;
+                return;
+            }
+
+            // 1. Check resize handle on selected box
+            if (selectedBoxIndex !== -1 && boxes[selectedBoxIndex]) {
+                const b = boxes[selectedBoxIndex];
+                const handleThreshold = 18;
+                if (Math.abs(pos.x - (b.x + b.w)) < handleThreshold && Math.abs(pos.y - (b.y + b.h)) < handleThreshold) {
+                    isResizing = true;
+                    return;
+                }
+            }
+
+            // 2. Check if clicking inside an existing box (select & drag)
+            for (let i = boxes.length - 1; i >= 0; i--) {
+                const b = boxes[i];
+                if (pos.x >= b.x && pos.x <= b.x + b.w && pos.y >= b.y && pos.y <= b.y + b.h) {
+                    selectedBoxIndex = i;
+                    isDragging = true;
+                    dragOffsetX = pos.x - b.x;
+                    dragOffsetY = pos.y - b.y;
+                    syncToolbarWithSelectedBox(b);
+                    redrawCanvas();
+                    renderLayers();
+                    return;
+                }
+            }
+
+            // 3. Otherwise start drawing a new box
+            selectedBoxIndex = -1;
+            startX = pos.x;
+            startY = pos.y;
+            isDrawing = true;
+            redrawCanvas();
+            renderLayers();
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            const pos = getCanvasCoordinates(e);
+
+            if (isMapAreaZoom && isMapAreaZoomDragging) {
+                redrawCanvas();
+                ctx.save();
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([6, 6]);
+                ctx.fillStyle = 'rgba(56, 189, 248, 0.18)';
+                const w = pos.x - mapAreaZoomStartX;
+                const h = pos.y - mapAreaZoomStartY;
+                ctx.fillRect(mapAreaZoomStartX, mapAreaZoomStartY, w, h);
+                ctx.strokeRect(mapAreaZoomStartX, mapAreaZoomStartY, w, h);
+                ctx.restore();
+                updateStatusText(`🔍 Zoom Area: ${Math.round(Math.abs(w))} × ${Math.round(Math.abs(h))} px`);
+                return;
+            }
+
+            if (isDrawing) {
+                redrawCanvas();
+                ctx.strokeStyle = '#6366f1';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
+                ctx.strokeRect(startX, startY, pos.x - startX, pos.y - startY);
+                updateStatusText(`Drawing: ${Math.round(Math.abs(pos.x - startX))} × ${Math.round(Math.abs(pos.y - startY))} px`);
+            } else if (isDragging && selectedBoxIndex !== -1) {
+                const b = boxes[selectedBoxIndex];
+                b.x = Math.round(pos.x - dragOffsetX);
+                b.y = Math.round(pos.y - dragOffsetY);
+                redrawCanvas();
+                updateStatusText(`Position: X: ${b.x}, Y: ${b.y}`);
+            } else if (isResizing && selectedBoxIndex !== -1) {
+                const b = boxes[selectedBoxIndex];
+                b.w = Math.max(30, Math.round(pos.x - b.x));
+                b.h = Math.max(20, Math.round(pos.y - b.y));
+                redrawCanvas();
+                updateStatusText(`Dimensions: ${b.w} × ${b.h} px`);
+            }
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (isMapAreaZoom && isMapAreaZoomDragging) {
+                isMapAreaZoomDragging = false;
+                const pos = getCanvasCoordinates(e);
+                const w = Math.abs(pos.x - mapAreaZoomStartX);
+                const h = Math.abs(pos.y - mapAreaZoomStartY);
+                const viewport = document.getElementById('stage-viewport');
+
+                if (w < 12 && h < 12) {
+                    // Click to zoom at point
+                    const nextZoom = e.altKey ? Math.max(0.2, currentZoom * 0.7) : Math.min(3.0, currentZoom * 1.5);
+                    setZoom(nextZoom);
+                    centerMapViewportOnCoord(pos.x, pos.y);
+                } else {
+                    // Drag to zoom area
+                    const availW = Math.max(100, viewport.clientWidth - 100);
+                    const availH = Math.max(100, viewport.clientHeight - 100);
+                    const newZoom = Math.max(0.2, Math.min(3.0, Math.min(availW / w, availH / h)));
+                    const centerX = Math.min(pos.x, mapAreaZoomStartX) + w / 2;
+                    const centerY = Math.min(pos.y, mapAreaZoomStartY) + h / 2;
+                    setZoom(newZoom);
+                    centerMapViewportOnCoord(centerX, centerY);
+                }
+                toggleMapAreaZoom();
+                redrawCanvas();
+                return;
+            }
+
+            if (isDrawing) {
+                const pos = getCanvasCoordinates(e);
+                const w = Math.round(pos.x - startX);
+                const h = Math.round(pos.y - startY);
+
+                if (Math.abs(w) > 20 && Math.abs(h) > 15) {
+                    const newBox = {
+                        field: document.getElementById('field-name').value,
+                        font: document.getElementById('font-family').value,
+                        size: parseInt(document.getElementById('font-size').value) || 42,
+                        color: document.getElementById('font-color').value,
+                        bold: currentBold,
+                        italic: currentItalic,
+                        underline: currentUnderline,
+                        align: currentAlign,
+                        caseMode: currentCase,
+                        x: w < 0 ? Math.round(pos.x) : Math.round(startX),
+                        y: h < 0 ? Math.round(pos.y) : Math.round(startY),
+                        w: Math.abs(w),
+                        h: Math.abs(h)
+                    };
+                    boxes.push(newBox);
+                    selectedBoxIndex = boxes.length - 1;
+                    syncToolbarWithSelectedBox(newBox);
+                }
+            }
+
+            isDrawing = false;
+            isDragging = false;
+            isResizing = false;
+            redrawCanvas();
+            renderLayers();
+            updateForm();
+        });
+
+        // -------------------------------------------------------------
+        // Toolbar State & Synchronization
+        // -------------------------------------------------------------
+        function syncToolbarWithSelectedBox(b) {
+            document.getElementById('field-name').value = b.field;
+            document.getElementById('font-family').value = b.font || 'Times New Roman';
+            document.getElementById('font-size').value = b.size || 42;
+            document.getElementById('font-color').value = b.color || '#0f172a';
+
+            currentBold = !!b.bold;
+            currentItalic = !!b.italic;
+            currentUnderline = !!b.underline;
+            currentAlign = b.align || 'left';
+            currentCase = b.caseMode || 'none';
+
+            document.getElementById('btn-bold').classList.toggle('active', currentBold);
+            document.getElementById('btn-italic').classList.toggle('active', currentItalic);
+            document.getElementById('btn-underline').classList.toggle('active', currentUnderline);
+            
+            setAlign(currentAlign, false);
+            setCase(currentCase, false);
+
+            updateStatusText(`Selected: [${b.field}] | ${b.w} × ${b.h} px | X: ${b.x}, Y: ${b.y}`);
+        }
+
+        function updateSelectedBoxProperties() {
+            if (selectedBoxIndex !== -1 && boxes[selectedBoxIndex]) {
+                const b = boxes[selectedBoxIndex];
+                b.field = document.getElementById('field-name').value;
+                b.font = document.getElementById('font-family').value;
+                b.size = parseInt(document.getElementById('font-size').value) || 42;
+                b.color = document.getElementById('font-color').value;
+                b.bold = currentBold;
+                b.italic = currentItalic;
+                b.underline = currentUnderline;
+                b.align = currentAlign;
+                b.caseMode = currentCase;
+
+                redrawCanvas();
+                renderLayers();
+                updateForm();
+            }
+        }
+
+        function toggleStyle(style) {
+            if (style === 'bold') {
+                currentBold = !currentBold;
+                document.getElementById('btn-bold').classList.toggle('active', currentBold);
+            } else if (style === 'italic') {
+                currentItalic = !currentItalic;
+                document.getElementById('btn-italic').classList.toggle('active', currentItalic);
+            } else if (style === 'underline') {
+                currentUnderline = !currentUnderline;
+                document.getElementById('btn-underline').classList.toggle('active', currentUnderline);
+            }
+            updateSelectedBoxProperties();
+        }
+
+        function setAlign(align, triggerUpdate = true) {
+            currentAlign = align;
+            document.getElementById('btn-align-left').classList.toggle('active', align === 'left');
+            document.getElementById('btn-align-center').classList.toggle('active', align === 'center');
+            document.getElementById('btn-align-right').classList.toggle('active', align === 'right');
+            if (triggerUpdate) updateSelectedBoxProperties();
+        }
+
+        function setCase(cMode, triggerUpdate = true) {
+            currentCase = (currentCase === cMode) ? 'none' : cMode;
+            document.getElementById('btn-case-upper').classList.toggle('active', currentCase === 'upper');
+            document.getElementById('btn-case-title').classList.toggle('active', currentCase === 'title');
+            if (triggerUpdate) updateSelectedBoxProperties();
+        }
+
+        function setColor(hex) {
+            document.getElementById('font-color').value = hex;
+            updateSelectedBoxProperties();
+        }
+
+        function stepFontSize(step) {
+            const input = document.getElementById('font-size');
+            let val = parseInt(input.value) || 40;
+            val = Math.max(8, Math.min(250, val + step));
+            input.value = val;
+            updateSelectedBoxProperties();
+        }
+
+        // -------------------------------------------------------------
+        // Smart Helpers: Center, Duplicate, Delete, Nudge
+        // -------------------------------------------------------------
+        function centerBoxHorizontally() {
+            if (selectedBoxIndex !== -1 && boxes[selectedBoxIndex]) {
+                const b = boxes[selectedBoxIndex];
+                b.x = Math.round((originalWidth - b.w) / 2);
+                redrawCanvas();
+                updateForm();
+                updateStatusText(`Centered horizontally: X: ${b.x}`);
+            } else {
+                alert("Please select a box on the canvas first!");
+            }
+        }
+
+        function duplicateSelectedBox() {
+            if (selectedBoxIndex !== -1 && boxes[selectedBoxIndex]) {
+                const orig = boxes[selectedBoxIndex];
+                const clone = JSON.parse(JSON.stringify(orig));
+                clone.x = Math.min(originalWidth - clone.w, clone.x + 30);
+                clone.y = Math.min(originalHeight - clone.h, clone.y + 30);
+                boxes.push(clone);
+                selectedBoxIndex = boxes.length - 1;
+                redrawCanvas();
+                renderLayers();
+                updateForm();
+                updateStatusText(`Duplicated: [${clone.field}]`);
+            } else {
+                alert("Please select a box to duplicate!");
+            }
+        }
+
+        function deleteSelectedBox() {
+            if (selectedBoxIndex !== -1 && boxes[selectedBoxIndex]) {
+                boxes.splice(selectedBoxIndex, 1);
+                selectedBoxIndex = -1;
+                redrawCanvas();
+                renderLayers();
+                updateForm();
+                updateStatusText("Box deleted.");
+            } else {
+                alert("Please select a box to delete!");
+            }
+        }
+
+        function undoBox() {
+            if (boxes.length > 0) {
+                boxes.pop();
+                selectedBoxIndex = -1;
+                redrawCanvas();
+                renderLayers();
+                updateForm();
+            }
+        }
+
+        function clearAllBoxes() {
+            if (boxes.length === 0) return;
+            if (confirm("Are you sure you want to clear all mapped fields?")) {
+                boxes = [];
+                selectedBoxIndex = -1;
+                redrawCanvas();
+                renderLayers();
+                updateForm();
+            }
+        }
+
+        // Keyboard Shortcuts & Arrow Nudging
+        window.addEventListener('keydown', (e) => {
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT' || document.activeElement.isContentEditable) {
+                return;
+            }
+
+            if ((e.key === 'z' || e.key === 'Z') && !e.ctrlKey && !e.metaKey) {
+                e.preventDefault();
+                toggleMapAreaZoom();
+                return;
+            }
+
+            if (e.key === 'Escape' && isMapAreaZoom) {
+                e.preventDefault();
+                toggleMapAreaZoom();
+                return;
+            }
+
+            if (selectedBoxIndex === -1 || !boxes[selectedBoxIndex]) return;
+            const b = boxes[selectedBoxIndex];
+            const step = e.shiftKey ? 10 : 1;
+
+            if (e.key === 'ArrowLeft') { b.x -= step; e.preventDefault(); }
+            else if (e.key === 'ArrowRight') { b.x += step; e.preventDefault(); }
+            else if (e.key === 'ArrowUp') { b.y -= step; e.preventDefault(); }
+            else if (e.key === 'ArrowDown') { b.y += step; e.preventDefault(); }
+            else if (e.key === 'Delete' || e.key === 'Backspace') {
+                deleteSelectedBox();
+                e.preventDefault();
+                return;
+            }
+            redrawCanvas();
+            updateForm();
+        });
+
+        // -------------------------------------------------------------
+        // Layers Drawer Rendering
+        // -------------------------------------------------------------
+        function renderLayers() {
+            const list = document.getElementById('layers-list');
+            document.getElementById('layer-count').textContent = boxes.length;
+
+            if (boxes.length === 0) {
+                list.innerHTML = `<div style="font-size: 12px; color: #64748b; text-align: center; margin-top: 20px;">
+                    No fields mapped yet.<br>Click and drag on the certificate to map your first field!
+                </div>`;
+                return;
+            }
+
+            list.innerHTML = '';
+            boxes.forEach((b, index) => {
+                const item = document.createElement('div');
+                item.className = `layer-item ${index === selectedBoxIndex ? 'active' : ''}`;
+                item.onclick = () => {
+                    selectedBoxIndex = index;
+                    syncToolbarWithSelectedBox(b);
+                    redrawCanvas();
+                    renderLayers();
+                };
+
+                item.innerHTML = `
+                    <div>
+                        <div class="layer-title">${index + 1}. [${b.field}]</div>
+                        <div class="layer-subtitle">${b.font || 'Times'}, ${b.size}px • ${b.w}×${b.h}</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: ${b.color || '#1a1a2e'}; border: 1px solid rgba(255,255,255,0.4);"></span>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function updateStatusText(txt) {
+            document.getElementById('floating-status').innerHTML = `<span>📍 ${txt}</span>`;
+        }
+
+        function updateForm() {
+            const input = document.getElementById('mappings-input');
+            const genBtn = document.getElementById('gen-btn');
+            if (boxes.length > 0) {
+                input.value = JSON.stringify(boxes);
+                sessionStorage.setItem('saved_mappings', JSON.stringify(boxes));
+                genBtn.disabled = false;
+            } else {
+                input.value = '';
+                sessionStorage.removeItem('saved_mappings');
+                genBtn.disabled = true;
+            }
+        }
+
+        /* =============================================================
+           VOICE COMMAND STUDIO & AUDIO ENHANCEMENT ENGINE (DSP & SPEECH)
+           ============================================================= */
+        const VoiceStudio = {
+            // Audio Context & DSP Nodes
+            audioCtx: null,
+            mediaStream: null,
+            sourceNode: null,
+            preGainNode: null,
+            highPassFilter: null,
+            peakingFilter: null,
+            lowPassFilter: null,
+            analyserNode: null,
+            animFrameId: null,
+
+            // DSP & Noise Gate State
+            isVoiceFocusEnabled: true,
+            isNoiseGateEnabled: true,
+            noiseGateThresholdDb: -42,
+            micGainMultiplier: 1.2,
+            isAudioChimesEnabled: true,
+            isNoiseGated: false,
+            currentDbLevel: -100,
+
+            // Speech Recognition
+            recognition: null,
+            isListening: false,
+            recognitionSupported: false,
+            lastSpokenPhrase: '',
+
+            // Initialize Speech Recognition
+            initSpeechEngine() {
+                const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRec) {
+                    console.warn("[VoiceStudio] Web Speech Recognition API not natively supported in this browser.");
+                    this.recognitionSupported = false;
+                    return;
+                }
+                this.recognitionSupported = true;
+
+                this.recognition = new SpeechRec();
+                this.recognition.continuous = true;
+                this.recognition.interimResults = true;
+                this.recognition.lang = 'en-US';
+                this.recognition.maxAlternatives = 1;
+
+                this.recognition.onstart = () => {
+                    this.isListening = true;
+                    this.updateHudUiState();
+                    console.log("[VoiceStudio] Speech Recognition Engine Active & Listening.");
+                };
+
+                this.recognition.onresult = (event) => {
+                    let interimText = '';
+                    let finalPhrase = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalPhrase += transcript;
+                        } else {
+                            interimText += transcript;
+                        }
+                    }
+
+                    // Update HUD Transcript
+                    const transcriptElem = document.getElementById('voice-hud-transcript');
+                    if (interimText) {
+                        transcriptElem.innerHTML = `<span style="color: #38bdf8;">🎙️ ${interimText}</span>`;
+                    }
+
+                    if (finalPhrase.trim()) {
+                        // Check if current audio was gated by noise control
+                        if (this.isNoiseGateEnabled && this.isNoiseGated) {
+                            console.log(`[VoiceStudio] Ignored background noise below ${this.noiseGateThresholdDb}dB: "${finalPhrase.trim()}"`);
+                            transcriptElem.innerHTML = `<span style="color: #fbbf24;">[Filtered Noise]: "${finalPhrase.trim()}"</span>`;
+                            this.showToast(`🛡️ Background Noise Filtered`, false);
+                            return;
+                        }
+
+                        transcriptElem.innerHTML = `<b>Heard:</b> "${finalPhrase.trim()}"`;
+                        this.processVoiceCommand(finalPhrase.trim());
+                    }
+                };
+
+                this.recognition.onerror = (event) => {
+                    console.warn("[VoiceStudio] Speech Recognition Notice:", event.error);
+                    if (event.error === 'not-allowed') {
+                        alert("Microphone access was denied. Please allow microphone permissions in your browser bar.");
+                        this.stop();
+                    }
+                };
+
+                this.recognition.onend = () => {
+                    // Auto-restart if user still has voice studio active
+                    if (this.isListening) {
+                        try { this.recognition.start(); } catch (e) {}
+                    } else {
+                        this.updateHudUiState();
+                    }
+                };
+            },
+
+            // Initialize Web Audio DSP Graph (Noise Gate, Voice Focus, Spectrum Analyzer)
+            async initAudioDsp() {
+                try {
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    if (!this.audioCtx) {
+                        this.audioCtx = new AudioContextClass();
+                    }
+                    if (this.audioCtx.state === 'suspended') {
+                        await this.audioCtx.resume();
+                    }
+
+                    if (!this.mediaStream) {
+                        this.mediaStream = await navigator.mediaDevices.getUserMedia({
+                            audio: {
+                                echoCancellation: true,
+                                noiseSuppression: true,
+                                autoGainControl: true
+                            }
+                        });
+                    }
+
+                    // Build DSP Filter Chain
+                    this.sourceNode = this.audioCtx.createMediaStreamSource(this.mediaStream);
+
+                    // Pre-Gain Node (Microphone sensitivity slider)
+                    this.preGainNode = this.audioCtx.createGain();
+                    this.preGainNode.gain.value = this.micGainMultiplier;
+
+                    // High-Pass Filter (85 Hz cut - removes desk thumps, AC hum, wind)
+                    this.highPassFilter = this.audioCtx.createBiquadFilter();
+                    this.highPassFilter.type = 'highpass';
+                    this.highPassFilter.frequency.value = 85;
+
+                    // Voice Focus Peaking EQ (3.0 kHz vocal resonance peak for speech intelligibility)
+                    this.peakingFilter = this.audioCtx.createBiquadFilter();
+                    this.peakingFilter.type = 'peaking';
+                    this.peakingFilter.frequency.value = 3000;
+                    this.peakingFilter.Q.value = 1.5;
+                    this.peakingFilter.gain.value = this.isVoiceFocusEnabled ? 6.0 : 0.0;
+
+                    // Low-Pass Filter (3.5 kHz roll-off - removes high-pitch electrical hiss)
+                    this.lowPassFilter = this.audioCtx.createBiquadFilter();
+                    this.lowPassFilter.type = 'lowpass';
+                    this.lowPassFilter.frequency.value = 3500;
+
+                    // Analyser Node for Visualizers & Decibel RMS Calculation
+                    this.analyserNode = this.audioCtx.createAnalyser();
+                    this.analyserNode.fftSize = 256;
+                    this.analyserNode.smoothingTimeConstant = 0.8;
+
+                    // Connect chain: Source -> PreGain -> HighPass -> VoiceFocus -> LowPass -> Analyser
+                    this.sourceNode.connect(this.preGainNode);
+                    this.preGainNode.connect(this.highPassFilter);
+                    this.highPassFilter.connect(this.peakingFilter);
+                    this.peakingFilter.connect(this.lowPassFilter);
+                    this.lowPassFilter.connect(this.analyserNode);
+
+                    // Start Continuous Visualizer Animation Loop
+                    this.startVisualizerLoop();
+                    return true;
+                } catch (err) {
+                    console.warn("[VoiceStudio] AudioContext/Microphone access notice:", err);
+                    return false;
+                }
+            },
+
+            // Visualizer & Real-time Decibel Noise Gate Analysis Loop
+            startVisualizerLoop() {
+                if (this.animFrameId) cancelAnimationFrame(this.animFrameId);
+
+                const miniCanvas = document.getElementById('voice-mini-canvas');
+                const miniCtx = miniCanvas ? miniCanvas.getContext('2d') : null;
+
+                const fullCanvas = document.getElementById('voice-full-spectrum');
+                const fullCtx = fullCanvas ? fullCanvas.getContext('2d') : null;
+
+                const dbText = document.getElementById('analyzer-db-text');
+                const micRing = document.getElementById('voice-mic-indicator');
+                const statusBadge = document.getElementById('voice-hud-status-badge');
+
+                const bufferLength = this.analyserNode.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                const timeDataArray = new Uint8Array(bufferLength);
+
+                const render = () => {
+                    this.animFrameId = requestAnimationFrame(render);
+                    if (!this.analyserNode) return;
+
+                    this.analyserNode.getByteFrequencyData(dataArray);
+                    this.analyserNode.getByteTimeDomainData(timeDataArray);
+
+                    // 1. Calculate Real-Time Decibel (dBFS) & RMS
+                    let sumSquares = 0;
+                    for (let i = 0; i < bufferLength; i++) {
+                        const norm = (timeDataArray[i] - 128) / 128;
+                        sumSquares += norm * norm;
+                    }
+                    const rms = Math.sqrt(sumSquares / bufferLength);
+                    const db = rms > 0.00001 ? Math.max(-90, Math.round(20 * Math.log10(rms))) : -90;
+                    this.currentDbLevel = db;
+
+                    // Evaluate Noise Gate
+                    if (this.isNoiseGateEnabled && db < this.noiseGateThresholdDb) {
+                        this.isNoiseGated = true;
+                        if (micRing) { micRing.classList.remove('active-speaking'); micRing.classList.add('noise-gated'); }
+                        if (statusBadge) {
+                            statusBadge.className = 'voice-hud-badge voice-badge-gated';
+                            statusBadge.textContent = 'NOISE GATED';
+                        }
+                    } else {
+                        this.isNoiseGated = false;
+                        if (micRing) { micRing.classList.remove('noise-gated'); micRing.classList.add('active-speaking'); }
+                        if (statusBadge) {
+                            statusBadge.className = 'voice-hud-badge voice-badge-listening';
+                            statusBadge.textContent = 'VOICE ACTIVE';
+                        }
+                    }
+
+                    if (dbText) {
+                        dbText.innerHTML = `Signal: <b style="color: ${this.isNoiseGated ? '#fbbf24' : '#34d399'};">${db} dB</b> | Status: <b>${this.isNoiseGated ? 'Noise Gated' : 'Voice Focused'}</b>`;
+                    }
+
+                    // 2. Render Mini Waveform in Floating HUD
+                    if (miniCtx && miniCanvas) {
+                        miniCtx.clearRect(0, 0, miniCanvas.width, miniCanvas.height);
+                        const sliceWidth = miniCanvas.width / bufferLength;
+                        miniCtx.lineWidth = 2;
+                        miniCtx.strokeStyle = this.isNoiseGated ? '#64748b' : '#38bdf8';
+                        miniCtx.beginPath();
+                        let x = 0;
+                        for (let i = 0; i < bufferLength; i++) {
+                            const v = timeDataArray[i] / 128.0;
+                            const y = (v * miniCanvas.height) / 2;
+                            if (i === 0) miniCtx.moveTo(x, y);
+                            else miniCtx.lineTo(x, y);
+                            x += sliceWidth;
+                        }
+                        miniCtx.stroke();
+                    }
+
+                    // 3. Render Full Spectrum & Decibel VU in Audio Settings Modal
+                    if (fullCtx && fullCanvas) {
+                        fullCtx.clearRect(0, 0, fullCanvas.width, fullCanvas.height);
+                        const barWidth = (fullCanvas.width / (bufferLength / 2)) - 1;
+                        let barX = 0;
+
+                        for (let i = 0; i < bufferLength / 2; i++) {
+                            const barHeight = (dataArray[i] / 255) * fullCanvas.height;
+                            const gradient = fullCtx.createLinearGradient(0, fullCanvas.height, 0, 0);
+                            gradient.addColorStop(0, '#3b82f6');
+                            gradient.addColorStop(0.6, '#a855f7');
+                            gradient.addColorStop(1, '#ec4899');
+
+                            fullCtx.fillStyle = this.isNoiseGated ? '#334155' : gradient;
+                            fullCtx.fillRect(barX, fullCanvas.height - barHeight, barWidth, barHeight);
+                            barX += barWidth + 1;
+                        }
+
+                        // Draw Noise Gate Threshold Line
+                        const threshNorm = Math.min(1, Math.max(0, (this.noiseGateThresholdDb + 65) / 45));
+                        const threshY = fullCanvas.height - (threshNorm * fullCanvas.height);
+                        fullCtx.strokeStyle = '#f43f5e';
+                        fullCtx.setLineDash([4, 4]);
+                        fullCtx.lineWidth = 1.5;
+                        fullCtx.beginPath();
+                        fullCtx.moveTo(0, threshY);
+                        fullCtx.lineTo(fullCanvas.width, threshY);
+                        fullCtx.stroke();
+                        fullCtx.setLineDash([]);
+                    }
+                };
+
+                render();
+            },
+
+            // Play Synthesizer Feedback Chimes
+            playChime(type = 'success') {
+                if (!this.isAudioChimesEnabled || !this.audioCtx) return;
+                try {
+                    const now = this.audioCtx.currentTime;
+                    const osc = this.audioCtx.createOscillator();
+                    const gain = this.audioCtx.createGain();
+
+                    osc.connect(gain);
+                    gain.connect(this.audioCtx.destination);
+
+                    if (type === 'success') {
+                        // Two-tone rising major chime (C5 -> G5)
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(523.25, now);
+                        osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.1);
+                        gain.gain.setValueAtTime(0.08, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                        osc.start(now);
+                        osc.stop(now + 0.25);
+                    } else {
+                        // Subtle gentle alert
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(330, now);
+                        gain.gain.setValueAtTime(0.06, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+                        osc.start(now);
+                        osc.stop(now + 0.18);
+                    }
+                } catch (e) {}
+            },
+
+            // Start Voice Control Studio
+            async start() {
+                if (!this.recognitionSupported) {
+                    this.initSpeechEngine();
+                    if (!this.recognitionSupported) {
+                        alert("Your browser does not natively support Web Speech Recognition. Please use Google Chrome, Microsoft Edge, or a Chromium-based browser for Voice-Command editing.");
+                        return;
+                    }
+                }
+
+                await this.initAudioDsp();
+
+                try {
+                    this.recognition.start();
+                    this.isListening = true;
+                } catch (e) {
+                    console.log("Speech recognition start notice:", e);
+                }
+
+                this.updateHudUiState();
+                this.showToast("🎙️ Voice Studio Active: Say a command!");
+                this.playChime('success');
+            },
+
+            // Stop Voice Control Studio
+            stop() {
+                this.isListening = false;
+                if (this.recognition) {
+                    try { this.recognition.stop(); } catch (e) {}
+                }
+                this.updateHudUiState();
+                this.showToast("Voice Control Paused", false);
+            },
+
+            toggle() {
+                if (this.isListening) {
+                    this.stop();
+                } else {
+                    this.start();
+                }
+            },
+
+            updateHudUiState() {
+                const hud = document.getElementById('voice-hud');
+                const topbarBtn = document.getElementById('voice-topbar-toggle');
+                const topbarText = document.getElementById('voice-topbar-text');
+                const focusBadge = document.getElementById('voice-hud-focus-badge');
+
+                if (this.isListening) {
+                    if (hud) hud.classList.remove('hidden-dock');
+                    if (topbarBtn) topbarBtn.classList.add('listening');
+                    if (topbarText) topbarText.textContent = 'Listening...';
+                } else {
+                    if (hud) hud.classList.add('hidden-dock');
+                    if (topbarBtn) topbarBtn.classList.remove('listening');
+                    if (topbarText) topbarText.textContent = 'Voice Control';
+                }
+
+                if (focusBadge) {
+                    focusBadge.style.display = this.isVoiceFocusEnabled ? 'inline-block' : 'none';
+                }
+            },
+
+            showToast(text, isSuccess = true) {
+                const toast = document.getElementById('voice-toast');
+                const toastText = document.getElementById('voice-toast-text');
+                const feedbackElem = document.getElementById('voice-hud-feedback');
+
+                if (toast && toastText) {
+                    toastText.textContent = text;
+                    toast.style.display = 'flex';
+                    setTimeout(() => { toast.style.display = 'none'; }, 2200);
+                }
+
+                if (feedbackElem) {
+                    feedbackElem.innerHTML = `<span style="color: ${isSuccess ? '#34d399' : '#fbbf24'};">${text}</span>`;
+                }
+            },
+
+            // =========================================================
+            // NATURAL LANGUAGE SPEECH-TO-TEXT COMMAND PARSER
+            // =========================================================
+            processVoiceCommand(rawTranscript) {
+                const phrase = rawTranscript.toLowerCase().replace(/[.,!?;:]/g, '').trim();
+                console.log(`[VoiceStudio Command Parser] Parsing phrase: "${phrase}"`);
+
+                let executed = false;
+                let actionMsg = "";
+
+                // 1. FIELD SELECTION & MAPPING COMMANDS
+                // Example: "select name", "choose college", "map age", "field name"
+                const fieldMatch = phrase.match(/(?:select|choose|map|switch to|field)\s+([a-z0-9_\s]+)/i);
+                if (fieldMatch) {
+                    const targetField = fieldMatch[1].trim();
+                    // Match against headers
+                    let matchedHeader = headers.find(h => h.toLowerCase() === targetField || h.toLowerCase().includes(targetField));
+                    if (matchedHeader) {
+                        // Look for an existing box with this field
+                        let boxIdx = boxes.findIndex(b => b.field.toLowerCase() === matchedHeader.toLowerCase());
+                        if (boxIdx !== -1) {
+                            selectedBoxIndex = boxIdx;
+                            syncToolbarWithSelectedBox(boxes[boxIdx]);
+                            redrawCanvas();
+                            renderLayers();
+                            actionMsg = `Selected layer [${matchedHeader}]`;
+                        } else {
+                            document.getElementById('field-name').value = matchedHeader;
+                            updateSelectedBoxProperties();
+                            actionMsg = `Target column set to [${matchedHeader}]`;
+                        }
+                        executed = true;
+                    }
+                }
+
+                // "next field" / "previous field"
+                if (!executed && (phrase.includes("next field") || phrase.includes("next layer"))) {
+                    if (boxes.length > 0) {
+                        selectedBoxIndex = (selectedBoxIndex + 1) % boxes.length;
+                        syncToolbarWithSelectedBox(boxes[selectedBoxIndex]);
+                        redrawCanvas();
+                        renderLayers();
+                        actionMsg = `Selected [${boxes[selectedBoxIndex].field}]`;
+                        executed = true;
+                    }
+                } else if (!executed && (phrase.includes("previous field") || phrase.includes("prior field"))) {
+                    if (boxes.length > 0) {
+                        selectedBoxIndex = (selectedBoxIndex - 1 + boxes.length) % boxes.length;
+                        syncToolbarWithSelectedBox(boxes[selectedBoxIndex]);
+                        redrawCanvas();
+                        renderLayers();
+                        actionMsg = `Selected [${boxes[selectedBoxIndex].field}]`;
+                        executed = true;
+                    }
+                }
+
+                // 2. FONT FAMILY COMMANDS
+                // Example: "font cinzel", "font times", "font great vibes", "font montserrat", "font playfair"
+                if (!executed) {
+                    const fontFamilies = {
+                        "cinzel": "Cinzel",
+                        "times": "Times New Roman",
+                        "times new roman": "Times New Roman",
+                        "great vibes": "Great Vibes",
+                        "cursive": "Great Vibes",
+                        "script": "Great Vibes",
+                        "montserrat": "Montserrat",
+                        "playfair": "Playfair Display",
+                        "playfair display": "Playfair Display",
+                        "inter": "Inter",
+                        "arial": "Arial",
+                        "courier": "Courier New"
+                    };
+
+                    for (const [key, fontVal] of Object.entries(fontFamilies)) {
+                        if (phrase.includes(`font ${key}`) || phrase.includes(`change font to ${key}`) || phrase.includes(`set font ${key}`)) {
+                            document.getElementById('font-family').value = fontVal;
+                            updateSelectedBoxProperties();
+                            actionMsg = `Typography set to ${fontVal}`;
+                            executed = true;
+                            break;
+                        }
+                    }
+                }
+
+                // 3. FONT SIZE COMMANDS
+                // Example: "font size 48", "size 36", "bigger", "smaller", "increase font", "decrease font"
+                if (!executed) {
+                    const sizeMatch = phrase.match(/(?:font size|size|make size)\s+(\d+)/);
+                    if (sizeMatch) {
+                        const newSize = parseInt(sizeMatch[1]);
+                        if (newSize >= 8 && newSize <= 250) {
+                            document.getElementById('font-size').value = newSize;
+                            updateSelectedBoxProperties();
+                            actionMsg = `Font size set to ${newSize}px`;
+                            executed = true;
+                        }
+                    } else if (phrase.includes("bigger") || phrase.includes("increase font") || phrase.includes("larger font") || phrase.includes("increase size")) {
+                        stepFontSize(4);
+                        actionMsg = `Increased font to ${document.getElementById('font-size').value}px`;
+                        executed = true;
+                    } else if (phrase.includes("smaller") || phrase.includes("decrease font") || phrase.includes("shrink font") || phrase.includes("decrease size")) {
+                        stepFontSize(-4);
+                        actionMsg = `Decreased font to ${document.getElementById('font-size').value}px`;
+                        executed = true;
+                    }
+                }
+
+                // 4. STYLE & WEIGHT COMMANDS
+                // Example: "bold", "make it bold", "italic", "underline"
+                if (!executed) {
+                    if (phrase.includes("bold") || phrase.includes("unbold")) {
+                        toggleStyle('bold');
+                        actionMsg = `Bold: ${currentBold ? 'Enabled' : 'Disabled'}`;
+                        executed = true;
+                    } else if (phrase.includes("italic")) {
+                        toggleStyle('italic');
+                        actionMsg = `Italic: ${currentItalic ? 'Enabled' : 'Disabled'}`;
+                        executed = true;
+                    } else if (phrase.includes("underline")) {
+                        toggleStyle('underline');
+                        actionMsg = `Underline: ${currentUnderline ? 'Enabled' : 'Disabled'}`;
+                        executed = true;
+                    }
+                }
+
+                // 5. CASING COMMANDS
+                // Example: "uppercase", "all caps", "capitalize", "title case", "lowercase", "normal case"
+                if (!executed) {
+                    if (phrase.includes("uppercase") || phrase.includes("all caps") || phrase.includes("capital letters")) {
+                        setCase('upper');
+                        actionMsg = `Casing: UPPERCASE`;
+                        executed = true;
+                    } else if (phrase.includes("title case") || phrase.includes("capitalize") || phrase.includes("capitalize each word")) {
+                        setCase('title');
+                        actionMsg = `Casing: Title Case`;
+                        executed = true;
+                    } else if (phrase.includes("lowercase") || phrase.includes("normal case") || phrase.includes("reset case")) {
+                        setCase('none');
+                        actionMsg = `Casing: Normal`;
+                        executed = true;
+                    }
+                }
+
+                // 6. ALIGNMENT COMMANDS
+                // Example: "align left", "align center", "align right"
+                if (!executed) {
+                    if (phrase.includes("align center") || phrase.includes("center text") || phrase.includes("center align")) {
+                        setAlign('center');
+                        actionMsg = `Text Alignment: Center`;
+                        executed = true;
+                    } else if (phrase.includes("align left") || phrase.includes("left align")) {
+                        setAlign('left');
+                        actionMsg = `Text Alignment: Left`;
+                        executed = true;
+                    } else if (phrase.includes("align right") || phrase.includes("right align")) {
+                        setAlign('right');
+                        actionMsg = `Text Alignment: Right`;
+                        executed = true;
+                    }
+                }
+
+                // 7. POSITIONING & HORIZONTAL CENTERING
+                // Example: "center horizontally", "center box", "move up 10", "move down", "nudge left"
+                if (!executed) {
+                    if (phrase.includes("center horizontally") || phrase.includes("center box") || phrase.includes("center field")) {
+                        centerBoxHorizontally();
+                        actionMsg = `Centered Horizontally`;
+                        executed = true;
+                    } else if (selectedBoxIndex !== -1 && boxes[selectedBoxIndex]) {
+                        const b = boxes[selectedBoxIndex];
+                        const stepMatch = phrase.match(/(?:move|nudge)\s+(?:up|down|left|right)\s+(\d+)/);
+                        const dist = stepMatch ? parseInt(stepMatch[1]) : 15;
+
+                        if (phrase.includes("move up") || phrase.includes("nudge up")) {
+                            b.y = Math.max(0, b.y - dist);
+                            redrawCanvas(); updateForm();
+                            actionMsg = `Moved up by ${dist}px`;
+                            executed = true;
+                        } else if (phrase.includes("move down") || phrase.includes("nudge down")) {
+                            b.y = Math.min(originalHeight - b.h, b.y + dist);
+                            redrawCanvas(); updateForm();
+                            actionMsg = `Moved down by ${dist}px`;
+                            executed = true;
+                        } else if (phrase.includes("move left") || phrase.includes("nudge left")) {
+                            b.x = Math.max(0, b.x - dist);
+                            redrawCanvas(); updateForm();
+                            actionMsg = `Moved left by ${dist}px`;
+                            executed = true;
+                        } else if (phrase.includes("move right") || phrase.includes("nudge right")) {
+                            b.x = Math.min(originalWidth - b.w, b.x + dist);
+                            redrawCanvas(); updateForm();
+                            actionMsg = `Moved right by ${dist}px`;
+                            executed = true;
+                        }
+                    }
+                }
+
+                // 8. COLOR COMMANDS
+                // Example: "color gold", "color navy", "color red", "color black", "color white"
+                if (!executed) {
+                    const colors = {
+                        "gold": "#d4af37",
+                        "yellow": "#eab308",
+                        "navy": "#0f172a",
+                        "dark blue": "#0f172a",
+                        "blue": "#2563eb",
+                        "royal blue": "#1d4ed8",
+                        "red": "#dc2626",
+                        "crimson": "#991b1b",
+                        "black": "#000000",
+                        "dark": "#0f172a",
+                        "white": "#ffffff",
+                        "silver": "#94a3b8",
+                        "gray": "#64748b",
+                        "green": "#059669",
+                        "emerald": "#10b981",
+                        "purple": "#7c3aed",
+                        "violet": "#8b5cf6",
+                        "bronze": "#cd7f32",
+                        "cyan": "#06b6d4"
+                    };
+
+                    for (const [colName, colHex] of Object.entries(colors)) {
+                        if (phrase.includes(`color ${colName}`) || phrase.includes(`change color to ${colName}`) || phrase.includes(`set color ${colName}`)) {
+                            setColor(colHex);
+                            actionMsg = `Color set to ${colName.toUpperCase()} (${colHex})`;
+                            executed = true;
+                            break;
+                        }
+                    }
+                }
+
+                // 9. STUDIO ACTIONS
+                // Example: "duplicate", "delete field", "undo", "clear all", "zoom in", "fit window", "preview"
+                if (!executed) {
+                    if (phrase.includes("duplicate") || phrase.includes("clone") || phrase.includes("copy field")) {
+                        duplicateSelectedBox();
+                        actionMsg = `Duplicated Field`;
+                        executed = true;
+                    } else if (phrase.includes("delete") || phrase.includes("remove field") || phrase.includes("trash")) {
+                        deleteSelectedBox();
+                        actionMsg = `Field Deleted`;
+                        executed = true;
+                    } else if (phrase.includes("undo") || phrase.includes("revert")) {
+                        undoBox();
+                        actionMsg = `Undone Last Action`;
+                        executed = true;
+                    } else if (phrase.includes("clear all") || phrase.includes("reset canvas")) {
+                        clearAllBoxes();
+                        actionMsg = `Cleared All Fields`;
+                        executed = true;
+                    } else if (phrase.includes("zoom in")) {
+                        adjustZoom(0.1);
+                        actionMsg = `Zoomed In (${Math.round(currentScale * 100)}%)`;
+                        executed = true;
+                    } else if (phrase.includes("zoom out")) {
+                        adjustZoom(-0.1);
+                        actionMsg = `Zoomed Out (${Math.round(currentScale * 100)}%)`;
+                        executed = true;
+                    } else if (phrase.includes("fit window") || phrase.includes("fit screen")) {
+                        fitToWindow();
+                        actionMsg = `Fit to Window`;
+                        executed = true;
+                    } else if (phrase.includes("preview certificate") || phrase.includes("generate preview") || phrase.includes("finish mapping")) {
+                        actionMsg = `Launching Preview...`;
+                        this.showToast(actionMsg, true);
+                        this.playChime('success');
+                        setTimeout(() => {
+                            const genBtn = document.getElementById('gen-btn');
+                            if (!genBtn.disabled) document.getElementById('mapping-form').submit();
+                        }, 500);
+                        return;
+                    }
+                }
+
+                // Result feedback
+                if (executed) {
+                    this.showToast(`✨ ${actionMsg}`, true);
+                    this.playChime('success');
+                } else {
+                    console.log(`[VoiceStudio] Unrecognized command phrase: "${phrase}"`);
+                    this.playChime('alert');
+                    document.getElementById('voice-hud-feedback').innerHTML = `<span style="color: #94a3b8;">Unrecognized command: "${phrase}" (Say "Help" or click ❓)</span>`;
+                }
+            }
+        };
+
+        // Global functions for topbar and UI controls
+        function toggleVoiceCommandStudio() {
+            VoiceStudio.toggle();
+        }
+
+        function stopVoiceCommandStudio() {
+            VoiceStudio.stop();
+        }
+
+        function openAudioSettingsModal(tab = '') {
+            document.getElementById('audio-settings-modal').style.display = 'flex';
+            if (tab === 'guide') {
+                const section = document.getElementById('commands-cheatsheet-section');
+                if (section) section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function closeAudioSettingsModal() {
+            document.getElementById('audio-settings-modal').style.display = 'none';
+        }
+
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('audio-settings-modal');
+            if (e.target === modal) closeAudioSettingsModal();
+        });
+
+        function updateAudioDspSettings() {
+            const voiceFocusToggle = document.getElementById('toggle-voice-focus');
+            const noiseGateToggle = document.getElementById('toggle-noise-gate');
+            const chimesToggle = document.getElementById('toggle-audio-chimes');
+
+            VoiceStudio.isVoiceFocusEnabled = voiceFocusToggle.checked;
+            VoiceStudio.isNoiseGateEnabled = noiseGateToggle.checked;
+            VoiceStudio.isAudioChimesEnabled = chimesToggle.checked;
+
+            if (VoiceStudio.peakingFilter) {
+                VoiceStudio.peakingFilter.gain.value = VoiceStudio.isVoiceFocusEnabled ? 6.0 : 0.0;
+            }
+
+            const focusBadge = document.getElementById('voice-hud-focus-badge');
+            if (focusBadge) {
+                focusBadge.style.display = VoiceStudio.isVoiceFocusEnabled ? 'inline-block' : 'none';
+            }
+
+            console.log(`[VoiceStudio DSP] Voice Focus: ${VoiceStudio.isVoiceFocusEnabled}, Noise Gate: ${VoiceStudio.isNoiseGateEnabled}`);
+        }
+
+        function updateGateThreshold(val) {
+            VoiceStudio.noiseGateThresholdDb = parseInt(val);
+            document.getElementById('gate-threshold-val').textContent = `${val} dB`;
+        }
+
+        function updateMicGain(val) {
+            VoiceStudio.micGainMultiplier = parseInt(val) / 100.0;
+            document.getElementById('mic-gain-val').textContent = `${val}%`;
+            if (VoiceStudio.preGainNode) {
+                VoiceStudio.preGainNode.gain.value = VoiceStudio.micGainMultiplier;
+            }
+        }
+
+        function testAudioChime() {
+            if (!VoiceStudio.audioCtx) {
+                const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+                VoiceStudio.audioCtx = new AudioCtxClass();
+            }
+            VoiceStudio.playChime('success');
+        }
+
+        // Initialize Speech Engine on Page Load
+        window.addEventListener('DOMContentLoaded', () => {
+            VoiceStudio.initSpeechEngine();
+        });
+    </script>
+</body>
+</html>

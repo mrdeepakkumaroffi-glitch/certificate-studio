@@ -1,0 +1,22 @@
+# Environment and Secrets
+.env
+firebase_credentials.json
+serviceAccountKey.json
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+
+# Uploads and temporary data
+uploads/*
+!uploads/.gitkeep
+static/sample_preview.png
+static/avatar_*.jpg
+*.pdf
+certificate_*.png
+sample_certificate.png

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings - Certificate Generator Studio</title>
+    <!-- Master Ultra-Animated Theme -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
+    <style>
+        .settings-page-wrapper {
+            min-height: calc(100vh - 74px);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .settings-card {
+            width: 640px;
+            max-width: 100%;
+            padding: 38px;
+            animation: cardFloatIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes cardFloatIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .section-separator {
+            font-family: var(--font-heading);
+            font-size: 14px;
+            font-weight: 800;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 28px 0 16px 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .avatar-uploader-row {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            margin-bottom: 24px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .avatar-glow-ring {
+            width: 86px;
+            height: 86px;
+            border-radius: 50%;
+            background: var(--grad-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 0 25px rgba(236, 72, 153, 0.4);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+        }
+
+        .avatar-glow-ring img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 7px;
+            display: block;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #34d399;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-error {
+            background: rgba(244, 63, 94, 0.12);
+            border: 1px solid rgba(244, 63, 94, 0.35);
+            color: #fb7185;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Persistent Top Navigation -->
+    {% include 'header.inc.html' %}
+
+    <div class="settings-page-wrapper">
+        <div class="ultra-card settings-card">
+            
+            <div style="margin-bottom: 26px;">
+                <div class="badge-pill badge-pill-cyan" style="margin-bottom: 12px;">
+                    <span class="pulse-dot" style="color: #38bdf8;"></span>
+                    <span>Account Profile</span>
+                </div>
+                <h1 style="font-size: 28px; font-weight: 900; margin-bottom: 6px;">
+                    User <span class="gradient-text">Settings</span>
+                </h1>
+                <p style="color: var(--text-secondary); font-size: 14px;">
+                    Manage your personal profile details, branding avatar, and account authentication credentials.
+                </p>
+            </div>
+
+            {% if success %}
+            <div class="alert-success">
+                <span>✅</span>
+                <span>{{ success }}</span>
+            </div>
+            {% endif %}
+
+            {% if error %}
+            <div class="alert-error">
+                <span>⚠️</span>
+                <span>{{ error }}</span>
+            </div>
+            {% endif %}
+
+            <!-- Form 1: Profile & Avatar Update -->
+            <form action="/update-profile" method="POST" enctype="multipart/form-data">
+                <div class="section-separator">
+                    <span>👤</span>
+                    <span>Profile & Avatar</span>
+                </div>
+
+                <div class="avatar-uploader-row">
+                    <div class="avatar-glow-ring">
+                        {% if user_avatar %}
+                            <img src="{{ url_for('static', filename=user_avatar) }}" alt="Avatar">
+                        {% else %}
+                            {{ user_name[0]|upper if user_name else 'U' }}
+                        {% endif %}
+                    </div>
+                    <div style="flex: 1;">
+                        <label class="form-label">Profile Image (PNG / JPG):</label>
+                        <input type="file" name="avatar" accept="image/*" class="glow-input" style="padding: 9px; font-size: 12px;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Full Name:</label>
+                    <input type="text" name="name" value="{{ user_name }}" class="glow-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Registered Contact Identifier (Permanent):</label>
+                    <input type="text" value="{{ user_contact }}" class="glow-input" disabled style="opacity: 0.55; cursor: not-allowed; background: rgba(0,0,0,0.3);">
+                </div>
+
+                <button type="submit" class="glow-btn-primary" style="margin-top: 5px;">
+                    <span>Save Profile Changes</span>
+                    <span>💾</span>
+                </button>
+            </form>
+
+            <!-- Form 2: Password Reset -->
+            <form action="/reset-password" method="POST" style="margin-top: 24px;">
+                <div class="section-separator">
+                    <span>🔒</span>
+                    <span>Security & Password Reset</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Current Password:</label>
+                    <input type="password" name="current_password" class="glow-input" placeholder="Verify your current password" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">New Password:</label>
+                    <input type="password" name="new_password" class="glow-input" placeholder="Enter a new strong password" required>
+                </div>
+
+                <button type="submit" class="glow-btn-emerald" style="margin-top: 5px;">
+                    <span>Update Security Password</span>
+                    <span>🛡️</span>
+                </button>
+            </form>
+
+            <!-- Section 3: SMTP Email Settings -->
+            <div style="margin-top: 28px;">
+                <div class="section-separator">
+                    <span>📧</span>
+                    <span>SMTP Email Settings</span>
+                </div>
+
+                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 16px; padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                            {% if user_smtp and user_smtp.has_password and user_smtp.is_verified %}
+                                <span class="badge-pill badge-pill-emerald" style="font-size: 11px;">
+                                    ● Connected
+                                </span>
+                                <span style="font-size: 13.5px; font-weight: 700; color: #f8fafc;">
+                                    {{ user_smtp.email }}
+                                </span>
+                            {% elif user_smtp and user_smtp.has_password %}
+                                <span class="badge-pill badge-pill-purple" style="font-size: 11px;">
+                                    ⚠️ Configured
+                                </span>
+                                <span style="font-size: 13.5px; font-weight: 700; color: #f8fafc;">
+                                    {{ user_smtp.email }}
+                                </span>
+                            {% else %}
+                                <span class="badge-pill" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; font-size: 11px;">
+                                    ○ Not Connected
+                                </span>
+                                <span style="font-size: 13px; color: #94a3b8;">
+                                    Defaulting to system sender
+                                </span>
+                            {% endif %}
+                        </div>
+                        <div style="font-size: 12px; color: #64748b;">
+                            {% if user_smtp and user_smtp.has_password %}
+                                Server: {{ user_smtp.smtp_host }}:{{ user_smtp.smtp_port }} • {{ user_smtp.security }}
+                            {% else %}
+                                Connect your own Gmail or custom SMTP to dispatch certificates from your personal email address.
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <a href="/smtp-settings" class="glow-btn-primary" style="padding: 10px 20px; font-size: 13px; text-decoration: none;">
+                        <span>⚙️ Manage SMTP Settings</span>
+                        <span>➔</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

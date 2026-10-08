@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Certificate Studio Pro</title>
+    <!-- Master Ultra-Animated Theme -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+            position: relative;
+        }
+
+        .auth-card {
+            width: 480px;
+            max-width: 100%;
+            padding: 42px 38px;
+            text-align: center;
+            animation: authEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        @keyframes authEntrance {
+            from { opacity: 0; transform: translateY(30px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .auth-logo-symbol {
+            width: 60px;
+            height: 60px;
+            border-radius: 20px;
+            background: var(--grad-primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+            box-shadow: 0 12px 30px rgba(236, 72, 153, 0.45);
+            margin-bottom: 16px;
+            animation: pulseLogo 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseLogo {
+            0% { transform: scale(1); box-shadow: 0 12px 30px rgba(236, 72, 153, 0.45); }
+            100% { transform: scale(1.06); box-shadow: 0 18px 40px rgba(139, 92, 246, 0.65); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        .input-with-icon {
+            padding-left: 42px !important;
+            padding-right: 42px !important;
+        }
+
+        .toggle-password-btn {
+            position: absolute;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 6px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+
+        .toggle-password-btn:hover {
+            color: #f8fafc;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Professional Forgot Password Link */
+        .forgot-link {
+            color: #38bdf8;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .forgot-link:hover {
+            color: #f43f5e;
+            text-decoration: underline;
+            transform: translateY(-1px);
+        }
+
+        .auth-error-banner {
+            background: rgba(244, 63, 94, 0.12);
+            border: 1px solid rgba(244, 63, 94, 0.35);
+            color: #fb7185;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 22px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .auth-info-banner {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #34d399;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .remember-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+            font-size: 12.5px;
+            color: var(--text-secondary);
+        }
+
+        .custom-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .custom-check input[type="checkbox"] {
+            accent-color: #8b5cf6;
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+        }
+
+        .link-footer {
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 18px;
+        }
+
+        .link-footer a {
+            color: #38bdf8;
+            text-decoration: none;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+        .link-footer a:hover {
+            color: #ec4899;
+            text-decoration: underline;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* =============================================================
+           MODERN MODAL STYLES FOR IN-PAGE FORGOT PASSWORD
+           ============================================================= */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(7, 9, 19, 0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            opacity: 1;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+
+        .modal-backdrop.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .forgot-modal-card {
+            width: 480px;
+            max-width: 100%;
+            padding: 38px 34px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), 0 0 40px rgba(168, 85, 247, 0.25);
+            animation: modalPop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.92) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #94a3b8;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-close-btn:hover {
+            color: #f8fafc;
+            background: rgba(244, 63, 94, 0.2);
+            border-color: #f43f5e;
+            transform: rotate(90deg);
+        }
+
+        .modal-icon-badge {
+            width: 54px;
+            height: 54px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #f43f5e 0%, #8b5cf6 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 10px 25px rgba(244, 63, 94, 0.35);
+            margin-bottom: 14px;
+        }
+
+        .email-status-card {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .otp-input-box {
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 24px;
+            letter-spacing: 8px;
+            font-weight: 800;
+            color: #38bdf8;
+            padding: 12px 14px;
+        }
+
+        .strength-container {
+            margin-top: 6px;
+            margin-bottom: 10px;
+        }
+
+        .strength-bars {
+            display: flex;
+            gap: 4px;
+            height: 4px;
+            margin-bottom: 5px;
+        }
+
+        .strength-segment {
+            flex: 1;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .strength-text {
+            font-size: 10.5px;
+            font-weight: 700;
+            text-align: right;
+            color: var(--text-muted);
+            transition: 0.3s;
+        }
+
+        .resend-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11.5px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            margin-bottom: 14px;
+        }
+
+        .resend-btn {
+            background: transparent;
+            border: none;
+            color: #38bdf8;
+            font-weight: 700;
+            font-size: 11.5px;
+            cursor: pointer;
+            text-decoration: underline;
+            transition: 0.2s;
+        }
+
+        .resend-btn:disabled {
+            color: var(--text-muted);
+            cursor: not-allowed;
+            text-decoration: none;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <!-- Living Animated Ambient Aurora Mesh Background -->
+    <div class="ambient-mesh">
+        <div class="aurora-orb orb-1"></div>
+        <div class="aurora-orb orb-2"></div>
+        <div class="aurora-orb orb-3"></div>
+        <div class="mesh-grid"></div>
+    </div>
+
+    <div class="auth-container">
+        <div class="ultra-card auth-card">
+            
+            <div class="auth-logo-symbol">✨</div>
+            
+            <div class="badge-pill badge-pill-purple" style="margin-bottom: 12px;">
+                <span class="pulse-dot" style="color: #c084fc;"></span>
+                <span>Pro Member Access</span>
+            </div>
+
+            <h1 style="font-size: 26px; font-weight: 900; margin-bottom: 6px;">
+                Welcome <span class="gradient-text">Back</span>
+            </h1>
+            <p style="color: var(--text-secondary); font-size: 13.5px; margin-bottom: 24px;">
+                Sign into your Certificate Studio workspace using your Email or Mobile.
+            </p>
+
+            {% if error %}
+            <div class="auth-error-banner" id="login-error-banner">
+                <span>⚠️</span>
+                <span>{{ error }}</span>
+            </div>
+            {% endif %}
+
+            <div id="login-feedback-banner" class="auth-info-banner hidden">
+                <span>✅</span>
+                <span id="login-feedback-text"></span>
+            </div>
+
+            <form action="/login" method="POST" id="login-form" onsubmit="handleLoginSubmit(event)">
+                <!-- Email or Mobile Number Input -->
+                <div class="form-group">
+                    <label class="form-label" for="login-contact">
+                        <span>Email ID or Mobile Number:</span>
+                        <span style="font-size: 11px; color: #38bdf8; font-weight: 600;">Universal Login</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">📱</span>
+                        <input type="text" name="contact" id="login-contact" autocomplete="username" class="glow-input input-with-icon" placeholder="Enter registered Email or Mobile Number" value="{{ contact|default('') }}" required autofocus>
+                    </div>
+                </div>
+
+                <!-- Password Input with Eye Toggle & Professional Forgot Password Link -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <span>Password:</span>
+                        <a href="/forgot-password" onclick="openForgotModal(event)" class="forgot-link" id="link-forgot-password" title="Recover your password">
+                            <span>Forgot password?</span>
+                        </a>
+                    </label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" name="password" id="login-password" autocomplete="current-password" class="glow-input input-with-icon" placeholder="Enter your secret password" required>
+                        <button type="button" class="toggle-password-btn" onclick="toggleLoginPassword(this)" title="Show/Hide Password">
+                            👁️
+                        </button>
+                    </div>
+                </div>
+
+                <div class="remember-row">
+                    <label class="custom-check">
+                        <input type="checkbox" name="remember" checked>
+                        <span>Keep me signed in</span>
+                    </label>
+                    <span style="color: var(--text-muted); font-size: 11.5px;">TLS 256-Bit Encrypted</span>
+                </div>
+
+                <button type="submit" class="glow-btn-primary" id="btn-login" style="width: 100%; padding: 14px; font-size: 15px; justify-content: center;">
+                    <span id="btn-login-text">Sign In to Studio</span>
+                    <span>➔</span>
+                </button>
+            </form>
+
+            <div class="link-footer">
+                Don't have an account yet? <a href="/register">Create Studio Account</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============================================================
+         IN-PAGE MODERN FORGOT PASSWORD MODAL
+         ============================================================= -->
+    <div class="modal-backdrop hidden" id="forgot-modal" onclick="handleBackdropClick(event)">
+        <div class="ultra-card forgot-modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            
+            <button type="button" class="modal-close-btn" onclick="closeForgotModal()" title="Close dialog">✕</button>
+
+            <div class="modal-icon-badge" id="modal-icon-badge">
+                <span id="modal-icon">🔑</span>
+            </div>
+
+            <div class="badge-pill badge-pill-pink" style="margin-bottom: 10px;">
+                <span class="pulse-dot" style="color: #f43f5e;"></span>
+                <span>Account Recovery</span>
+            </div>
+
+            <h2 id="modal-title" style="font-size: 22px; font-weight: 900; margin-bottom: 6px;">Reset Password</h2>
+            <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 20px; line-height: 1.5;" id="modal-subtitle">
+                Enter your registered Email or Mobile number to receive a secure 6-digit verification code.
+            </p>
+
+            <!-- Modal Notifications -->
+            <div id="modal-alert-error" class="auth-error-banner hidden" style="margin-bottom: 16px;">
+                <span>⚠️</span>
+                <span id="modal-alert-error-msg"></span>
+            </div>
+            <div id="modal-alert-info" class="auth-info-banner hidden" style="margin-bottom: 16px;">
+                <span>✅</span>
+                <span id="modal-alert-info-msg"></span>
+            </div>
+
+            <!-- STEP 1: Enter Email or Mobile -->
+            <form id="forgot-step1-form" onsubmit="handleForgotStep1(event)">
+                <div class="form-group" style="text-align: left; margin-bottom: 18px;">
+                    <label class="form-label" for="forgot-contact">
+                        <span>Registered Email ID or Mobile:</span>
+                        <span style="font-size: 11px; color: #38bdf8; font-weight: 600;">Universal Recovery</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">📱</span>
+                        <input type="text" id="forgot-contact" class="glow-input input-with-icon" placeholder="e.g. alex@company.com or 9876543210" required autofocus>
+                    </div>
+                </div>
+
+                <button type="submit" class="glow-btn-primary" id="btn-forgot-step1" style="width: 100%; padding: 13px; font-size: 14.5px; justify-content: center;">
+                    <span id="btn-forgot-step1-text">Send Verification Code</span>
+                    <span>➔</span>
+                </button>
+            </form>
+
+            <!-- STEP 2: Enter 6-digit OTP & Set New Password -->
+            <form id="forgot-step2-form" class="hidden" onsubmit="handleForgotStep2(event)">
+                
+                <div class="email-status-card">
+                    <div style="text-align: left;">
+                        <div style="font-size: 10px; font-weight: 700; color: #38bdf8; text-transform: uppercase;">
+                            Code Dispatched To:
+                        </div>
+                        <div style="font-size: 13.5px; font-weight: 800; color: #f8fafc; margin-top: 1px;" id="forgot-target-email-display">
+                            user@example.com
+                        </div>
+                    </div>
+                    <button type="button" class="glow-btn-secondary" onclick="backToForgotStep1()" style="padding: 5px 10px; font-size: 11px; border-radius: 8px;">
+                        ✏️ Change
+                    </button>
+                </div>
+
+                <!-- Simulated OTP token banner (if SMTP credentials in dev mode) -->
+                <div id="forgot-simulated-otp-box" class="hidden" style="background: rgba(139, 92, 246, 0.12); border: 1px dashed #8b5cf6; border-radius: 12px; padding: 10px; margin-bottom: 14px; text-align: center;">
+                    <div style="font-size: 11px; color: #cbd5e1; margin-bottom: 3px;">Development Mode Verification Code:</div>
+                    <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 800; color: #38bdf8; letter-spacing: 6px;" id="forgot-simulated-otp-val"></div>
+                </div>
+
+                <!-- OTP Input -->
+                <div class="form-group" style="text-align: left; margin-bottom: 12px;">
+                    <label class="form-label" style="justify-content: center; margin-bottom: 5px;">Enter 6-Digit Code:</label>
+                    <input type="text" id="forgot-otp" maxlength="6" class="glow-input otp-input-box" placeholder="• • • • • •" required autocomplete="one-time-code">
+                    <div class="resend-box">
+                        <span>Check inbox & spam folder</span>
+                        <button type="button" class="resend-btn" id="forgot-resend-btn" onclick="resendForgotOtp()">
+                            Resend Code (<span id="forgot-resend-timer">60</span>s)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- New Password Field -->
+                <div class="form-group" style="text-align: left; margin-bottom: 12px;">
+                    <label class="form-label">
+                        <span>New Password:</span>
+                        <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Min. 6 characters</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="forgot-new-pass" class="glow-input input-with-icon" placeholder="Enter new strong password" required oninput="evaluateForgotStrength(this.value)">
+                        <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('forgot-new-pass', this)" title="Show/Hide Password">👁️</button>
+                    </div>
+
+                    <div class="strength-container">
+                        <div class="strength-bars">
+                            <div class="strength-segment" id="fstr-1"></div>
+                            <div class="strength-segment" id="fstr-2"></div>
+                            <div class="strength-segment" id="fstr-3"></div>
+                            <div class="strength-segment" id="fstr-4"></div>
+                        </div>
+                        <div class="strength-text" id="forgot-strength-label">Strength: None</div>
+                    </div>
+                </div>
+
+                <!-- Confirm New Password Field -->
+                <div class="form-group" style="text-align: left; margin-bottom: 16px;">
+                    <label class="form-label">Confirm New Password:</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔐</span>
+                        <input type="password" id="forgot-confirm-pass" class="glow-input input-with-icon" placeholder="Re-enter new password" required oninput="checkForgotMatch()">
+                        <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('forgot-confirm-pass', this)" title="Show/Hide Password">👁️</button>
+                    </div>
+                    <div id="forgot-match-hint" style="font-size: 11px; font-weight: 600; margin-top: 4px; display: none;"></div>
+                </div>
+
+                <input type="hidden" id="hidden-forgot-server-otp">
+
+                <button type="submit" class="glow-btn-emerald" id="btn-forgot-step2" style="width: 100%; padding: 13px; font-size: 14.5px; justify-content: center;">
+                    <span id="btn-forgot-step2-text">Reset Password & Sign In</span>
+                    <span>🚀</span>
+                </button>
+            </form>
+
+            <!-- STEP 3: Success View -->
+            <div id="forgot-success-view" class="hidden" style="padding: 10px 0;">
+                <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); border: 2px solid #10b981; color: #10b981; font-size: 32px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                    ✓
+                </div>
+                <h3 style="font-size: 20px; font-weight: 800; color: #f8fafc; margin-bottom: 8px;">Password Updated!</h3>
+                <p style="color: var(--text-secondary); font-size: 13.5px; margin-bottom: 22px; line-height: 1.5;">
+                    Your password has been securely updated in the database. You can now sign in using your new credentials.
+                </p>
+                <button type="button" class="glow-btn-primary" onclick="proceedToLoginAfterReset()" style="width: 100%; padding: 13px; font-size: 14.5px; justify-content: center;">
+                    <span>Proceed to Sign In</span>
+                    <span>➔</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Normal Login Helpers
+        function toggleLoginPassword(btn) {
+            const field = document.getElementById('login-password');
+            if (field.type === 'password') {
+                field.type = 'text';
+                btn.textContent = '🔒';
+            } else {
+                field.type = 'password';
+                btn.textContent = '👁️';
+            }
+        }
+
+        function togglePasswordVisibility(fieldId, btn) {
+            const field = document.getElementById(fieldId);
+            if (field.type === 'password') {
+                field.type = 'text';
+                btn.textContent = '🔒';
+            } else {
+                field.type = 'password';
+                btn.textContent = '👁️';
+            }
+        }
+
+        async function handleLoginSubmit(e) {
+            e.preventDefault();
+            const errBanner = document.getElementById('login-error-banner');
+            const infoBanner = document.getElementById('login-feedback-banner');
+            if (errBanner) errBanner.classList.add('hidden');
+            if (infoBanner) infoBanner.classList.add('hidden');
+
+            const contactInput = document.getElementById('login-contact');
+            const passInput = document.getElementById('login-password');
+            const rememberInput = document.querySelector('input[name="remember"]');
+            
+            const contact = contactInput.value.trim();
+            const password = passInput.value;
+            const remember = rememberInput ? rememberInput.checked : true;
+
+            if (!contact || !password) {
+                showLoginErrorAlert("Please enter your registered Email/Mobile and password.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-login');
+            const btnText = document.getElementById('btn-login-text');
+            btn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span> Authenticating...';
+
+            try {
+                const res = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ contact, password, remember })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    btnText.innerHTML = '✓ Success! Loading...';
+                    window.location.href = data.redirect || '/dashboard';
+                } else {
+                    showLoginErrorAlert(data.error || "❌ Invalid credentials. Check your password or click 'Forgot password?'.");
+                    btn.disabled = false;
+                    btnText.innerHTML = 'Sign In to Studio ➔';
+                    passInput.focus();
+                }
+            } catch (err) {
+                // If fetch fails unexpectedly, proceed with regular form submission
+                e.target.submit();
+            }
+        }
+
+        function showLoginErrorAlert(msg) {
+            let banner = document.getElementById('login-error-banner');
+            if (!banner) {
+                banner = document.createElement('div');
+                banner.id = 'login-error-banner';
+                banner.className = 'auth-error-banner';
+                const form = document.getElementById('login-form');
+                form.parentNode.insertBefore(banner, form);
+            }
+            banner.innerHTML = `<span>⚠️</span><span>${msg}</span>`;
+            banner.classList.remove('hidden');
+        }
+
+        // ============================================================
+        // MODAL FORGOT PASSWORD LOGIC
+        // ============================================================
+        let modalCachedContact = '';
+        let modalCountdown = 60;
+        let modalTimer = null;
+
+        function openForgotModal(e) {
+            if (e) e.preventDefault();
+            clearModalAlerts();
+            
+            // Prefill with login contact if user already typed one
+            const currentLoginContact = document.getElementById('login-contact').value.trim();
+            if (currentLoginContact) {
+                document.getElementById('forgot-contact').value = currentLoginContact;
+            }
+
+            document.getElementById('forgot-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Reset back to Step 1 view
+            document.getElementById('forgot-step1-form').classList.remove('hidden');
+            document.getElementById('forgot-step2-form').classList.add('hidden');
+            document.getElementById('forgot-success-view').classList.add('hidden');
+            document.getElementById('modal-title').textContent = "Reset Password";
+            document.getElementById('modal-subtitle').textContent = "Enter your registered Email or Mobile number to receive a secure 6-digit verification code.";
+
+            setTimeout(() => document.getElementById('forgot-contact').focus(), 150);
+        }
+
+        function closeForgotModal() {
+            document.getElementById('forgot-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+            clearInterval(modalTimer);
+        }
+
+        function handleBackdropClick(e) {
+            if (e.target.id === 'forgot-modal') {
+                closeForgotModal();
+            }
+        }
+
+        // Keyboard Escape Key Handler
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('forgot-modal');
+                if (modal && !modal.classList.contains('hidden')) {
+                    closeForgotModal();
+                }
+            }
+        });
+
+        function showModalError(msg) {
+            const errBox = document.getElementById('modal-alert-error');
+            const errMsg = document.getElementById('modal-alert-error-msg');
+            const infoBox = document.getElementById('modal-alert-info');
+            infoBox.classList.add('hidden');
+            errMsg.textContent = msg;
+            errBox.classList.remove('hidden');
+        }
+
+        function showModalInfo(msg) {
+            const errBox = document.getElementById('modal-alert-error');
+            const infoBox = document.getElementById('modal-alert-info');
+            const infoMsg = document.getElementById('modal-alert-info-msg');
+            errBox.classList.add('hidden');
+            infoMsg.textContent = msg;
+            infoBox.classList.remove('hidden');
+        }
+
+        function clearModalAlerts() {
+            document.getElementById('modal-alert-error').classList.add('hidden');
+            document.getElementById('modal-alert-info').classList.add('hidden');
+        }
+
+        function startModalResendTimer() {
+            clearInterval(modalTimer);
+            modalCountdown = 60;
+            const btn = document.getElementById('forgot-resend-btn');
+            const timerSpan = document.getElementById('forgot-resend-timer');
+            btn.disabled = true;
+
+            modalTimer = setInterval(() => {
+                modalCountdown--;
+                if (timerSpan) timerSpan.textContent = modalCountdown;
+                if (modalCountdown <= 0) {
+                    clearInterval(modalTimer);
+                    btn.disabled = false;
+                    btn.innerHTML = 'Resend Code Now';
+                }
+            }, 1000);
+        }
+
+        async function handleForgotStep1(e) {
+            e.preventDefault();
+            clearModalAlerts();
+
+            const contact = document.getElementById('forgot-contact').value.trim();
+            if (!contact) {
+                showModalError("Please enter your registered Email ID or Mobile number.");
+                return;
+            }
+
+            modalCachedContact = contact;
+            const btn = document.getElementById('btn-forgot-step1');
+            const btnText = document.getElementById('btn-forgot-step1-text');
+            btn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span> Looking up account...';
+
+            try {
+                const res = await fetch('/api/send-forgot-password-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contact: modalCachedContact })
+                });
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    showModalError(data.error || "No account found matching this input.");
+                    btn.disabled = false;
+                    btnText.innerHTML = 'Send Verification Code ➔';
+                    return;
+                }
+
+                document.getElementById('forgot-target-email-display').textContent = data.masked_email || data.email;
+                if (data.simulated_code) {
+                    document.getElementById('forgot-simulated-otp-val').textContent = data.simulated_code;
+                    document.getElementById('hidden-forgot-server-otp').value = data.simulated_code;
+                    document.getElementById('forgot-simulated-otp-box').classList.remove('hidden');
+                } else {
+                    document.getElementById('forgot-simulated-otp-box').classList.add('hidden');
+                }
+
+                // Transition to Step 2
+                document.getElementById('forgot-step1-form').classList.add('hidden');
+                document.getElementById('forgot-step2-form').classList.remove('hidden');
+                document.getElementById('modal-title').textContent = "Enter Code & Reset";
+                document.getElementById('modal-subtitle').textContent = "Verify the 6-digit security code and choose your new password.";
+
+                showModalInfo(data.message || "A 6-digit code has been dispatched to your email.");
+                startModalResendTimer();
+                setTimeout(() => document.getElementById('forgot-otp').focus(), 150);
+
+            } catch (err) {
+                showModalError("Server communication error. Please try again.");
+                btn.disabled = false;
+                btnText.innerHTML = 'Send Verification Code ➔';
+            }
+        }
+
+        function backToForgotStep1() {
+            clearModalAlerts();
+            document.getElementById('forgot-step2-form').classList.add('hidden');
+            document.getElementById('forgot-step1-form').classList.remove('hidden');
+            document.getElementById('modal-title').textContent = "Reset Password";
+            document.getElementById('modal-subtitle').textContent = "Enter your registered Email or Mobile number to receive a secure 6-digit verification code.";
+
+            const btn = document.getElementById('btn-forgot-step1');
+            const btnText = document.getElementById('btn-forgot-step1-text');
+            btn.disabled = false;
+            btnText.innerHTML = 'Send Verification Code ➔';
+        }
+
+        async function resendForgotOtp() {
+            clearModalAlerts();
+            const btn = document.getElementById('forgot-resend-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Resending...';
+
+            try {
+                const res = await fetch('/api/send-forgot-password-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contact: modalCachedContact })
+                });
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    showModalError(data.error || "Unable to resend verification code.");
+                    btn.disabled = false;
+                    btn.innerHTML = 'Resend Code';
+                    return;
+                }
+
+                if (data.simulated_code) {
+                    document.getElementById('forgot-simulated-otp-val').textContent = data.simulated_code;
+                    document.getElementById('hidden-forgot-server-otp').value = data.simulated_code;
+                    document.getElementById('forgot-simulated-otp-box').classList.remove('hidden');
+                }
+
+                showModalInfo("A fresh verification code has been dispatched to your email!");
+                startModalResendTimer();
+            } catch (err) {
+                showModalError("Network error. Please try again.");
+                btn.disabled = false;
+                btn.innerHTML = 'Resend Code';
+            }
+        }
+
+        function evaluateForgotStrength(val) {
+            const str1 = document.getElementById('fstr-1');
+            const str2 = document.getElementById('fstr-2');
+            const str3 = document.getElementById('fstr-3');
+            const str4 = document.getElementById('fstr-4');
+            const label = document.getElementById('forgot-strength-label');
+
+            [str1, str2, str3, str4].forEach(s => s.style.background = 'rgba(255,255,255,0.1)');
+
+            if (!val) {
+                label.textContent = "Strength: None";
+                label.style.color = "var(--text-muted)";
+                return 0;
+            }
+
+            let score = 0;
+            if (val.length >= 6) score++;
+            if (val.length >= 9) score++;
+            if (/[0-9]/.test(val) && /[a-zA-Z]/.test(val)) score++;
+            if (/[^a-zA-Z0-9]/.test(val)) score++;
+
+            if (score === 1) {
+                str1.style.background = "#f43f5e";
+                label.textContent = "Strength: Weak";
+                label.style.color = "#f43f5e";
+            } else if (score === 2) {
+                str1.style.background = "#fb923c";
+                str2.style.background = "#fb923c";
+                label.textContent = "Strength: Fair";
+                label.style.color = "#fb923c";
+            } else if (score === 3) {
+                str1.style.background = "#38bdf8";
+                str2.style.background = "#38bdf8";
+                str3.style.background = "#38bdf8";
+                label.textContent = "Strength: Good";
+                label.style.color = "#38bdf8";
+            } else if (score >= 4) {
+                str1.style.background = "#10b981";
+                str2.style.background = "#10b981";
+                str3.style.background = "#10b981";
+                str4.style.background = "#10b981";
+                label.textContent = "Strength: Excellent";
+                label.style.color = "#10b981";
+            }
+            checkForgotMatch();
+            return score;
+        }
+
+        function checkForgotMatch() {
+            const p1 = document.getElementById('forgot-new-pass').value;
+            const p2 = document.getElementById('forgot-confirm-pass').value;
+            const hint = document.getElementById('forgot-match-hint');
+
+            if (!p2) {
+                hint.style.display = 'none';
+                return;
+            }
+            hint.style.display = 'block';
+            if (p1 === p2) {
+                hint.textContent = '✓ Passwords match';
+                hint.style.color = '#34d399';
+            } else {
+                hint.textContent = '✗ Passwords do not match';
+                hint.style.color = '#fb7185';
+            }
+        }
+
+        async function handleForgotStep2(e) {
+            e.preventDefault();
+            clearModalAlerts();
+
+            const enteredOtp = document.getElementById('forgot-otp').value.trim();
+            const newPassword = document.getElementById('forgot-new-pass').value;
+            const confirmPassword = document.getElementById('forgot-confirm-pass').value;
+            const serverOtp = document.getElementById('hidden-forgot-server-otp').value;
+
+            if (enteredOtp.length !== 6) {
+                showModalError("Please enter the complete 6-digit verification code.");
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                showModalError("Password must be at least 6 characters long.");
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                showModalError("Passwords do not match! Please check and confirm.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-forgot-step2');
+            const btnText = document.getElementById('btn-forgot-step2-text');
+            btn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span> Resetting Password...';
+
+            try {
+                const res = await fetch('/api/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contact: modalCachedContact,
+                        entered_otp: enteredOtp,
+                        new_password: newPassword,
+                        confirm_password: confirmPassword,
+                        server_otp: serverOtp
+                    })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    showModalError(data.error || "Failed to update password. Check your OTP code.");
+                    btn.disabled = false;
+                    btnText.innerHTML = 'Reset Password & Sign In 🚀';
+                    return;
+                }
+
+                // Show Step 3 Success View
+                document.getElementById('forgot-step2-form').classList.add('hidden');
+                document.getElementById('forgot-success-view').classList.remove('hidden');
+                document.getElementById('modal-title').textContent = "Password Updated";
+                document.getElementById('modal-subtitle').textContent = "Your password has been changed successfully.";
+                clearModalAlerts();
+
+            } catch (err) {
+                showModalError("Network communication error. Please try again.");
+                btn.disabled = false;
+                btnText.innerHTML = 'Reset Password & Sign In 🚀';
+            }
+        }
+
+        function proceedToLoginAfterReset() {
+            closeForgotModal();
+            // Fill the contact input on the main login form
+            if (modalCachedContact) {
+                document.getElementById('login-contact').value = modalCachedContact;
+            }
+            // Show success banner on main login card
+            const banner = document.getElementById('login-feedback-banner');
+            const text = document.getElementById('login-feedback-text');
+            const errBanner = document.getElementById('login-error-banner');
+            if (errBanner) errBanner.classList.add('hidden');
+            text.textContent = "Password updated! You can now log in with your new password.";
+            banner.classList.remove('hidden');
+            // Clear and focus password field
+            const passField = document.getElementById('login-password');
+            passField.value = '';
+            passField.focus();
+        }
+    </script>
+</body>
+</html>

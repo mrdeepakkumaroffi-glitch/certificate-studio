@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - Certificate Studio Pro</title>
+    <!-- Master Ultra-Animated Theme -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+            position: relative;
+        }
+
+        .auth-card {
+            width: 520px;
+            max-width: 100%;
+            padding: 42px 38px;
+            text-align: center;
+            animation: authEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        @keyframes authEntrance {
+            from { opacity: 0; transform: translateY(35px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .auth-logo-symbol {
+            width: 60px;
+            height: 60px;
+            border-radius: 20px;
+            background: var(--grad-primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+            box-shadow: 0 12px 30px rgba(236, 72, 153, 0.45);
+            margin-bottom: 16px;
+            animation: pulseLogo 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseLogo {
+            0% { transform: scale(1); box-shadow: 0 12px 30px rgba(236, 72, 153, 0.45); }
+            100% { transform: scale(1.06); box-shadow: 0 18px 40px rgba(139, 92, 246, 0.65); }
+        }
+
+        .step-progress-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 26px;
+        }
+
+        .step-dot {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            transition: all 0.3s;
+        }
+
+        .step-dot.active {
+            color: #38bdf8;
+        }
+
+        .step-dot.completed {
+            color: #34d399;
+        }
+
+        .step-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-family: var(--font-mono);
+        }
+
+        .step-dot.active .step-circle {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: #38bdf8;
+            color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+        }
+
+        .step-dot.completed .step-circle {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+
+        .step-connector {
+            width: 40px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+            text-align: left;
+            position: relative;
+        }
+
+        .form-label {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 16px;
+            pointer-events: none;
+            transition: 0.2s;
+        }
+
+        .input-with-icon {
+            padding-left: 42px !important;
+            padding-right: 42px !important;
+        }
+
+        .toggle-password-btn {
+            position: absolute;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 6px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+
+        .toggle-password-btn:hover {
+            color: #f8fafc;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .hidden { display: none !important; }
+
+        /* Dynamic Notification Banners */
+        .auth-error-banner {
+            background: rgba(244, 63, 94, 0.12);
+            border: 1px solid rgba(244, 63, 94, 0.35);
+            color: #fb7185;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .auth-info-banner {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #34d399;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Email Dispatch Verification Info Card */
+        .email-status-card {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 22px;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .otp-input-box {
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 26px;
+            letter-spacing: 10px;
+            font-weight: 800;
+            color: #38bdf8;
+            padding: 14px 16px;
+        }
+
+        /* Password Strength Meter */
+        .strength-container {
+            margin-top: 8px;
+            margin-bottom: 14px;
+        }
+
+        .strength-bars {
+            display: flex;
+            gap: 4px;
+            height: 4px;
+            margin-bottom: 6px;
+        }
+
+        .strength-segment {
+            flex: 1;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .strength-text {
+            font-size: 11px;
+            font-weight: 700;
+            text-align: right;
+            color: var(--text-muted);
+            transition: 0.3s;
+        }
+
+        .resend-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .resend-btn {
+            background: transparent;
+            border: none;
+            color: #a855f7;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: underline;
+        }
+
+        .resend-btn:disabled {
+            color: var(--text-muted);
+            cursor: not-allowed;
+            text-decoration: none;
+        }
+
+        .link-footer {
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 18px;
+        }
+
+        .link-footer a {
+            color: #38bdf8;
+            text-decoration: none;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+        .link-footer a:hover {
+            color: #ec4899;
+            text-decoration: underline;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <!-- Living Animated Ambient Aurora Mesh Background -->
+    <div class="ambient-mesh">
+        <div class="aurora-orb orb-1"></div>
+        <div class="aurora-orb orb-2"></div>
+        <div class="aurora-orb orb-3"></div>
+        <div class="mesh-grid"></div>
+    </div>
+
+    <div class="auth-container">
+        <div class="ultra-card auth-card">
+            
+            <div class="auth-logo-symbol">✨</div>
+
+            <div class="badge-pill badge-pill-cyan" style="margin-bottom: 12px;">
+                <span class="pulse-dot" style="color: #38bdf8;"></span>
+                <span>Pro Member Access</span>
+            </div>
+
+            <h1 style="font-size: 26px; font-weight: 900; margin-bottom: 6px;">
+                Create <span class="gradient-text">Studio Account</span>
+            </h1>
+            <p style="color: var(--text-secondary); font-size: 13.5px; margin-bottom: 22px;">
+                Join Certificate Studio to design, automate, and dispatch certificates with cloud syncing.
+            </p>
+
+            <!-- Step Progress Indicator -->
+            <div class="step-progress-bar">
+                <div class="step-dot active" id="dot-step-1">
+                    <div class="step-circle" id="circle-step-1">1</div>
+                    <span>Account Details</span>
+                </div>
+                <div class="step-connector" id="step-connector"></div>
+                <div class="step-dot" id="dot-step-2">
+                    <div class="step-circle" id="circle-step-2">2</div>
+                    <span>Email OTP & Password</span>
+                </div>
+            </div>
+
+            <!-- Global Error and Success Alerts -->
+            <div id="alert-error" class="auth-error-banner hidden">
+                <span>⚠️</span>
+                <span id="alert-error-msg"></span>
+            </div>
+
+            <div id="alert-info" class="auth-info-banner hidden">
+                <span>✅</span>
+                <span id="alert-info-msg"></span>
+            </div>
+
+            {% if error %}
+            <div class="auth-error-banner">
+                <span>⚠️</span>
+                <span>{{ error }}</span>
+            </div>
+            {% endif %}
+
+            <!-- ========================================================
+                 STEP 1: Full Name, Mobile Number & Email ID
+                 ======================================================== -->
+            <form id="step1-form" onsubmit="handleStep1Submit(event)">
+                <div class="form-group">
+                    <label class="form-label">Full Name:</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="fullname" class="glow-input input-with-icon" placeholder="e.g. Alex Morgan" required autofocus>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mobile Number:</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">📱</span>
+                        <input type="tel" id="mobile" class="glow-input input-with-icon" placeholder="e.g. 9876543210" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email ID (for OTP verification):</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">✉️</span>
+                        <input type="email" id="email" class="glow-input input-with-icon" placeholder="e.g. alex@company.com" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="glow-btn-primary" id="btn-step1" style="width: 100%; padding: 14px; font-size: 15px; margin-top: 10px;">
+                    <span id="btn-step1-text">Send Verification Code to Email</span>
+                    <span>➔</span>
+                </button>
+            </form>
+
+
+            <!-- ========================================================
+                 STEP 2: Enter Email OTP & Create Password
+                 ======================================================== -->
+            <form id="step2-form" class="hidden" onsubmit="handleStep2Submit(event)">
+                
+                <!-- Email Status Card with Edit Option -->
+                <div class="email-status-card">
+                    <div>
+                        <div style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Verification Code Dispatched:
+                        </div>
+                        <div style="font-size: 14px; font-weight: 800; color: #f8fafc; margin-top: 2px;" id="display-target-email">
+                            user@example.com
+                        </div>
+                    </div>
+                    <button type="button" class="glow-btn-secondary" onclick="backToStep1()" style="padding: 6px 12px; font-size: 11px; border-radius: 8px;">
+                        ✏️ Edit Email
+                    </button>
+                </div>
+
+                <!-- Simulated OTP Banner (Shown if SMTP credentials require setup) -->
+                <div id="simulated-otp-box" class="hidden" style="background: rgba(139, 92, 246, 0.12); border: 1px dashed #8b5cf6; border-radius: 12px; padding: 12px 14px; margin-bottom: 18px; text-align: center;">
+                    <div style="font-size: 11.5px; color: #cbd5e1; margin-bottom: 4px;">Development Mode Verification Token:</div>
+                    <div style="font-family: var(--font-mono); font-size: 22px; font-weight: 800; color: #38bdf8; letter-spacing: 6px;" id="simulated-otp-value"></div>
+                </div>
+
+                <!-- 6-Digit OTP Field -->
+                <div class="form-group">
+                    <label class="form-label" style="justify-content: center;">Enter 6-Digit Verification Code:</label>
+                    <input type="text" id="entered_otp" maxlength="6" class="glow-input otp-input-box" placeholder="• • • • • •" required autocomplete="one-time-code">
+                    
+                    <div class="resend-box">
+                        <span>Didn't receive email? Check spam.</span>
+                        <button type="button" class="resend-btn" id="resend-btn" onclick="resendOtp()">
+                            Resend Code (<span id="resend-timer">60</span>s)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Password Creation Field -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <span>Create Password:</span>
+                        <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Minimum 6 characters</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="new_password" class="glow-input input-with-icon" placeholder="Create a secure password" required oninput="evaluatePasswordStrength(this.value)">
+                        <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('new_password', this)" title="Show/Hide Password">
+                            👁️
+                        </button>
+                    </div>
+
+                    <!-- Password Strength Meter -->
+                    <div class="strength-container">
+                        <div class="strength-bars">
+                            <div class="strength-segment" id="str-1"></div>
+                            <div class="strength-segment" id="str-2"></div>
+                            <div class="strength-segment" id="str-3"></div>
+                            <div class="strength-segment" id="str-4"></div>
+                        </div>
+                        <div class="strength-text" id="strength-label">Password Strength: None</div>
+                    </div>
+                </div>
+
+                <!-- Confirm Password Field -->
+                <div class="form-group">
+                    <label class="form-label">Confirm Password:</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔐</span>
+                        <input type="password" id="confirm_password" class="glow-input input-with-icon" placeholder="Re-enter your password" required oninput="checkPasswordMatch()">
+                        <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('confirm_password', this)" title="Show/Hide Password">
+                            👁️
+                        </button>
+                    </div>
+                    <div id="match-hint" style="font-size: 11px; font-weight: 600; margin-top: 5px; display: none;"></div>
+                </div>
+
+                <!-- Hidden Fallback Server OTP -->
+                <input type="hidden" id="hidden-server-otp">
+
+                <button type="submit" class="glow-btn-emerald" id="btn-step2" style="width: 100%; padding: 14px; font-size: 15px; margin-top: 8px; justify-content: center;">
+                    <span id="btn-step2-text">Verify & Complete Registration</span>
+                    <span>🚀</span>
+                </button>
+            </form>
+
+            <div class="link-footer">
+                Already registered? <a href="/login">Sign In with Email or Mobile</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cachedUserData = { name: '', mobile: '', email: '' };
+        let resendCountdown = 60;
+        let countdownTimer = null;
+
+        // Alerts helper
+        function showError(msg) {
+            const errBox = document.getElementById('alert-error');
+            const errMsg = document.getElementById('alert-error-msg');
+            const infoBox = document.getElementById('alert-info');
+            infoBox.classList.add('hidden');
+            errMsg.textContent = msg;
+            errBox.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showInfo(msg) {
+            const errBox = document.getElementById('alert-error');
+            const infoBox = document.getElementById('alert-info');
+            const infoMsg = document.getElementById('alert-info-msg');
+            errBox.classList.add('hidden');
+            infoMsg.textContent = msg;
+            infoBox.classList.remove('hidden');
+        }
+
+        function clearAlerts() {
+            document.getElementById('alert-error').classList.add('hidden');
+            document.getElementById('alert-info').classList.add('hidden');
+        }
+
+        // Toggle Password Show/Hide
+        function togglePasswordVisibility(fieldId, btn) {
+            const field = document.getElementById(fieldId);
+            if (field.type === 'password') {
+                field.type = 'text';
+                btn.textContent = '🔒';
+            } else {
+                field.type = 'password';
+                btn.textContent = '👁️';
+            }
+        }
+
+        // Real-time password strength meter
+        function evaluatePasswordStrength(val) {
+            const str1 = document.getElementById('str-1');
+            const str2 = document.getElementById('str-2');
+            const str3 = document.getElementById('str-3');
+            const str4 = document.getElementById('str-4');
+            const label = document.getElementById('strength-label');
+
+            [str1, str2, str3, str4].forEach(s => s.style.background = 'rgba(255,255,255,0.1)');
+
+            if (!val) {
+                label.textContent = "Password Strength: None";
+                label.style.color = "var(--text-muted)";
+                return 0;
+            }
+
+            let score = 0;
+            if (val.length >= 6) score++;
+            if (val.length >= 9) score++;
+            if (/[0-9]/.test(val) && /[a-zA-Z]/.test(val)) score++;
+            if (/[^a-zA-Z0-9]/.test(val)) score++;
+
+            if (score === 1) {
+                str1.style.background = "#f43f5e";
+                label.textContent = "Strength: Weak";
+                label.style.color = "#f43f5e";
+            } else if (score === 2) {
+                str1.style.background = "#fb923c";
+                str2.style.background = "#fb923c";
+                label.textContent = "Strength: Fair";
+                label.style.color = "#fb923c";
+            } else if (score === 3) {
+                str1.style.background = "#38bdf8";
+                str2.style.background = "#38bdf8";
+                str3.style.background = "#38bdf8";
+                label.textContent = "Strength: Good";
+                label.style.color = "#38bdf8";
+            } else if (score >= 4) {
+                str1.style.background = "#10b981";
+                str2.style.background = "#10b981";
+                str3.style.background = "#10b981";
+                str4.style.background = "#10b981";
+                label.textContent = "Strength: Excellent";
+                label.style.color = "#10b981";
+            }
+            checkPasswordMatch();
+            return score;
+        }
+
+        function checkPasswordMatch() {
+            const p1 = document.getElementById('new_password').value;
+            const p2 = document.getElementById('confirm_password').value;
+            const hint = document.getElementById('match-hint');
+
+            if (!p2) {
+                hint.style.display = 'none';
+                return;
+            }
+
+            hint.style.display = 'block';
+            if (p1 === p2) {
+                hint.style.color = '#34d399';
+                hint.textContent = '✓ Passwords match';
+            } else {
+                hint.style.color = '#fb7185';
+                hint.textContent = '✗ Passwords do not match';
+            }
+        }
+
+        // STEP 1 SUBMIT: Send OTP to Email
+        async function handleStep1Submit(e) {
+            e.preventDefault();
+            clearAlerts();
+
+            const name = document.getElementById('fullname').value.trim();
+            const mobile = document.getElementById('mobile').value.trim();
+            const email = document.getElementById('email').value.trim();
+
+            if (!name || !mobile || !email) {
+                showError("Please fill in all fields (Name, Mobile, and Email ID).");
+                return;
+            }
+
+            const btn = document.getElementById('btn-step1');
+            const btnText = document.getElementById('btn-step1-text');
+            btn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span> Dispatching OTP to Email...';
+
+            cachedUserData = { name, mobile, email };
+
+            try {
+                const res = await fetch('/api/send-registration-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, mobile, email })
+                });
+
+                const data = await res.json();
+                btn.disabled = false;
+                btnText.textContent = 'Send Verification Code to Email';
+
+                if (data.success) {
+                    showInfo(data.message || `Verification code sent to ${email}!`);
+                    
+                    // Display target email in Step 2
+                    document.getElementById('display-target-email').textContent = email;
+
+                    if (data.simulated_code) {
+                        document.getElementById('simulated-otp-box').classList.remove('hidden');
+                        document.getElementById('simulated-otp-value').textContent = data.simulated_code;
+                        document.getElementById('hidden-server-otp').value = data.simulated_code;
+                    }
+
+                    // Switch UI to Step 2
+                    transitionToStep2();
+                    startResendTimer();
+                } else {
+                    showError(data.error || "Failed to dispatch verification code. Please check your details.");
+                }
+            } catch (err) {
+                btn.disabled = false;
+                btnText.textContent = 'Send Verification Code to Email';
+                showError(`Network connection error: ${err.message}`);
+            }
+        }
+
+        function transitionToStep2() {
+            document.getElementById('step1-form').classList.add('hidden');
+            document.getElementById('step2-form').classList.remove('hidden');
+
+            document.getElementById('dot-step-1').classList.remove('active');
+            document.getElementById('dot-step-1').classList.add('completed');
+            document.getElementById('circle-step-1').textContent = '✓';
+
+            document.getElementById('step-connector').style.background = '#10b981';
+
+            document.getElementById('dot-step-2').classList.add('active');
+            document.getElementById('entered_otp').focus();
+        }
+
+        function backToStep1() {
+            clearAlerts();
+            document.getElementById('step2-form').classList.add('hidden');
+            document.getElementById('step1-form').classList.remove('hidden');
+
+            document.getElementById('dot-step-1').classList.add('active');
+            document.getElementById('dot-step-1').classList.remove('completed');
+            document.getElementById('circle-step-1').textContent = '1';
+
+            document.getElementById('step-connector').style.background = 'rgba(255, 255, 255, 0.1)';
+            document.getElementById('dot-step-2').classList.remove('active');
+        }
+
+        // STEP 2 SUBMIT: Verify OTP & Create Password
+        async function handleStep2Submit(e) {
+            e.preventDefault();
+            clearAlerts();
+
+            const entered_otp = document.getElementById('entered_otp').value.trim();
+            const password = document.getElementById('new_password').value;
+            const confirm_password = document.getElementById('confirm_password').value;
+            const server_otp = document.getElementById('hidden-server-otp').value;
+
+            if (!entered_otp || entered_otp.length < 4) {
+                showError("Please enter the complete 6-digit verification code sent to your email.");
+                return;
+            }
+
+            if (!password || password.length < 6) {
+                showError("Password must be at least 6 characters in length.");
+                return;
+            }
+
+            if (password !== confirm_password) {
+                showError("Passwords do not match! Please check and confirm your password.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-step2');
+            const btnText = document.getElementById('btn-step2-text');
+            btn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span> Verifying Code & Creating Account...';
+
+            try {
+                const res = await fetch('/verify-register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: cachedUserData.name,
+                        mobile: cachedUserData.mobile,
+                        email: cachedUserData.email,
+                        entered_otp: entered_otp,
+                        server_otp: server_otp,
+                        password: password,
+                        confirm_password: confirm_password
+                    })
+                });
+
+                const data = await res.json();
+                btn.disabled = false;
+                btnText.textContent = 'Verify & Complete Registration';
+
+                if (data.success) {
+                    showInfo("🎉 Account successfully verified and created! Redirecting to Studio Dashboard...");
+                    setTimeout(() => {
+                        window.location.href = data.redirect || '/dashboard';
+                    }, 800);
+                } else {
+                    showError(data.error || "Verification failed. Please check the code and try again.");
+                }
+            } catch (err) {
+                btn.disabled = false;
+                btnText.textContent = 'Verify & Complete Registration';
+                showError(`Error processing registration: ${err.message}`);
+            }
+        }
+
+        // Resend OTP logic with timer
+        function startResendTimer() {
+            resendCountdown = 60;
+            const resendBtn = document.getElementById('resend-btn');
+            const resendTimer = document.getElementById('resend-timer');
+            resendBtn.disabled = true;
+
+            clearInterval(countdownTimer);
+            countdownTimer = setInterval(() => {
+                resendCountdown--;
+                resendTimer.textContent = resendCountdown;
+                if (resendCountdown <= 0) {
+                    clearInterval(countdownTimer);
+                    resendBtn.disabled = false;
+                    resendBtn.textContent = "Resend Code";
+                }
+            }, 1000);
+        }
+
+        async function resendOtp() {
+            clearAlerts();
+            showInfo("Resending verification code to " + cachedUserData.email + "...");
+            try {
+                const res = await fetch('/api/send-registration-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(cachedUserData)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showInfo("A fresh 6-digit code has been dispatched to your email!");
+                    if (data.simulated_code) {
+                        document.getElementById('simulated-otp-value').textContent = data.simulated_code;
+                        document.getElementById('hidden-server-otp').value = data.simulated_code;
+                    }
+                    startResendTimer();
+                } else {
+                    showError(data.error || "Failed to resend code.");
+                }
+            } catch (err) {
+                showError("Network error while resending OTP.");
+            }
+        }
+
+        // Restrict OTP input to numbers
+        document.getElementById('entered_otp').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    </script>
+</body>
+</html>
