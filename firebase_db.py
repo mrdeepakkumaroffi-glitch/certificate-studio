@@ -7,7 +7,7 @@ from auth_jwt import hash_password, verify_password
 load_dotenv()
 
 CREDENTIALS_PATH = os.getenv("FIREBASE_CREDENTIALS_PATH", "firebase_credentials.json")
-LOCAL_STORE_PATH = "firebase_local_store.json"
+LOCAL_STORE_PATH = '/tmp/firebase_local_store.json'
 
 _firestore_client = None
 _is_live_firestore = False
